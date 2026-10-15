@@ -5,7 +5,7 @@ CONFIDENTIAL AND PROPRIETARY. See LICENSE for terms.
 SPDX-License-Identifier: LicenseRef-Proprietary
 -->
 
-# Khipu Methods Corpus
+# Telosyn Notebooks for Policy Analysis
 
 **A reproducible portfolio of public-data case studies in Python: for each of
 eighteen U.S. federal and institutional sources, what it measures, what it
@@ -76,8 +76,8 @@ first.
 ## Reproduce
 
 ```bash
-git clone https://github.com/KhipuResearch/khipu-methods-corpus.git
-cd khipu-methods-corpus
+git clone https://github.com/KhipuResearch/telosyn-notebooks-for-policy-analysis.git
+cd telosyn-notebooks-for-policy-analysis
 pip install -e '.[notebooks,test]'
 pytest tests/                                  # 1,500+ tests; no network, no keys
 jupyter lab projects/                          # the notebooks need your own free API keys

@@ -11,7 +11,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 ## 1. Title
 
-This repository is the public distribution of the Khipu Methods Corpus. It is
+This repository is the public distribution of the Telosyn Notebooks for Policy Analysis. It is
 built from the private source of record, `krl-tutorials`, and restructured as a
 reproducible research portfolio: numbered projects, a `src/` package, a
 documented data lifecycle, generated project READMEs, a citation file, a
@@ -41,7 +41,16 @@ produced thirty-three READMEs reading "not applicable" under every heading
 that matters, in a repository whose name promised the opposite.
 
 The owner chose the data-methods framing, with the layout left open for a
-causal track later. The licence stays proprietary under ADR 0005; the working
+causal track later.
+
+**On the name.** The first build carried the README's existing title, *Khipu
+Methods Corpus*. It was renamed *Telosyn Notebooks for Policy Analysis* before
+first push, on proprietary grounds: the name now matches the owner the licence,
+the citation file and every header already name, so attribution is consistent
+across the record; Khipu℠ is a service mark for the analyst workspace, and a
+repository of notebooks is a work rather than a service, so the corporate name
+keeps the mark's use controlled; and under the `KhipuResearch` organisation the
+Telosyn name prompts the ownership question the README's first line answers. The licence stays proprietary under ADR 0005; the working
 folder's "Open-Source" was dropped from the name because it was not true.
 
 ## 3. Decision

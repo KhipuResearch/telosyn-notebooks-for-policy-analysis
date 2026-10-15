@@ -43,7 +43,7 @@ licence banners into a repository intended for public reading.
 **The showcase was a second, unfinished project.** Its own `LICENSE`, MkDocs
 site, Docker and Binder recipes, five roadmap and TODO documents, 52 MB of
 notebooks with embedded plotting bundles, and badges and clone commands pointing
-at `github.com/KR-Labs/khipu-showcase` — a repository that, as
+at a public URL under a retired organisation name — a repository that, as
 `khipu-showcase/docs/about/license.md` itself records, does not exist.
 
 ## 3. Decision

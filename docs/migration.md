@@ -78,8 +78,8 @@ its absence is deliberate rather than an omission.
 | `09_planned/D32_freedom_civil` | Code-identical to D01. |
 | ~~`09_planned/D33_gender_equality`~~ | Code-identical to D01. **Retired, and a real notebook commissioned in its place** — `projects/03-inequality-demographics/D33_gender_earnings_gap`, built on ACS `B20017` and `B20005`. That is a new notebook, not a port: it shares the domain name and nothing else. |
 | `test_kernel.ipynb` | Zero cells. |
-| `D34_media_intelligence_advanced copy.ipynb` | Byte-identical duplicate. |
-| `spatial_media_intelligence_demo copy 2 / copy 4.ipynb` | Renamed stale backups, never executed, four cells newline-corrupted into comments. |
+| `D34_variant_b copy.ipynb` | Byte-identical duplicate. |
+| `D34_demo copy 2 / copy 4.ipynb` | Renamed stale backups, never executed, four cells newline-corrupted into comments. |
 
 > **Correction (2026-09-15): "SHA-256 identical to D01" was wrong, and the truth is worse.**
 > An earlier revision of this table claimed the three artifacts were SHA-256 identical to D01.

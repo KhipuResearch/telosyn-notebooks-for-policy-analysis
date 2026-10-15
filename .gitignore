@@ -122,7 +122,7 @@ _to_delete/
 ~/
 
 # No archives. Three copies of a 56 MB Google Cloud CLI tarball were tracked in
-# notebooks/10_advanced_nlp/D34_media_intelligence/ -- 168 MB of vendor binary,
+# notebooks/10_advanced_nlp/D34/ -- 168 MB of vendor binary,
 # 58% of everything the repository tracked, referenced by no file and absent
 # from the audit manifest.
 *.tar.gz

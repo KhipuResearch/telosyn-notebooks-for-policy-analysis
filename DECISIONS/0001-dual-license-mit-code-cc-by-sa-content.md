@@ -20,7 +20,7 @@ Forensic evidence from `SPEC.md` §10.1 and Appendix A.2:
 
 | Location | Declares | Evidence |
 |---|---|---|
-| `LICENSE` | Proprietary (Sundiata Giddasira, Inc. → Deloatch, Williams, Faison & Parker, LLLP) | `LICENSE:1-8` (2,268 B) |
+| `LICENSE` | Proprietary (the owner then named → Deloatch, Williams, Faison & Parker, LLLP) | `LICENSE:1-8` (2,268 B) |
 | `LICENSE-CODE` | **Identical** proprietary text; advertised in README as MIT | `LICENSE-CODE:1-8` (2,268 B, SHA-identical to `LICENSE`) |
 | `LICENSE-CONTENT` | **Identical** proprietary text; advertised in README as CC-BY-SA-4.0 | `LICENSE-CONTENT:1-8` (2,268 B, SHA-identical to `LICENSE`) |
 | `pyproject.toml:49-50` | `LicenseRef-Proprietary` | `pyproject.toml:49-50` |
@@ -50,7 +50,7 @@ No CI gate scans for self-contradiction across these sources. `markdown-link-che
 
 ### Alternative A — Adopt genuine dual-licensing (replace `LICENSE-CODE` with real MIT text, `LICENSE-CONTENT` with CC-BY-SA-4.0)
 
-**Rejected at this commit because:** the license chain recorded in `LICENSE:1-8` (`Sundiata Giddasira, Inc. → Deloatch, Williams, Faison & Parker, LLLP`) is an exclusive commercial arrangement. Relaxing it to MIT requires counterparty consent documented in a separate legal process — outside engineering scope. This alternative remains open as a future ADR (0004+) once legal sign-off exists.
+**Rejected at this commit because:** the license chain recorded in `LICENSE:1-8` (the owner then named → Deloatch, Williams, Faison & Parker, LLLP) is an exclusive commercial arrangement. Relaxing it to MIT requires counterparty consent documented in a separate legal process — outside engineering scope. This alternative remains open as a future ADR (0004+) once legal sign-off exists.
 
 ### Alternative B — Delete `LICENSE-CODE` and `LICENSE-CONTENT` and normalize everything to proprietary
 
@@ -76,7 +76,7 @@ No CI gate scans for self-contradiction across these sources. `markdown-link-che
 - The Tier U `README.md` rewrite removes the MIT+CC-BY-SA-4.0 advertising block and installs a §3 "License Posture (Read Before Contributing)" warning pointing to this ADR.
 - `policy/ci-authority.yaml` declares `LICENSE`, `LICENSE-CODE`, `LICENSE-CONTENT`, `pyproject.toml`, and all `notebooks/**/*.ipynb` as `must_never_modify` for CI auto-fix agents — this ADR is the justification.
 - Downstream learners reading the notebook SPDX banner will continue to see `MIT AND CC-BY-SA-4.0` until remediation lands. Consumers MUST NOT rely on notebook banners as the source of truth for distribution terms.
-- The ECC `security-reviewer` agent (invoked on escalation per CE/ECC boundary in `Private IP/CLAUDE.md`) will flag this gap on every PR that touches any `LICENSE*` file or any notebook cell-0.
+- The ECC `security-reviewer` agent (invoked on escalation per the repository-group CE/ECC boundary) will flag this gap on every PR that touches any `LICENSE*` file or any notebook cell-0.
 - `CONTRIBUTING.md:150-159` becomes a document that misrepresents the legal posture until corrected. Accepting contributions in this state requires an explicit contributor acknowledgment; `<OWNER_TBD:legal-and-engineering-lead>` must decide whether to pause merges until remediation.
 
 ## 7. Reversal Conditions
@@ -154,7 +154,7 @@ document footers.
 **Resolution.** Aligned to the parent repository's posture — proprietary, Telosyn, Inc.
 Two facts made that clean rather than a relicensing question:
 
-1. **The Apache declaration was never acted on.** `github.com/KR-Labs/khipu-showcase`
+1. **The Apache declaration was never acted on.** The showcase repository it advertised (under a retired organisation name)
    returns **404**; the project was never published at the address it advertised, so no
    copy was ever distributed under Apache terms and no irrevocable grant exists.
 2. **One copyright holder, no vendored third-party source.** `src/` carries a single

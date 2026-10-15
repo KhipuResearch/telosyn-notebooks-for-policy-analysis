@@ -1,8 +1,6 @@
 # © 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
 # Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
-#
-# CONFIDENTIAL AND PROPRIETARY. Unauthorized use, reproduction, or
-# distribution is strictly prohibited. See LICENSE for terms.
+# See LICENSE for terms.
 
 """Mock-fixture infrastructure for L15 cardinality regression tests.
 

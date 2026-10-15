@@ -1,8 +1,6 @@
 # © 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
 # Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
-#
-# CONFIDENTIAL AND PROPRIETARY. Unauthorized use, reproduction, or
-# distribution is strictly prohibited. See LICENSE for terms.
+# See LICENSE for terms.
 
 [build-system]
 requires = [
@@ -51,7 +49,7 @@ dependencies = [
 text = "LicenseRef-Proprietary"
 
 [project.urls]
-Repository = "https://github.com/KhipuResearch/krl-tutorials"
+Repository = "https://github.com/KhipuResearch/telosyn-notebooks-for-policy-analysis"
 
 [project.optional-dependencies]
 # Everything a reader needs to open and execute the corpus. Thirteen notebooks

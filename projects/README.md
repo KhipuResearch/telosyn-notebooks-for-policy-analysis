@@ -184,8 +184,9 @@ SHA-256 and cell index in `docs/audits/` becomes meaningless. It lives outside t
 repository; point the verifier at it.
 
 ```
-python scripts/verify_forensic_corpus.py          # exit 0 = intact
-KRL_ROOT=/path/to/KRL python scripts/verify_forensic_corpus.py
+KRL_AUDITED_TREE=/path/to/tree python scripts/verify_forensic_corpus.py          # exit 0 = intact
+KRL_AUDITED_TREE=/path/to/tree KRL_AUDIT_NAMEMAP=~/.krl/audit_namemap_2026-09-13.json \
+    python scripts/verify_forensic_corpus.py
 ```
 
 The check is fail-closed by design: an unresolvable manifest path is an error, never a prompt

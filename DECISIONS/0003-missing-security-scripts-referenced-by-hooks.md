@@ -49,7 +49,7 @@ Inferred from hook id and entry line:
 | Script | Inferred purpose | Downstream effect of absence |
 |---|---|---|
 | `add_copyright_headers.py` | Inject `© 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.` header into Python / Markdown / YAML files missing one | New files can land without copyright headers; manual review catches most but not all |
-| `check_trademarks.py` | Verify `README.md` contains the `KR-Labs™ is a trademark of Sundiata Giddasira, Inc.` line | `README.md` could drift out of trademark compliance without detection |
+| `check_trademarks.py` | Verify `README.md` contains the then-current trademark line (a retired mark and a retired owner name) | `README.md` could drift out of trademark compliance without detection |
 | `inject_watermark.py` | Stamp a release watermark into distributed artifacts before signing | Disabled pipeline would publish unwatermarked artifacts if ever re-enabled |
 | `.secrets.baseline` | Known-non-secret fingerprints to suppress false positives in `detect-secrets` | Every `detect-secrets` run treats the baseline as empty; false-positive-heavy output or outright hook failure |
 
@@ -62,7 +62,7 @@ Inferred from hook id and entry line:
 2. **`.secrets.baseline` MUST be created in the same remediation PR** via `detect-secrets scan > .secrets.baseline` executed in a clean checkout. Without this, hook 3 will continue to fail.
 3. **Until remediation lands, `.pre-commit-config.yaml` carries a KNOWN-BROKEN status.** The Tier U `tests/README.md` and `.github/workflows/README.md` both reference this ADR so contributors understand why pre-commit fails on fresh clone.
 4. **`policy/ci-authority.yaml` marks `.pre-commit-config.yaml` as `may_modify` only via 2-approver PR** — autonomous fixing of broken hooks is forbidden because the "fix" could silently delete the hooks entirely, masking the underlying gap.
-5. **No hook MUST be bypassed with `--no-verify`** — the global rule forbids `--no-verify` across all KRL repos (per `Private IP/CLAUDE.md` CE/ECC boundary). Contributors blocked by this gap must either apply one of §3.1 remediations or surface the block to `<OWNER_TBD:contrib-gate-owner>`.
+5. **No hook MUST be bypassed with `--no-verify`** — the global rule forbids `--no-verify` across all KRL repos (per the repository-group CE/ECC boundary). Contributors blocked by this gap must either apply one of §3.1 remediations or surface the block to `<OWNER_TBD:contrib-gate-owner>`.
 
 ## 4. Alternatives Considered
 
@@ -80,7 +80,7 @@ Inferred from hook id and entry line:
 
 ### Alternative D — Consolidate the outer scripts with similar scripts in sibling KRL repos
 
-**Partially accepted as a follow-up.** `krl-open-core`, `krl-data-connectors`, `krl-model-zoo`, and `krl-dashboard` have analogous `scripts/security/*.py` patterns (or gaps). A cross-repo shared-script package would eliminate duplication but is out of scope for this ADR. Recommend tracking under `Private IP/CLAUDE.md` CE/ECC consolidation work.
+**Partially accepted as a follow-up.** `krl-open-core`, `krl-data-connectors`, `krl-model-zoo`, and `krl-dashboard` have analogous `scripts/security/*.py` patterns (or gaps). A cross-repo shared-script package would eliminate duplication but is out of scope for this ADR. Recommend tracking under the repository-group CE/ECC consolidation work.
 
 ## 5. Trade-offs Accepted
 

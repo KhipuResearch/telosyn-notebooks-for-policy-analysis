@@ -1,7 +1,10 @@
 """Gate 2 — secrets and portability.
 
 Catches F-14 (live API-key prefixes committed in stored outputs) and the 282
-hardcoded ``/Users/...`` paths that make the corpus unrunnable elsewhere.
+hardcoded ``/Users/...`` paths that make the corpus unrunnable elsewhere. Also
+catches the sandbox form of the same defect (``/sessions/...``, ``/mnt/...``): a
+stored output that names the machine that wrote it tells a later reader nothing
+and does not exist for them.
 
 SPDX-License-Identifier: LicenseRef-Proprietary
 """
@@ -13,7 +16,9 @@ from gate_support import Notebook
 
 KEY_NAME = re.compile(r"(?:API_KEY|TOKEN|SECRET|PASSWORD)", re.I)
 KEYISH_VALUE = re.compile(r"\b[A-Za-z0-9_\-]{16,}\b")
-ABSOLUTE_HOME = re.compile(r"(?:/Users/|/home/(?!runner)|C:\\\\Users\\\\)[A-Za-z0-9._\-]+")
+ABSOLUTE_HOME = re.compile(
+    r"(?:/Users/|/home/(?!runner)|/sessions/|/mnt/(?!data)|C:\\\\Users\\\\)[A-Za-z0-9._\-]+"
+)
 LICENSE_BYPASS = re.compile(r"skip_license_check|SKIP_LICENSE_VALIDATION", re.I)
 
 

@@ -353,7 +353,7 @@
       ],
       "anchor_cell": "n/a",
       "evidence": "notebook-validation.yml calls nbformat.read() and prints 'Valid structure' -- validates JSON well-formedness only, never compiles or executes a cell; all 53 pass incl. the 31 that cannot run. tutorial-quality.yml content-quality steps all carry continue-on-error: true (lines 129,183,218,250).",
-      "impact": "5 of 8 workflows disabled (test, tests, lint, security-checks, build-and-sign). <tool>.md's stated requirement 'All notebooks must execute without error via jupyter nbconvert --execute' has no implementing check anywhere.",
+      "impact": "5 of 8 workflows disabled (test, tests, lint, security-checks, build-and-sign). The operating brief's stated requirement 'All notebooks must execute without error via jupyter nbconvert --execute' has no implementing check anywhere.",
       "remediation": "Add a blocking compile gate; remove continue-on-error from the 4 content steps; re-enable security-checks.yml and tests.yml; add an nbconvert --execute job with cached fixtures.",
       "effort": "2h",
       "evidence_grade": "VERIFIED",

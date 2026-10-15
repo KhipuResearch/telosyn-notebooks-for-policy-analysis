@@ -10,7 +10,7 @@ The 33 archived notebooks declare **30 distinct source-sets** spanning roughly 2
 systems. They are not uniformly retrievable, and that — not notebook authoring — is the
 gate on finishing the rebuild.
 
-**Verification status** is explicit. `VERIFIED` means this session reached the endpoint.
+**Verification status** is explicit. `VERIFIED` means this verification run reached the endpoint.
 `UNVERIFIED` means the source is named in the archived config but reachability and access
 terms have not been checked. Nothing here is asserted as available on the strength of the
 old notebooks' own claims, since those claims were part of what the audit found unreliable.

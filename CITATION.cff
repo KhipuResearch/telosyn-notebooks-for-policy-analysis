@@ -3,6 +3,8 @@ message: "If you refer to this corpus, cite it as below. Citation does not imply
 title: "Telosyn Notebooks for Policy Analysis"
 type: software
 authors:
+  - name: "Deloatch, Williams, Faison & Parker, LLLP"
+contact:
   - name: "Telosyn, Inc."
     email: contact@telosyn.co
 version: "1.0.0"

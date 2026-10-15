@@ -63,5 +63,5 @@ Join our community of analysts and data professionals:
 
 ---
 
-© 2026 Telosyn, Inc. All rights reserved.  
+© 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.  
 Khipu℠ is a service mark of Telosyn, Inc.

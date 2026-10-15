@@ -150,8 +150,8 @@ Found a typo or want to improve an existing tutorial?
 ## License
 
 **This repository is proprietary.** See [LICENSE](LICENSE): the Software is the
-exclusive property of Telosyn, Inc., licensed exclusively to Deloatch, Williams,
-Faison & Parker, LLLP, and it may not be copied, modified, redistributed or used
+exclusive property of Deloatch, Williams, Faison & Parker, LLLP, licensed
+exclusively to Telosyn, Inc., and it may not be copied, modified, redistributed or used
 to create derivative works without prior written consent.
 
 By contributing, you agree that your contributions are licensed on those terms.

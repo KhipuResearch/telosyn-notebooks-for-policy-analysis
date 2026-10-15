@@ -1,5 +1,5 @@
 <!--
-© 2026 Telosyn, Inc. All rights reserved.
+© 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
 Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
 CONFIDENTIAL AND PROPRIETARY. See LICENSE for terms.
 SPDX-License-Identifier: LicenseRef-Proprietary
@@ -128,7 +128,7 @@ requires any private package.
 
 ## License
 
-**Proprietary.** © 2026 Telosyn, Inc. All rights reserved. The Software is the
+**Proprietary.** © 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved. The Software is the
 exclusive property of Deloatch, Williams, Faison & Parker, LLLP and is licensed
 exclusively to Telosyn, Inc. See [LICENSE](LICENSE).
 
@@ -144,5 +144,5 @@ contact@telosyn.co
 
 ---
 
-© 2026 Telosyn, Inc. All rights reserved.
+© 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
 Khipu℠ is a service mark of Telosyn, Inc.

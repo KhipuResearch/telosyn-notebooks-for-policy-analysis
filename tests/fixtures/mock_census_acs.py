@@ -1,4 +1,4 @@
-# © 2026 Telosyn, Inc. All rights reserved.
+# © 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
 # Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
 
 """Census ACS public connector mock-fixture (D02/D06/D07/D27 shared dependency).

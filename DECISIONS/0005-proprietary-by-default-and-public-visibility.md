@@ -11,7 +11,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 ## 1. Title
 
-Everything in this repository and in the repositories of the <retired-name>
+Everything in this repository and in the repositories of the same
 GitHub organisation is proprietary. Nothing is authorized under MIT, Apache,
 Creative Commons or any other public licence unless that authorization is explicit,
 written, specific to the material, and recorded here. Where a repository is made
@@ -32,7 +32,7 @@ statement that granted permissions in prose without naming one:
 |---|---|
 | `<tool>.md:45` | *"Dual license: MIT for code, CC-BY-SA 4.0 for educational content"* — the operating brief **every <tool> session reads** before touching the repository |
 | `docs/wiki/FAQ.md` | *"Can I use these for teaching a class? **Yes! That's encouraged.** The dual licensing allows: … Modifying for your curriculum … Creating derivative materials"* |
-| `docs/wiki/FAQ.md` | *"Who owns the copyright? <retired-name> retains copyright. Content is dual-licensed"* |
+| `docs/wiki/FAQ.md` | *"Who owns the copyright? [the project's then name] retains copyright. Content is dual-licensed"* |
 | `docs/wiki/Home.md:89` | *"**License**: Dual Licensed (MIT + CC-BY-SA-4.0)"* |
 
 These are worse than a wrong SPDX banner. A banner is a machine-readable claim that

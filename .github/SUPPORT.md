@@ -1,67 +1,32 @@
+<!--
+© 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
+Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
+SPDX-License-Identifier: LicenseRef-Proprietary
+-->
+
 # Support
 
-## Getting Help
+**Questions** about a notebook's reasoning, a source's behaviour, or a method
+choice go in
+[Discussions](https://github.com/KhipuResearch/telosyn-notebooks-for-policy-analysis/discussions).
 
-### Documentation
-- **Main Documentation**: [<retired-name> Tutorials README](../README.md)
-- **Domain-Specific Guides**: Each notebook directory contains a detailed README
-- **License Information**: [LICENSE](../LICENSE) (Proprietary — LicenseRef-Proprietary)
+**Defects** — a figure that does not match its stored output, a provenance
+digest that no longer replays, a claim the source cannot support, a broken
+link — go in
+[Issues](https://github.com/KhipuResearch/telosyn-notebooks-for-policy-analysis/issues/new/choose),
+with the notebook, the cell and the number named.
 
-### Common Issues
+**Security problems** are not reported in public issues. [SECURITY.md](../SECURITY.md)
+says how.
 
-**Q: How do I get started?**  
-A: Start with the fundamentals notebooks in `projects/01-fundamentals/`. Each notebook includes setup instructions and prerequisites.
+**Getting started**, the six free API keys, what a re-run does and does not
+reproduce, and the licence are covered in the
+[wiki](https://github.com/KhipuResearch/telosyn-notebooks-for-policy-analysis/wiki)
+and in `README.md`. Python 3.11 or 3.12.
 
-**Q: What API keys do I need?**  
-A: Most tutorials use publicly available data. Optional API keys:
-- U.S. Census Bureau (free registration)
-- Federal Reserve Economic Data (FRED - free)
-- Bureau of Labor Statistics (BLS - free)
+**Code contributions** are not accepted; [CONTRIBUTING.md](../CONTRIBUTING.md)
+says why and what is welcome instead.
 
-**Q: Can I use this for commercial projects?**  
-A: No. This is proprietary software, not open source. Neither the code nor the content may be copied, modified, redistributed or used to create derivative works — commercially or otherwise — without prior written consent from Telosyn, Inc. Public visibility of this repository grants nothing; see [LICENSE](../LICENSE).
+**Anything else:** contact@telosyn.co.
 
-**Q: Which Python version is supported?**  
-A: Python 3.9+ is recommended. See individual notebook requirements.
-
-### Reporting Issues
-
-If you encounter problems:
-
-1. **Check Existing Issues**: Search [GitHub Issues](https://github.com/the private source repository/issues) first
-2. **Provide Context**: 
-   - Which notebook/domain?
-   - Python version and OS
-   - Error messages (full traceback)
-   - Steps to reproduce
-3. **Create New Issue**: Use our [issue templates](https://github.com/the private source repository/issues/new/choose)
-
-### Contributing
-
-We welcome contributions! See [CONTRIBUTING.md](../CONTRIBUTING.md) for:
-- Code style guidelines
-- How to submit pull requests
-- Tutorial development standards
-- Community guidelines
-
-### Contact
-
-- **General Inquiries**: contact@telosyn.co
-- **Website**: https://github.com/KhipuResearch
-- **GitHub Issues**: For bugs and feature requests
-- **Security Issues**: See [SECURITY.md](../SECURITY.md)
-
-### Community
-
-Join our community of analysts and data professionals:
-- Share your implementations
-- Ask questions and get help
-- Contribute new tutorials
-- Suggest improvements
-
-**Please review our [Code of Conduct](../CODE_OF_CONDUCT.md) before participating.**
-
----
-
-© 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.  
-Khipu℠ is a service mark of Telosyn, Inc.
+[CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) applies to Discussions and Issues.

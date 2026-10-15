@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: General Questions & Support
-    url: https://github.com/the private source repository/discussions
-    about: Ask questions and discuss tutorials with the community
+    url: https://github.com/KhipuResearch/telosyn-notebooks-for-policy-analysis/discussions
+    about: Questions about a notebook's reasoning, a source's behaviour, or a method choice
   - name: Security Vulnerabilities
-    url: https://github.com/the private source repository/security/advisories/new
-    about: Report security issues (please do not file public issues)
-  - name: <retired-name>
-    url: https://github.com/KhipuResearch
-    about: Visit our official website for more information
+    url: https://github.com/KhipuResearch/telosyn-notebooks-for-policy-analysis/blob/main/SECURITY.md
+    about: Do not file a public issue; SECURITY.md says how to report
+  - name: Telosyn, Inc.
+    url: https://www.telosyn.co
+    about: The maintainer of this repository

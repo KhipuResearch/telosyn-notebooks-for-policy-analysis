@@ -3202,7 +3202,7 @@ DATAVERSE_HOST: Final[str] = "https://dataverse.harvard.edu"
 #: not entitled to a public archive's bandwidth, and saying who is asking is the
 #: minimum courtesy -- so this is the right behaviour, not a workaround.
 DATAVERSE_HEADERS: Final[dict[str, str]] = {
-    "User-Agent": "the private source repository/1.0 (research corpus; +https://github.com/the private source repository)"
+    "User-Agent": "telosyn-notebooks/1.0 (research corpus; +https://github.com/KhipuResearch/telosyn-notebooks-for-policy-analysis)"
 }
 
 #: The MIT Election Data and Science Lab presidential returns, by state and year.

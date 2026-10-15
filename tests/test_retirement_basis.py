@@ -45,11 +45,12 @@ def _archive_root() -> Path | None:
     artifact this repository no longer contains, and pretending otherwise would
     be a test that passes because it checks nothing.
     """
-    if (env := os.environ.get("KRL_ARCHIVE_ROOT")):
+    if env := os.environ.get("KRL_ARCHIVE_ROOT"):
         root = Path(env).expanduser().resolve()
         return root if root.is_dir() else None
-    default = REPO_ROOT.parents[1] / "backups" / "backup_20251210_235356" / "the private source repository"
-    return default if default.is_dir() else None
+    # No default: the archive lives outside this repository and its location is
+    # not published. Without KRL_ARCHIVE_ROOT these checks skip, by design.
+    return None
 
 
 ARCHIVE_ROOT: Final = _archive_root()

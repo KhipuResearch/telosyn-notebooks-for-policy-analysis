@@ -127,7 +127,11 @@ def test_every_dataverse_request_identifies_the_client() -> None:
         assert kwargs.get("headers") == DATAVERSE_HEADERS, (
             f"{url} went out without the identifying user agent"
         )
-    assert "the private source repository" in DATAVERSE_HEADERS["User-Agent"]
+    ua = DATAVERSE_HEADERS["User-Agent"]
+    assert ua.startswith("telosyn-notebooks/"), ua
+    assert "github.com/KhipuResearch/telosyn-notebooks-for-policy-analysis" in ua, (
+        "the user agent must name the public repository so the host can see who is asking"
+    )
 
 
 def test_a_403_says_what_it_probably_means() -> None:

@@ -1,7 +1,6 @@
 <!--
 © 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
 Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
-CONFIDENTIAL AND PROPRIETARY. See LICENSE for terms.
 SPDX-License-Identifier: LicenseRef-Proprietary
 -->
 

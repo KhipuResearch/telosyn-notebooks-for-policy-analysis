@@ -3,7 +3,7 @@
   "artifact_id": "KRL-TUT-AUDIT-2026-09-13",
   "generated": "2026-09-13",
   "corpus": {
-    "path": "backups/backup_20251210_235356/the private source repository/notebooks",
+    "path": "<audited-tree>",
     "notebooks": 53,
     "code_cells": 691,
     "identical_to_live": 43,
@@ -145,16 +145,16 @@
       "category": "causal-inference",
       "title": "'Causal' is a naming convention; and the one notebook with real causal machinery reports failed falsification tests as passed",
       "affected_files": [
-        "<unpublished-project>_gru",
-        "economic_<unpublished-project>",
-        "economic_<unpublished-project> copy",
-        "<unpublished-project>_lstm",
-        "<unpublished-project>_gru_county_level",
-        "<unpublished-project>_gru_tract_level",
-        "<unpublished-project>_ridge_state_level"
+        "ML_06",
+        "ML_04",
+        "ML_04 copy",
+        "ML_05",
+        "ML_01",
+        "ML_02",
+        "ML_03"
       ],
       "anchor_cell": "15,24,33,34,36,57,62,73",
-      "evidence": "causal_dag built from list ordering and passed as use_causal_gates=True; no estimand/treatment/adjustment set. diabetes ridge stored output: 'FAIL: Negative control effect is AS STRONG as main effect'; 'FAIL: Statistically significant future->past effect ATE +2.1999pp CI [+1.8202,+2.5914]'; 'WEAK ROBUSTNESS (E<1.5)'; vs cell 57 'Falsification Tests: No association with pre-treatment outcomes' and 'Verdict: Academic peer reviewers will approve this methodology'.",
+      "evidence": "causal_dag built from list ordering and passed as use_causal_gates=True; no estimand/treatment/adjustment set. ML_03 stored output: 'FAIL: Negative control effect is AS STRONG as main effect'; 'FAIL: Statistically significant future->past effect ATE +2.1999pp CI [+1.8202,+2.5914]'; 'WEAK ROBUSTNESS (E<1.5)'; vs cell 57 'Falsification Tests: No association with pre-treatment outcomes' and 'Verdict: Academic peer reviewers will approve this methodology'.",
       "impact": "In 6 of 7 the entire causal content is a hard-coded adjacency matrix passed to a supervised regressor. In the seventh, future poverty 'causes' past diabetes at 3.6x the headline effect and the falsification suite is reported as passed.",
       "remediation": "Withdraw the ATE or explain the negative-control and future->past failures. Current summary cells must not survive either way.",
       "effort": "3d",
@@ -171,9 +171,9 @@
       "category": "integrity",
       "title": "Executed output contradicts the narrative, systematically in the product's favour",
       "affected_files": [
-        "<unpublished-project>_ridge_state_level",
-        "<unpublished-project>_gru_tract_level",
-        "spatial_<unpublished-project>_demo",
+        "ML_03",
+        "ML_02",
+        "D34_demo",
         "D30_subjective_wellbeing"
       ],
       "anchor_cell": "40,64,66,20,36",
@@ -194,7 +194,7 @@
       "category": "fabricated-data",
       "title": "Simulated scraped content with hash-derived word counts reported at a 100% success rate",
       "affected_files": [
-        "D34_<unpublished-project> copy"
+        "D34 copy"
       ],
       "anchor_cell": "48,50,52",
       "evidence": "'content': f\"Simulated content for {url}...\", 'success': True, 'word_count': 150 + (hash(url) % 500)  ... then: print(f\"Success rate: {successful}/{len(scraped_articles)} ({...*100:.1f}%)\")",
@@ -214,9 +214,9 @@
       "category": "fabricated-metrics",
       "title": "Clustering quality metrics fall back to hardcoded constants inside bare except:",
       "affected_files": [
-        "spatial_<unpublished-project>_demo",
-        "khipu_spatial_<unpublished-project>",
-        "spatial_<unpublished-project>_demo 2"
+        "D34_demo",
+        "D34_spatial",
+        "D34_demo 2"
       ],
       "anchor_cell": "13,19,20",
       "evidence": "except:\\n    silhouette_fixed = 0.093\\n    davies_bouldin_fixed = 1.485    # and in khipu/demo2 also: silhouette_adaptive = 0.30; davies_bouldin_adaptive = 1.20",
@@ -256,12 +256,12 @@
       "category": "reproducibility",
       "title": "Execution provenance unsound in 6 of 7 root ML notebooks",
       "affected_files": [
-        "economic_<unpublished-project>",
-        "economic_<unpublished-project> copy",
-        "<unpublished-project>_lstm",
-        "<unpublished-project>_gru",
-        "<unpublished-project>_gru_county_level",
-        "<unpublished-project>_gru_tract_level"
+        "ML_04",
+        "ML_04 copy",
+        "ML_05",
+        "ML_06",
+        "ML_01",
+        "ML_02"
       ],
       "anchor_cell": "42,54",
       "evidence": "3 never executed; healthcare dies at cell 5 ImportError; county dies at cell 42 NameError('causal_mask') with 22 downstream cells unrun incl. the production report and a 14,962-char policy section; county exec counts 11->14->16->17->19->5->2->6; tract achieved monotonic 1..50 only by demoting two failing code cells to markdown (cell 54 defines select_causal_features_adaptive as prose, never defined at runtime).",
@@ -301,11 +301,11 @@
       "category": "data-provenance",
       "title": "Real federal program names attached to fabricated numbers, and wrong constructs where data is real",
       "affected_files": [
-        "economic_<unpublished-project>",
-        "<unpublished-project>_lstm",
-        "<unpublished-project>_ridge_state_level",
-        "<unpublished-project>_gru_county_level",
-        "<unpublished-project>_gru_tract_level"
+        "ML_04",
+        "ML_05",
+        "ML_03",
+        "ML_01",
+        "ML_02"
       ],
       "anchor_cell": "8,10,12,16,25",
       "evidence": "FRED/BLS fetched into fred_data/bls_data then never referenced again; under header '3.3 Merge Multi-Domain Data' no merge occurs and data is fabricated with np.random while the title block still lists FRED/BLS/BEA. Where real: year_data['uninsured_rate'] = year_data['B27001_005E'] / year_data['B01003_001E'] -- B27001_005E is males under 6 with no coverage; measured mean 0.001588 (0.16%) vs true ~9%.",
@@ -325,10 +325,10 @@
       "category": "security",
       "title": "Live API-key prefixes committed to git in stored notebook outputs",
       "affected_files": [
-        "<unpublished-project>_ridge_state_level",
-        "<unpublished-project>_gru_county_level",
-        "<unpublished-project>_gru_tract_level",
-        "spatial_<unpublished-project>_demo"
+        "ML_03",
+        "ML_01",
+        "ML_02",
+        "D34_demo"
       ],
       "anchor_cell": "0,14",
       "evidence": "CENSUS_API_KEY: <redacted>... / FRED_API_KEY: <redacted>... / BLS_API_KEY: <redacted>... in cell-0 stored output of a git-TRACKED notebook; prefixes match live keys in .env. Also jina_<redacted>... (10 of 65 chars, with exact length), GCP project khipu-media-intel-<redacted>, 282 occurrences of <operator-home>/... paths, skip_license_check in 7 notebooks (16-20 calls each).",
@@ -372,7 +372,7 @@
         "D06_inequality_and_wealth",
         "D11_cultural_economics",
         "32 template notebooks",
-        "10_advanced_nlp/D34_<unpublished-project>/"
+        "10_advanced_nlp/D34/"
       ],
       "anchor_cell": "6,8",
       "evidence": "mesa imported by D06/D11, absent from pyproject.toml dependencies; live kernel ModuleNotFoundError at cell 6 BEFORE the F-1 syntax error. \"Gradient Boosting\": None,  # Placeholder in all 32 templates, silently skipped then counted in f'Evaluated {len(comparison_results)} models'. Byte-identical pairs: advanced==advanced copy, demo copy 2==demo copy 4 (1.20 MiB); 3.92 MiB across 14 duplicate groups incl. 38 *.ipynb.backup* files.",
@@ -409,8 +409,8 @@
   ],
   "self_corrections": [
     "Preliminary corpus similarity of ~93% used difflib.quick_ratio (an upper bound). Exact median ratio to D01 across the other 32 domain notebooks is 45.7% (min 1.1%, max 100.0%). Clone claim restated on SHA-256 identity (D31/32/33) and section-header fingerprinting (12 sequences across 33 notebooks).",
-    "An initial undefined-name pass checked loads against prior cells only, ignoring intra-cell definitions, and over-reported ~14 symbols per notebook. Resolved per-symbol: `viz` in line B is a false positive (string literal); `validated_articles` is a silent wrong number, not a crash; only `nx` in D34_<unpublished-project>_advanced cell 32 is a confirmed hard break, and it is latent.",
-    "D34_<unpublished-project> copy cell 48 fails static compile() with \"'await' outside function\" -- an analysis artefact; IPython permits top-level await. Dismissed, not reported."
+    "An initial undefined-name pass checked loads against prior cells only, ignoring intra-cell definitions, and over-reported ~14 symbols per notebook. Resolved per-symbol: `viz` in line B is a false positive (string literal); `validated_articles` is a silent wrong number, not a crash; only `nx` in D34_variant_b cell 32 is a confirmed hard break, and it is latent.",
+    "D34 copy cell 48 fails static compile() with \"'await' outside function\" -- an analysis artefact; IPython permits top-level await. Dismissed, not reported."
   ],
   "uncertain": [
     {
@@ -472,7 +472,7 @@
     {
       "finding": "(issue 1 headline)",
       "withdrawn": "That the corpus 'was never executed'.",
-      "reason": "The D34 family carries monotonic execution counts and the diabetes notebooks called live CDC and Census endpoints. Execution demonstrably occurred.",
+      "reason": "The D34 family carries monotonic execution counts and ML_01–ML_03 called live CDC and Census endpoints. Execution demonstrably occurred.",
       "what_survives": "Scoped to the domain family the claim is E2-verified: all 33 of D01-D33 carry zero stored outputs and zero execution counts. Corpus-wide, the correct claim is uncontrolled execution provenance."
     },
     {

@@ -3,12 +3,20 @@
 **Artifact ID:** KRL-TUT-AUDIT-2026-09-13
 **Auditor:** Institutional Data Science, ML & Engineering <tool> (KRL Model Integrity)
 **Date:** 2026-09-13
-**Corpus:** `backups/backup_20251210_235356/the private source repository/notebooks` — 53 notebooks
+**Corpus:** `<audited-tree>` — 53 notebooks
 **Terminology.** This report avoids *fabrication* as a characterisation, because it imports a claim about intent that the artifacts do not evidence. Where a random draw or a hardcoded scalar is presented in an evaluative context, the finding is stated as an **undisclosed synthetic value presented without the provenance required to read it as observed or estimated**; where a conclusion is printed with no computational antecedent, it is stated as a **hardcoded claim with no demonstrated computational antecedent**. Both formulations are harder to dispute than the stronger word and describe the defect exactly.
 
 **Verification posture:** Adversarial. Every claim below is graded **VERIFIED** (reproduced by execution or exact hash), **OBSERVED** (read directly from the artifact), **INFERRED**, or **UNCERTAIN**.
 
 ---
+
+> **Redaction note (2026-10-15).** This is the audit of record for the corpus from which
+> the published notebooks were rebuilt. Two families it examined — a media-intelligence
+> family (D34) and six machine-learning notebooks — are not published and not retired. Their
+> file names and the path of the audited tree are replaced with neutral identifiers
+> (`D34`, `D34_variant_b`, `D34_demo`, `ML_01` … `ML_06`, `<audited-tree>`). Hashes, findings,
+> grades and every figure are as issued.
+
 
 ## 1. Objective Restatement
 
@@ -28,7 +36,7 @@ Under that contract the deliberate demonstration of a bad analysis is releasable
 
 | # | Assumption | Strength | Effect if wrong |
 |---|---|---|---|
-| A1 | The backup at `backup_20251210_235356` is representative of the shipping corpus | **Verified** — 43 of 53 notebooks are byte-identical (SHA-1) to `<private-folder>/the private source repository`; 10 differ | Findings on the 10 differing files may be stale; all are domain-template clones sharing the same defects |
+| A1 | The audited tree is representative of the shipping corpus | **Verified** — 43 of 53 notebooks are byte-identical (SHA-1) to the working tree; 10 differ | Findings on the 10 differing files may be stale; all are domain-template clones sharing the same defects |
 | A2 | A clean environment with the public scientific stack is a fair execution baseline | Strong — the notebooks explicitly advertise a no-API-key synthetic fallback path | Root ML notebooks additionally require the private `krl_data_connectors`; their failures are marked ENV-CONFOUNDED, not counted as defects |
 | A3 | Stored outputs correspond to the code currently in the cell | **Falsified in ≥6 notebooks** (see F-11) | — |
 
@@ -261,16 +269,16 @@ Three notebooks on civic trust, civil liberty, and gender equality contain **ver
 ### F-6 · CRITICAL · "Causal" is a naming convention, not a method
 **Grade: OBSERVED across 7 root notebooks**
 
-In `<unpublished-project>_gru`, `economic_<unpublished-project>` (both files), `<unpublished-project>_lstm`, and the GRU paths of all three diabetes notebooks, the entire causal content is an adjacency matrix built from **list ordering** and passed as a `use_causal_gates=True` argument to a supervised regressor:
+In `ML_06`, `ML_04` (both files), `ML_05`, and the GRU paths of ML_01–ML_03, the entire causal content is an adjacency matrix built from **list ordering** and passed as a `use_causal_gates=True` argument to a supervised regressor:
 ```python
 causal_dag = np.zeros((n_variables, n_variables))
 for i in range(len(economic_vars)):
     for j in range(len(economic_vars), len(economic_vars) + len(social_vars)):
         causal_dag[i, j] = 1
 ```
-No estimand, no treatment variable, no adjustment set, no positivity or exchangeability assumption, no refutation test. `economic_<unpublished-project>` cell 24 perturbs an input feature and prints *"🎯 Causal Transformer enables monetary policy impact analysis!"* — a feature perturbation on a predictive model, presented as policy causal inference.
+No estimand, no treatment variable, no adjustment set, no positivity or exchangeability assumption, no refutation test. `ML_04` cell 24 perturbs an input feature and prints *"🎯 Causal Transformer enables monetary policy impact analysis!"* — a feature perturbation on a predictive model, presented as policy causal inference.
 
-**The one exception proves the rule.** `<unpublished-project>_ridge_state_level.ipynb` implements genuine machinery — estimand, backdoor reasoning, propensity scores, AIPW, bootstrap, E-values, four falsification tests. Its executed output:
+**The one exception proves the rule.** `ML_03.ipynb` implements genuine machinery — estimand, backdoor reasoning, propensity scores, AIPW, bootstrap, E-values, four falsification tests. Its executed output:
 
 ```
 🚨 FAIL: Negative control effect is AS STRONG as main effect
@@ -296,10 +304,10 @@ What survives is narrower and still release-blocking: the notebook's own diagnos
 
 | Notebook | Computed (stored output) | Stated (same file) |
 |---|---|---|
-| diabetes ridge (state) | `Causal GRU R² −19.08` vs `Standard −12.02` | *"Causal GRU maintains accuracy while enforcing domain knowledge"* |
-| diabetes ridge (state) | `System Status: ⚠️ NEEDS IMPROVEMENT` | `Overall Completion: 11/11 (100%)`, every item `✅ COMPLETE` |
-| diabetes ridge (state) | `Predicted diabetes reduction: 0.0%` | *"✅ Causal model enables policy impact estimation!"* |
-| diabetes tract | 5-fold CV `Mean R²: −9.2020` | `System Status: ✅ PRODUCTION READY` |
+| ML_03 | `Causal GRU R² −19.08` vs `Standard −12.02` | *"Causal GRU maintains accuracy while enforcing domain knowledge"* |
+| ML_03 | `System Status: ⚠️ NEEDS IMPROVEMENT` | `Overall Completion: 11/11 (100%)`, every item `✅ COMPLETE` |
+| ML_03 | `Predicted diabetes reduction: 0.0%` | *"✅ Causal model enables policy impact estimation!"* |
+| ML_02 | 5-fold CV `Mean R²: −9.2020` | `System Status: ✅ PRODUCTION READY` |
 | spatial media demo | `Kept: 0 articles in 0 clusters` / `❌ ERROR: No valid clusters` | `✓ Using OPTIMIZED ADAPTIVE weighting` → *"Winner: Adaptive ✓"* |
 | D30 wellbeing | income p=0.13, coverage p=0.19, education p=0.07 | *"Income, health coverage, and education **significantly** predict life satisfaction"* |
 
@@ -313,7 +321,7 @@ Both were emitted in runs where CDC and Census APIs were verifiably called, and 
 ---
 
 ### F-8 · CRITICAL · Simulated content reported with measured performance figures
-**Grade: OBSERVED** — `D34_<unpublished-project> copy.ipynb`, cell 48, `execution_count: 110` (it ran)
+**Grade: OBSERVED** — `D34 copy.ipynb`, cell 48, `execution_count: 110` (it ran)
 
 ```python
 # Use simulation mode for demo
@@ -335,14 +343,14 @@ print(f"   Success rate: {successful}/{len(scraped_articles)} ({successful/len(s
 ### F-9 · CRITICAL · Quality metrics fall back to hardcoded constants inside bare `except:`
 **Grade: OBSERVED** — 3 spatial notebooks
 
-`spatial_<unpublished-project>_demo.ipynb` cell 20:
+`D34_demo.ipynb` cell 20:
 ```python
 except:
     # Fallback if metrics fail
     silhouette_fixed = 0.093
     davies_bouldin_fixed = 1.485
 ```
-In `khipu_spatial_<unpublished-project>.ipynb` cell 19 and `...demo 2.ipynb` cell 13, **both arms** are hardcoded (`silhouette_adaptive = 0.30`, `davies_bouldin_adaptive = 1.20`) — the head-to-head comparison that concludes "adaptive wins" can be produced entirely from literals in an exception handler. These values print in the same format as measured ones.
+In `D34_spatial.ipynb` cell 19 and `D34_demo copy 2.ipynb` cell 13, **both arms** are hardcoded (`silhouette_adaptive = 0.30`, `davies_bouldin_adaptive = 1.20`) — the head-to-head comparison that concludes "adaptive wins" can be produced entirely from literals in an exception handler. These values print in the same format as measured ones.
 
 Compounding: the stored run shows the adaptive method returned **zero clusters**, and the winner logic (`'Adaptive ✓' if largest_cluster_pct_adaptive < largest_cluster_pct_fixed`) awarded it the win at 0.0%. The notebook then printed success and assigned `df_clustered = df_adaptive.copy()` on an **empty DataFrame**, before cell 31 silently replaced it with a different method's result. Every downstream figure describes a clustering the notebook never announces.
 
@@ -380,29 +388,29 @@ Its hardcoded takeaway — *"Income, health coverage, and education significantl
 ### F-11 · HIGH · Execution provenance is unsound in 6 of 7 root notebooks
 **Grade: OBSERVED**
 
-- Never executed at all: `economic_<unpublished-project>` (×2), `<unpublished-project>_lstm`.
-- Dies at import: `<unpublished-project>_gru`, cell 5 `ImportError`.
-- Dies mid-analysis and ships anyway: `<unpublished-project>_gru_county_level`, cell 42 `NameError: name 'causal_mask' is not defined` — **22 downstream cells never ran**, including the production report and a 14,962-character policy-implications section.
+- Never executed at all: `ML_04` (×2), `ML_05`.
+- Dies at import: `ML_06`, cell 5 `ImportError`.
+- Dies mid-analysis and ships anyway: `ML_01`, cell 42 `NameError: name 'causal_mask' is not defined` — **22 downstream cells never ran**, including the production report and a 14,962-character policy-implications section.
 - Non-monotonic execution counts: county notebook runs `11→14→16→17→19→5→2→6…` — ad-hoc interactive state, not a clean run.
 - Interleaved runs: state notebook cell 40 prints "Fold 2/5" twice with different values.
-- The one notebook with clean monotonic ordering (`<unpublished-project>_gru_tract_level`, 1→50) achieved it by **demoting two failing code cells to markdown** — cell 54 defines `select_causal_features_adaptive(...)` as prose, so the function is never defined at runtime.
+- The one notebook with clean monotonic ordering (`ML_02`, 1→50) achieved it by **demoting two failing code cells to markdown** — cell 54 defines `select_causal_features_adaptive(...)` as prose, so the function is never defined at runtime.
 
-`<unpublished-project>_gru_county_level` is titled `_gru_` and trains **no GRU**; the only model that runs is `RandomForestRegressor`. Its cell 39 merge collapses 6,289 county records to **36 rows** (99.4% loss) while relabelling counties as "states".
+`ML_01` is titled `_gru_` and trains **no GRU**; the only model that runs is `RandomForestRegressor`. Its cell 39 merge collapses 6,289 county records to **36 rows** (99.4% loss) while relabelling counties as "states".
 
 ---
 
 ### F-12 · HIGH · Universal panel leakage; preprocessing fitted before the split in 6 of 7
 **Grade: OBSERVED**
 
-Every notebook with repeated measures splits by row position or randomly over an entity–year panel — no grouped split, no fixed effects, no clustered standard errors anywhere in seven notebooks. `<unpublished-project>_gru_county_level` cell 33: `Train R² 0.9099` vs `Test R² 0.6053`, with the same counties in both halves.
+Every notebook with repeated measures splits by row position or randomly over an entity–year panel — no grouped split, no fixed effects, no clustered standard errors anywhere in seven notebooks. `ML_01` cell 33: `Train R² 0.9099` vs `Test R² 0.6053`, with the same counties in both halves.
 
-`fit_transform` on the full array precedes `train_test_split` in healthcare (c13), economic (c14), economic-copy (c11), education (c10), and both diabetes GRU paths. In `economic_<unpublished-project> copy.ipynb` cell 11 the comment and the code directly contradict each other:
+`fit_transform` on the full array precedes `train_test_split` in ML_06 (c13), ML_04 (c14), ML_04-copy (c11), ML_05 (c10), and both GRU paths of ML_01/ML_02. In `ML_04 copy.ipynb` cell 11 the comment and the code directly contradict each other:
 ```python
 # Fit on training data only
 X_scaled = scaler.fit_transform(X_flat).reshape(...)
 ```
 
-**Tautological targets in 5 of 7.** `<unpublished-project>_lstm` cell 12 is the clearest:
+**Tautological targets in 5 of 7.** `ML_05` cell 12 is the clearest:
 ```python
 sequence = base_value + trend[:, None] + noise
 X_sequences.append(sequence)
@@ -414,20 +422,20 @@ y_outcomes.append(sequence[-1].mean())   # y is literally a slice of X
 ### F-13 · HIGH · Real federal program names attached to fabricated numbers
 **Grade: OBSERVED**
 
-`economic_<unpublished-project>` fetches FRED (`FEDFUNDS`, `CPIAUCSL`) and BLS (`LNS14000000`) into `fred_data`/`bls_data` — **neither variable is ever referenced again.** Under the header *"### 3.3 Merge Multi-Domain Data"*, no merge occurs; the modelling data is fabricated with `np.random`. The title block still lists FRED/BLS/BEA as Data Sources. `<unpublished-project>_lstm` cites NCES throughout and never obtains any NCES data.
+`ML_04` fetches FRED (`FEDFUNDS`, `CPIAUCSL`) and BLS (`LNS14000000`) into `fred_data`/`bls_data` — **neither variable is ever referenced again.** Under the header *"### 3.3 Merge Multi-Domain Data"*, no merge occurs; the modelling data is fabricated with `np.random`. The title block still lists FRED/BLS/BEA as Data Sources. `ML_05` cites NCES throughout and never obtains any NCES data.
 
-Where the federal data *is* real, the constructs are wrong. In all three diabetes notebooks:
+Where the federal data *is* real, the constructs are wrong. In all three of ML_01–ML_03:
 ```python
 year_data['uninsured_rate'] = year_data['B27001_005E'] / year_data['B01003_001E']
 ```
-`B27001_005E` is *males under 6 with no health coverage*. Output confirms `uninsured_rate mean = 0.001588` (0.16%) against a true US rate near 9% — **off by ~50×**, and it is one of only two confounders in the entire causal identification strategy. `education_level` carries the same denominator error, and three "rates" in `<unpublished-project>_gru` are computed as shares of a national total rather than rates.
+`B27001_005E` is *males under 6 with no health coverage*. Output confirms `uninsured_rate mean = 0.001588` (0.16%) against a true US rate near 9% — **off by ~50×**, and it is one of only two confounders in the entire causal identification strategy. `education_level` carries the same denominator error, and three "rates" in `ML_06` are computed as shares of a national total rather than rates.
 
 ---
 
 ### F-14 · HIGH · Live API-key prefixes are committed to git
 **Grade: VERIFIED**
 
-`notebooks/<unpublished-project>_ridge_state_level.ipynb` is **tracked in git**, and its cell-0 stored output contains:
+`notebooks/ML_03.ipynb` is **tracked in git**, and its cell-0 stored output contains:
 ```
 🔑 Loading API keys from: <operator-path>/apikeys
    • CENSUS_API_KEY: <redacted>...
@@ -436,7 +444,7 @@ year_data['uninsured_rate'] = year_data['B27001_005E'] / year_data['B01003_001E'
 ```
 These prefixes match the live keys in `.env` (which is correctly gitignored and has **never** been committed — verified via `git log --all -- .env`). Ten characters is not a full key, but the repository carries a dual MIT / CC-BY-SA-4.0 licence and an open `CONTRIBUTING.md`, i.e. it is built to be published.
 
-Also present: `jina_<redacted>...` (10 chars of a 65-char key, with its exact length) in `spatial_<unpublished-project>_demo.ipynb`; GCP project id `khipu-media-intel-<redacted>`; **282 occurrences** of `<operator-home>/Documents/GitHub/KRL/<private-folder>/...` across the notebook corpus; and licence-control bypass (`skip_license_check`, `KRL_SKIP_LICENSE_VALIDATION='true'`) in 7 notebooks, 16–20 calls each.
+Also present: `jina_<redacted>...` (10 chars of a 65-char key, with its exact length) in `D34_demo.ipynb`; a GCP project id (redacted); **282 occurrences** of `<operator-home>/.../` across the notebook corpus; and licence-control bypass (`skip_license_check`, `KRL_SKIP_LICENSE_VALIDATION='true'`) in 7 notebooks, 16–20 calls each.
 
 **Action: rotate CENSUS, FRED, BLS and Jina keys. Treat as compromised.**
 
@@ -461,7 +469,7 @@ The corpus's stated testing requirement — *"All notebooks must execute without
 
 `"Gradient Boosting": None,  # Placeholder` appears in all 32 template notebooks — named in the model suite, silently skipped, then counted in `f"Evaluated {len(comparison_results)} models"`.
 
-Version-control debris in `D34_<unpublished-project>/`: two byte-identical pairs (`advanced` ≡ `advanced copy`; `demo copy 2` ≡ `demo copy 4`), **1.20 MiB** wasted in the audited 12; **3.92 MiB across 14 duplicate groups** counting the 38 `*.ipynb.backup*` files. `spatial_<unpublished-project>_demo copy 2/4` are renamed stale backups from a known newline-corruption incident (`fix_cell9_newlines.py` sits in the same directory): four of their cells are newline-stripped into single lines beginning with `#`, silently commenting out the entire clustering, visualisation and bias steps. Neither has ever been executed.
+Version-control debris in `D34/`: two byte-identical pairs (`advanced` ≡ `advanced copy`; `demo copy 2` ≡ `demo copy 4`), **1.20 MiB** wasted in the audited 12; **3.92 MiB across 14 duplicate groups** counting the 38 `*.ipynb.backup*` files. `D34_demo copy 2/4` are renamed stale backups from a known newline-corruption incident (`fix_cell9_newlines.py` sits in the same directory): four of their cells are newline-stripped into single lines beginning with `#`, silently commenting out the entire clustering, visualisation and bias steps. Neither has ever been executed.
 
 ---
 
@@ -572,25 +580,25 @@ D30_subjective_wellbeing                                          yes        14 
 D31_civic_trust                        [byte-identical to D01]     NO    9   11   11   4  18   -   -   -
 D32_freedom_civil                      [byte-identical to D01]     NO    9   11   11   4  18   -   -   -
 D33_gender_equality                    [byte-identical to D01]     NO    9   11   11   4  18   -   -   -
-D34_<unpublished-project>                                            yes        17    0   0   1   -   Y   -
-D34_<unpublished-project> copy                                       yes        37    2   0   1   -   Y   Y
-D34_<unpublished-project>_advanced           [CANONICAL, line B]     yes        45    0   0   1   -   Y   -
-D34_<unpublished-project>_advanced copy      [exact duplicate]       yes        45    0   0   1   -   Y   -
-D34_<unpublished-project>_overhauled         [best in cluster]       yes        16    0   0   0   -   Y   -
-khipu_spatial_<unpublished-project>                                  yes        39    0   0   0   -   Y   -
-spatial_<unpublished-project>_demo           [CANONICAL, line A]     yes        41    0   0   0   -   Y   -
-spatial_<unpublished-project>_demo 2                                 yes        34    0   0   0   -   Y   -
-spatial_<unpublished-project>_demo copy                              yes        14    1   0   0   -   -   -
-spatial_<unpublished-project>_demo copy 2    [CORRUPT, never run]    yes        30   30   0   0   -   Y   -
-spatial_<unpublished-project>_demo copy 3                            yes        13    0   0   0   -   -   -
-spatial_<unpublished-project>_demo copy 4    [exact dup of copy 2]   yes        30   30   0   0   -   Y   -
-<unpublished-project>_gru_county_level          [crashes at cell 42]    yes        48   26   0  26   -   Y   Y
-<unpublished-project>_gru_tract_level                                   yes        50    0   0  30   -   Y   Y
-<unpublished-project>_ridge_state_level         [falsification FAILED]  yes        36    3   0  23   -   Y   Y
-economic_<unpublished-project>          [never executed]        yes        12   12   0  10   -   Y   -
-economic_<unpublished-project> copy     [never executed]        yes        18   18   0   1   -   Y   -
-<unpublished-project>_lstm                     [never executed]        yes        14   14   0   2   -   Y   -
-<unpublished-project>_gru                     [dies at import]        yes        17   14   0   1   -   Y   -
+D34                                            yes        17    0   0   1   -   Y   -
+D34 copy                                       yes        37    2   0   1   -   Y   Y
+D34_variant_b           [CANONICAL, line B]     yes        45    0   0   1   -   Y   -
+D34_variant_b copy      [exact duplicate]       yes        45    0   0   1   -   Y   -
+D34_variant_c         [best in cluster]       yes        16    0   0   0   -   Y   -
+D34_spatial                                  yes        39    0   0   0   -   Y   -
+D34_demo           [CANONICAL, line A]     yes        41    0   0   0   -   Y   -
+D34_demo 2                                 yes        34    0   0   0   -   Y   -
+D34_demo copy                              yes        14    1   0   0   -   -   -
+D34_demo copy 2    [CORRUPT, never run]    yes        30   30   0   0   -   Y   -
+D34_demo copy 3                            yes        13    0   0   0   -   -   -
+D34_demo copy 4    [exact dup of copy 2]   yes        30   30   0   0   -   Y   -
+ML_01          [crashes at cell 42]    yes        48   26   0  26   -   Y   Y
+ML_02                                   yes        50    0   0  30   -   Y   Y
+ML_03         [falsification FAILED]  yes        36    3   0  23   -   Y   Y
+ML_04          [never executed]        yes        12   12   0  10   -   Y   -
+ML_04 copy     [never executed]        yes        18   18   0   1   -   Y   -
+ML_05                     [never executed]        yes        14   14   0   2   -   Y   -
+ML_06                     [dies at import]        yes        17   14   0   1   -   Y   -
 test_kernel                               [0 cells — delete]      yes         0    0   0   0   -   -   -
 ```
 
@@ -696,15 +704,15 @@ With that record in place the narrative cannot drift from the computation withou
 **Errors found in this audit's own first pass, and corrected**
 
 1. **Overstated similarity.** A preliminary figure of ~93% corpus similarity used `difflib.quick_ratio`, an *upper bound* on the true ratio. The exact median is **45.7%**. Corrected in F-5; the clone claim is now grounded in SHA-256 identity (D31/32/33) and section-header fingerprinting (12 sequences / 33 notebooks) rather than a lexical percentage.
-2. **Scope-unaware name analysis over-reported.** An initial undefined-name pass flagged ~14 symbols per notebook by checking loads against *prior* cells only, ignoring intra-cell definitions. Nearly all were false positives. The D34 sub-audit resolved each remaining symbol individually and found `viz` in line B to be a **false positive** (string literal, not a variable) and `validated_articles` to be a *silent wrong number*, not a crash. Only `nx` in `D34_<unpublished-project>_advanced` cell 32 is a confirmed hard break, and it is latent.
-3. **A static SyntaxError was dismissed.** `D34_<unpublished-project> copy` cell 48 fails `compile()` with `'await' outside function` — this is a static-analysis artefact; IPython permits top-level `await`. Recorded and dismissed, not reported as a defect.
+2. **Scope-unaware name analysis over-reported.** An initial undefined-name pass flagged ~14 symbols per notebook by checking loads against *prior* cells only, ignoring intra-cell definitions. Nearly all were false positives. The D34 sub-audit resolved each remaining symbol individually and found `viz` in line B to be a **false positive** (string literal, not a variable) and `validated_articles` to be a *silent wrong number*, not a crash. Only `nx` in `D34_variant_b` cell 32 is a confirmed hard break, and it is latent.
+3. **A static SyntaxError was dismissed.** `D34 copy` cell 48 fails `compile()` with `'await' outside function` — this is a static-analysis artefact; IPython permits top-level `await`. Recorded and dismissed, not reported as a defect.
 
 **Five concrete failure modes of this audit**
 
 | # | Failure mode | Mitigation / residual risk |
 |---|---|---|
 | 1 | Environment confound — root ML notebooks failed on the private `krl_data_connectors`, not necessarily on their own logic | Marked ENV-CONFOUNDED and **excluded** from the 31-failure count; their defects (F-6, F-11, F-12, F-13) are established by code reading and *stored outputs*, not by my execution |
-| 2 | The backup may be stale relative to what ships | Quantified: 43/53 byte-identical; the 10 differing files are all template clones carrying the same defects. **Residual risk: low.** Re-run the compile gate on `<private-folder>/` to close it — ~2 minutes |
+| 2 | The backup may be stale relative to what ships | Quantified: 43/53 byte-identical; the 10 differing files are all template clones carrying the same defects. **Residual risk: low.** Re-run the compile gate on the working tree to close it — ~2 minutes |
 | 3 | Python-version skew (3.11 audit vs 3.13.7 declared) | Syntax errors are version-independent and reproduced under both 3.10 and 3.11. **Residual risk: negligible** |
 | 4 | Sampling — 34 of 53 notebooks were not executed | All 34 unexecuted are either compile-failures (proof of non-execution, no sample needed) or D34 variants covered by dedicated source review. **Residual risk: low** |
 | 5 | Reviewer-generator homogeneity — this audit was produced by systems of the same class that generated the notebooks | **Not mitigated.** Stated on the record. Every CRITICAL finding is anchored to a verbatim quote and a reproducible command so a human or an independent tool can falsify it |
@@ -763,8 +771,8 @@ Assign new artifact IDs and a regeneration manifest. **Do not overwrite the fore
 | 1 | **Treat F-14 as a credential-exposure incident, not a rotation task.** Rotate CENSUS, FRED, BLS and Jina keys; **check provider audit logs for anomalous access during the exposure window**; purge or rewrite git history if policy requires (a new commit deleting the output does not remove it from history); invalidate caches, rendered previews, build artifacts and backups that may still carry the tokens; install `nbstripout` and pre-commit secret scanning; document scope — what was exposed, where, for how long, who had access. A 10-character prefix may or may not be exploitable depending on the provider's token design, but that is not the release criterion: it is sensitive credential material in tracked content. | F-14 · S0 | 4 h |
 | 2 | **Fix the 31-notebook template defect** — restore the deleted `if` guard, or delete the `WORKSPACE INTEGRATION` section entirely (it is registry bookkeeping, notteaching content) | F-1 | 1 h |
 | 3 | **Add the compile gate to CI and make it blocking.** Remove `continue-on-error: true` from all four `tutorial-quality.yml` content steps | F-15 | 2 h |
-| 4 | **Quarantine the "causal" root notebooks.** Move to `notebooks/_quarantine/` with a README stating they are not validated. Do not show `<unpublished-project>_ridge_state_level` to any design partner until F-6 is resolved | F-6, F-7 | 1 h |
-| 5 | **Delete** `D34_<unpublished-project>_advanced copy`, `spatial_<unpublished-project>_demo copy 2`, `copy 4` (corrupt, never executed), `test_kernel.ipynb`, and the 38 `*.ipynb.backup*` files | F-16 | 30 m |
+| 4 | **Quarantine the "causal" root notebooks.** Move to `notebooks/_quarantine/` with a README stating they are not validated. Do not show `ML_03` to any design partner until F-6 is resolved | F-6, F-7 | 1 h |
+| 5 | **Delete** `D34_variant_b copy`, `D34_demo copy 2`, `copy 4` (corrupt, never executed), `test_kernel.ipynb`, and the 38 `*.ipynb.backup*` files | F-16 | 30 m |
 
 ### P1 — Make honest (2–4 weeks)
 
@@ -772,7 +780,7 @@ Assign new artifact IDs and a regeneration manifest. **Do not overwrite the fore
 |---|---|---|---|
 | 6 | **Delete every fabricated metric.** Remove `complexity_score`/`interpretability` RNG columns; remove hardcoded silhouette/DB fallbacks; delete or clearly quarantine all `Simulat*` code paths and the cell-71 ROI block | F-2, F-8, F-9 | 1 w |
 | 7 | **Delete every hardcoded conclusion.** Any printed claim must read a computed variable or be removed. Start with `>85% prediction accuracy`, the `PASS`/`PRODUCTION READY` banners, and F-7a's false synthetic-data excuse | F-4, F-7 | 1 w |
-| 8 | **Reconcile `<unpublished-project>_ridge_state_level` with its own falsification output.** Either the ATE is withdrawn, or the negative-control and future→past failures are explained. The current summary cells must not survive either way | F-6 | 3 d |
+| 8 | **Reconcile `ML_03` with its own falsification output.** Either the ATE is withdrawn, or the negative-control and future→past failures are explained. The current summary cells must not survive either way | F-6 | 3 d |
 | 9 | **Fix `uninsured_rate` / `education_level` denominators** (`B27001_005E`→correct uninsured table; `B15003_022E / B15003_001E`). Re-run every downstream estimate | F-13 | 2 d |
 | 10 | **Retire D31, D32, D33.** They are D01 under three false titles — delete, or write them | F-5 | 1 d |
 
@@ -790,7 +798,7 @@ Assign new artifact IDs and a regeneration manifest. **Do not overwrite the fore
 
 > **The corpus does not provide a reliable chain from declared data source to computation, to reported quantity, to statistical interpretation, to narrative claim.** That chain is the scientific product; until it exists, execution is theatre — a kernel can run code perfectly and still emit conclusions that are statistically or causally indefensible.
 >
-> Scoped precisely: **all 33 domain tutorials carry zero stored outputs and zero execution counts** (E2), 31 of them fail to *parse* (E2), 0 of 33 use real data (E2), 1 of 33 has learning objectives (E1). The two that execute report a perfect model for predicting a constant, and a significant determinant drawn from pure noise (E2, reproduced). Elsewhere in the corpus execution demonstrably *did* occur — the D34 family carries monotonic execution counts, and the diabetes notebooks called live CDC and Census endpoints. **The corpus-wide failure is uncontrolled execution provenance, not universal non-execution.** The fix for functionality is one hour. The fix for credibility is a rebuild — and it is worth doing, because F-6's falsification suite, F-9's honest `PROOF-OF-CONCEPT ONLY` caveat, and D30's structure show the capability is present in the same repository that produced the defects.
+> Scoped precisely: **all 33 domain tutorials carry zero stored outputs and zero execution counts** (E2), 31 of them fail to *parse* (E2), 0 of 33 use real data (E2), 1 of 33 has learning objectives (E1). The two that execute report a perfect model for predicting a constant, and a significant determinant drawn from pure noise (E2, reproduced). Elsewhere in the corpus execution demonstrably *did* occur — the D34 family carries monotonic execution counts, and ML_01–ML_03 called live CDC and Census endpoints. **The corpus-wide failure is uncontrolled execution provenance, not universal non-execution.** The fix for functionality is one hour. The fix for credibility is a rebuild — and it is worth doing, because F-6's falsification suite, F-9's honest `PROOF-OF-CONCEPT ONLY` caveat, and D30's structure show the capability is present in the same repository that produced the defects.
 
 ---
 

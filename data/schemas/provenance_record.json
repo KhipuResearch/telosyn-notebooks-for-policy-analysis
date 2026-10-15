@@ -1,0 +1,23 @@
+{
+  "$schema": "https://specs.frictionlessdata.io/schemas/table-schema.json",
+  "title": "Provenance record",
+  "description": "One retrieval by a notebook in this corpus. Written by krl_tutorials_data.provenance.DataProvenance; one JSON file per retrieval under each notebook's provenance/ directory.",
+  "fields": [
+    {"name": "source_name",    "type": "string",  "constraints": {"required": true}},
+    {"name": "dataset",        "type": "string",  "constraints": {"required": true}},
+    {"name": "vintage",        "type": "string",  "constraints": {"required": true}},
+    {"name": "endpoint",       "type": "string",  "constraints": {"required": true, "pattern": "^https://"}},
+    {"name": "variables",      "type": "object",  "constraints": {"required": true}},
+    {"name": "request_params", "type": "object",  "constraints": {"required": true}},
+    {"name": "request_method", "type": "string",  "constraints": {"enum": ["GET", "POST"]}},
+    {"name": "retrieved_utc",  "type": "datetime","constraints": {"required": true}},
+    {"name": "row_count",      "type": "integer", "constraints": {"required": true, "minimum": 0}},
+    {"name": "column_count",   "type": "integer", "constraints": {"required": true, "minimum": 0}},
+    {"name": "content_sha256", "type": "string",  "constraints": {"required": true, "pattern": "^[0-9a-f]{64}$"}},
+    {"name": "hash_basis",     "type": "string",  "constraints": {"required": true, "enum": ["response-bytes", "canonical-rows", "canonical-stable-json", "composed-digests", "canonical-json"]}},
+    {"name": "pinned",         "type": "boolean", "constraints": {"required": true}},
+    {"name": "mode",           "type": "string",  "constraints": {"required": true, "enum": ["empirical", "illustrative"]}},
+    {"name": "notes",          "type": "array"}
+  ],
+  "missingValues": []
+}

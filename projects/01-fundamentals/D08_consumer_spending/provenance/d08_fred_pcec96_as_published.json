@@ -1,0 +1,31 @@
+{
+  "source_name": "Federal Reserve Bank of St. Louis",
+  "dataset": "FRED series PCEC96",
+  "vintage": "2019-01-01 to 2023-05-01, as published 2023-06-01",
+  "endpoint": "https://api.stlouisfed.org/fred/series/observations",
+  "variables": {
+    "PCEC96": "FRED PCEC96, frequency=m, units=lin"
+  },
+  "retrieved_utc": "2026-09-18T12:13:32+00:00",
+  "row_count": 52,
+  "column_count": 2,
+  "content_sha256": "9b8401527c44656f08f66ffcdd75b6ab1866b6309c3d85ebc45ebeee6229810a",
+  "mode": "empirical",
+  "notes": [
+    "Window is pinned at both ends; an open end would change every derived number on re-run.",
+    "0 observation(s) were published as the missing sentinel '.' and became NaN before any arithmetic.",
+    "Requested as the series stood on 2023-06-01 (ALFRED vintage)."
+  ],
+  "pinned": true,
+  "hash_basis": "response-bytes",
+  "request_params": {
+    "series_id": "PCEC96",
+    "api_key": "<redacted>",
+    "file_type": "json",
+    "observation_start": "2019-01-01",
+    "observation_end": "2023-05-01",
+    "frequency": "m",
+    "units": "lin",
+    "vintage_dates": "2023-06-01"
+  }
+}

@@ -1,0 +1,89 @@
+PROPRIETARY SOFTWARE LICENSE
+
+© 2026 Telosyn, Inc. All rights reserved.
+
+This software and all associated documentation, source code, object code,
+and related materials (collectively, the "Software") are the exclusive
+proprietary property of Telosyn, Inc. and are licensed exclusively to
+Deloatch, Williams, Faison & Parker, LLLP.
+
+CONFIDENTIAL AND TRADE SECRET
+
+The Software contains trade secrets and confidential information of
+Telosyn, Inc. No part of the Software may be reproduced, distributed,
+transmitted, displayed, published, or broadcast in any form or by any
+means, including photocopying, recording, or other electronic or
+mechanical methods, without the prior written permission of
+Telosyn, Inc., except as expressly authorized by a separate written
+license agreement.
+
+RESTRICTIONS
+
+You may NOT, without the prior written consent of Telosyn, Inc.:
+
+  1. Copy, modify, adapt, translate, or create derivative works of
+     the Software;
+  2. Reverse engineer, disassemble, decompile, or otherwise attempt to
+     derive the source code of the Software;
+  3. Distribute, sublicense, lease, rent, loan, or otherwise transfer
+     the Software to any third party;
+  4. Remove or alter any proprietary notices, labels, or marks on the
+     Software;
+  5. Use the Software for any purpose other than as expressly authorized
+     by Telosyn, Inc. or Deloatch, Williams, Faison & Parker, LLLP.
+
+PUBLIC VISIBILITY IS NOT A LICENSE
+
+Telosyn, Inc. may make this repository, or parts of it, publicly readable. Where
+it does so, the purpose is limited and stated: demonstration, evaluation of the
+work's quality and methods, and transparency about how conclusions were reached.
+
+Public visibility grants nothing. It does not place the Software in the public
+domain, does not make it open-source software, and does not create a license by
+implication, estoppel, course of conduct, or the absence of an objection. The
+RESTRICTIONS above apply in full to material that anyone can read, and a reader
+who copies, modifies, redistributes, or builds a derivative work from publicly
+visible material is in breach of this license exactly as if the material had been
+obtained privately.
+
+Nothing may be inferred from the presence of a file, a configuration, a badge, a
+build recipe, or a package manifest that appears to contemplate redistribution.
+Where any such artifact conflicts with this license, this license governs.
+
+NO OPEN-SOURCE LICENSE WITHOUT EXPRESS AUTHORIZATION
+
+No part of the Software is licensed under the MIT License, the Apache License,
+any Creative Commons license, or any other public license. Any such declaration
+appearing anywhere in this repository is void unless it is authorized in writing
+by Telosyn, Inc. for the specific material it covers, and that authorization is
+recorded in the repository's decision records.
+
+Any MIT or CC-BY-SA-4.0 declaration that appeared in earlier versions of this
+work was never authorized and grants nothing. See
+DECISIONS/0001-dual-license-mit-code-cc-by-sa-content.md.
+
+MARKS
+
+Khipu℠ is a service mark of Telosyn, Inc.
+
+KR-Labs™, KRL Model Zoo™, REMSOM™, Khipu Research Labs™, Nemoclaw™,
+and Interface Doctrine™ are trademarks of Telosyn, Inc.
+
+Nothing in this license grants any right to use these marks, or any other
+mark, name or logo of Telosyn, Inc., whether registered or unregistered.
+Public visibility of this repository confers no such right.
+
+NO WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL
+Telosyn, Inc. OR Deloatch, Williams, Faison & Parker, LLLP BE LIABLE FOR ANY CLAIM, DAMAGES, OR
+OTHER LIABILITY ARISING FROM THE USE OF THE SOFTWARE.
+
+GOVERNING LAW
+
+This license shall be governed by and construed in accordance with the laws
+of the State of Delaware, without regard to conflict of laws principles.
+
+For licensing inquiries, contact: contact@telosyn.co

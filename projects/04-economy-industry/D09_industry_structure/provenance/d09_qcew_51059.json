@@ -1,0 +1,33 @@
+{
+  "source_name": "U.S. Bureau of Labor Statistics",
+  "dataset": "QCEW area 51059, 2024 Q1",
+  "vintage": "2024Q1",
+  "endpoint": "https://data.bls.gov/cew/data/api/2024/1/area/51059.csv",
+  "variables": {
+    "qtrly_estabs": "QCEW field",
+    "month1_emplvl": "QCEW field",
+    "month2_emplvl": "QCEW field",
+    "month3_emplvl": "QCEW field",
+    "total_qtrly_wages": "QCEW field",
+    "taxable_qtrly_wages": "QCEW field",
+    "qtrly_contributions": "QCEW field",
+    "avg_wkly_wage": "QCEW field"
+  },
+  "retrieved_utc": "2026-09-18T12:40:53+00:00",
+  "row_count": 2015,
+  "column_count": 43,
+  "content_sha256": "ab8bda730609854300198e259676626d19f76356f1c32a77a10ef37afe71b3b1",
+  "mode": "empirical",
+  "notes": [
+    "586 of 2015 rows carry disclosure_code 'N' (withheld to protect employer identity).",
+    "4102 withheld values were published as 0 and have been set to NaN. Summing them as zeros would treat withheld industries as industries with no employment.",
+    "Establishment counts are disclosed even for suppressed cells and were left unchanged.",
+    "Suppression is NOT missing-at-random: it is applied where few establishments would make a cell identifying, so it correlates with industry concentration.",
+    "No API key is required for QCEW.",
+    "Digest pinned by the notebook and verified on this run (response-bytes). The publisher serves no prior vintage; this pin does not restore one, it guarantees a change cannot pass unnoticed."
+  ],
+  "pinned": true,
+  "hash_basis": "response-bytes",
+  "request_params": {},
+  "request_method": "GET"
+}

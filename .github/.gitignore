@@ -1,0 +1,12 @@
+# Internal planning and metadata files
+REPOSITORY_METADATA.md
+TOPICS.txt
+DESCRIPTION.md
+
+# Discussion planning files (content should be posted directly to GitHub Discussions)
+discussions/CATEGORIES.md
+discussions/STARTER_*.md
+discussions/README.md
+
+# Keep only issue templates and actual configuration
+# Issue templates, FUNDING.yml, SUPPORT.md, dependabot.yml, and workflows are public-facing

@@ -1,0 +1,508 @@
+{
+  "schema": "krl.model-integrity.findings/v2",
+  "artifact_id": "KRL-TUT-AUDIT-2026-09-13",
+  "generated": "2026-09-13",
+  "corpus": {
+    "path": "backups/backup_20251210_235356/the private source repository/notebooks",
+    "notebooks": 53,
+    "code_cells": 691,
+    "identical_to_live": 43,
+    "differing_from_live": 10
+  },
+  "method": {
+    "instruments": [
+      "ast.parse per cell (53/53)",
+      "nbclient clean-kernel execution (19 notebooks)",
+      "standalone logic reproduction (D01,D04,D30)",
+      "SHA-256 / exact difflib / header fingerprint / execution-count ordering (53/53)"
+    ],
+    "environment": "Python 3.11.15; pandas numpy scikit-learn statsmodels scipy plotly matplotlib seaborn; no API keys; private krl packages absent",
+    "cross_instrument_agreement": "static and dynamic agreed on all 15 execution failures at identical cell index and error class"
+  },
+  "headline": {
+    "fail_to_compile": 31,
+    "fail_to_compile_pct": 58.5,
+    "domain_tutorials_failing": "31/33",
+    "zero_stored_outputs": 38,
+    "notebooks_with_fabricated_metrics": 32,
+    "fabricated_metric_instances": 128,
+    "domain_tutorials_with_learning_objectives": "1/33",
+    "domain_tutorials_with_exercises": "0/33",
+    "domain_tutorials_using_real_data": "0/33",
+    "clean_restart_and_run_all": "3/19 sampled"
+  },
+  "severity_counts": {
+    "CRITICAL": 10,
+    "HIGH": 6,
+    "MEDIUM": 1
+  },
+  "findings": [
+    {
+      "id": "F-1",
+      "severity": "CRITICAL",
+      "category": "functionality",
+      "title": "Template defect leaves an orphaned else: block; 31 of 53 notebooks cannot execute",
+      "affected_files": [
+        "31 domain notebooks D01-D29,D31-D33 (all except D04, D30)"
+      ],
+      "anchor_cell": "9-11",
+      "evidence": "# Cross-platform integration check\\n\\n    print(\" Khipu notebook executor available for production deployment\")\\nelse:\\n    print(\"...\")",
+      "impact": "58% of the corpus is non-executable. The defective cell sits AFTER the analysis, so each notebook prints a full set of results and then dies on a traceback.",
+      "remediation": "Restore the deleted `if` guard, or delete the WORKSPACE INTEGRATION section (registry bookkeeping, not teaching content). One scripted fix across 31 files.",
+      "effort": "1h",
+      "evidence_grade": "VERIFIED",
+      "verification_method": "ast.parse on 691 cells + nbclient live kernel; identical cell index and error class from both",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S1",
+      "evidence_tier": "E2"
+    },
+    {
+      "id": "F-2",
+      "severity": "CRITICAL",
+      "category": "fabricated-metrics",
+      "title": "np.random.uniform values reported as model Complexity and Interpretability scores",
+      "affected_files": [
+        "32 template notebooks"
+      ],
+      "anchor_cell": "7-8",
+      "evidence": "complexity_score = np.random.uniform(0.5, 1.0)  # Placeholder\\ninterpretability = np.random.uniform(0.3, 0.9)  # Placeholder\\nresults.append({'Model':name,'RMSE':rmse,'R2':r2,'Complexity':complexity_score,'Interpretability':interpretability})",
+      "impact": "128 instances. Two of six columns in a table headed ENHANCED MODEL COMPARISON RESULTS are RNG draws formatted to 3dp beside genuine RMSE/R2, with no synthetic disclosure. Same R14 fabrication class as the 2026-07-04 platform examination, at 32x the file count.",
+      "remediation": "Delete the RNG columns outright.",
+      "effort": "1w",
+      "evidence_grade": "VERIFIED",
+      "verification_method": "regex scan + source read + live execution of D04",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S2",
+      "evidence_tier": "E2"
+    },
+    {
+      "id": "F-3",
+      "severity": "CRITICAL",
+      "category": "statistical-validity",
+      "title": "Regression target selected by column position, yielding R2=1.000 on a constant target",
+      "affected_files": [
+        "32 template notebooks"
+      ],
+      "anchor_cell": "5",
+      "evidence": "numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()\\nfeature_cols = numeric_cols[:-1]\\ntarget_col = numeric_cols[-1]",
+      "impact": "D01 Census branch -> features=['value'], target='year'=2023 constant -> LinearRegression R2=1.000, RMSE=0.000000. D04 generic branch falls back to y = 2*f1 + f2 + 0.1*noise -> R2=0.996. Tutorials report perfect/near-perfect models for tautologies.",
+      "remediation": "Name the target explicitly per domain; assert y.var()>0 before any .fit().",
+      "effort": "3w",
+      "evidence_grade": "VERIFIED",
+      "verification_method": "standalone reproduction with the notebooks' own seed",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S2",
+      "evidence_tier": "E2"
+    },
+    {
+      "id": "F-4",
+      "severity": "CRITICAL",
+      "category": "fabricated-claims",
+      "title": "Conclusions are hardcoded strings printed regardless of computed results",
+      "affected_files": [
+        "32 template notebooks"
+      ],
+      "anchor_cell": "8-9",
+      "evidence": "\"Model Performance: Combined approaches achieve >85% prediction accuracy for income forecasting\"; D13: \"Analytical Accuracy: >90% for predictive models, >85% for causal inference\"",
+      "impact": "No printed claim reads a computed variable. D13 asserts causal-inference accuracy while implementing no causal inference (dowhy/econml/DiD: 0 matches). Exports 'business_readiness': 'PRODUCTION'.",
+      "remediation": "Any printed claim must read a computed variable or be deleted.",
+      "effort": "1w",
+      "evidence_grade": "OBSERVED",
+      "verification_method": "source read across 33 domain notebooks",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S3",
+      "evidence_tier": "E1"
+    },
+    {
+      "id": "F-5",
+      "severity": "CRITICAL",
+      "category": "content-integrity",
+      "title": "D31, D32, D33 are byte-identical code clones of D01",
+      "affected_files": [
+        "D31_civic_trust",
+        "D32_freedom_civil",
+        "D33_gender_equality"
+      ],
+      "anchor_cell": "all",
+      "evidence": "code-source sha256 f66c6aaee71affae for all four; exact difflib ratio D01<->D31 = 1.0",
+      "impact": "Tutorials on civic trust, civil liberty and gender equality contain verbatim income-and-poverty code incl. Lorenz curves, Gini series IDs, Census B19013_001E and the printed phrase 'prediction accuracy for income forecasting'.",
+      "remediation": "Retire the three files, or write them.",
+      "effort": "1d",
+      "evidence_grade": "VERIFIED",
+      "verification_method": "SHA-256 over concatenated code sources + exact difflib.SequenceMatcher.ratio",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S3",
+      "evidence_tier": "E2"
+    },
+    {
+      "id": "F-6",
+      "severity": "CRITICAL",
+      "category": "causal-inference",
+      "title": "'Causal' is a naming convention; and the one notebook with real causal machinery reports failed falsification tests as passed",
+      "affected_files": [
+        "<unpublished-project>_gru",
+        "economic_<unpublished-project>",
+        "economic_<unpublished-project> copy",
+        "<unpublished-project>_lstm",
+        "<unpublished-project>_gru_county_level",
+        "<unpublished-project>_gru_tract_level",
+        "<unpublished-project>_ridge_state_level"
+      ],
+      "anchor_cell": "15,24,33,34,36,57,62,73",
+      "evidence": "causal_dag built from list ordering and passed as use_causal_gates=True; no estimand/treatment/adjustment set. diabetes ridge stored output: 'FAIL: Negative control effect is AS STRONG as main effect'; 'FAIL: Statistically significant future->past effect ATE +2.1999pp CI [+1.8202,+2.5914]'; 'WEAK ROBUSTNESS (E<1.5)'; vs cell 57 'Falsification Tests: No association with pre-treatment outcomes' and 'Verdict: Academic peer reviewers will approve this methodology'.",
+      "impact": "In 6 of 7 the entire causal content is a hard-coded adjacency matrix passed to a supervised regressor. In the seventh, future poverty 'causes' past diabetes at 3.6x the headline effect and the falsification suite is reported as passed.",
+      "remediation": "Withdraw the ATE or explain the negative-control and future->past failures. Current summary cells must not survive either way.",
+      "effort": "3d",
+      "evidence_grade": "OBSERVED",
+      "verification_method": "full source read + stored-output inspection",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S3",
+      "evidence_tier": "E2"
+    },
+    {
+      "id": "F-7",
+      "severity": "CRITICAL",
+      "category": "integrity",
+      "title": "Executed output contradicts the narrative, systematically in the product's favour",
+      "affected_files": [
+        "<unpublished-project>_ridge_state_level",
+        "<unpublished-project>_gru_tract_level",
+        "spatial_<unpublished-project>_demo",
+        "D30_subjective_wellbeing"
+      ],
+      "anchor_cell": "40,64,66,20,36",
+      "evidence": "'Causal GRU R2 -19.08 vs Standard -12.02' above 'Causal GRU maintains accuracy'; 'System Status: NEEDS IMPROVEMENT' above 'Overall Completion: 11/11 (100%)'; CV Mean R2 -9.2020 alongside 'PRODUCTION READY'; 'Kept: 0 articles in 0 clusters' -> 'Winner: Adaptive'. Pre-written false excuse: 'This is expected with current synthetic demonstration data' emitted in runs where CDC/Census APIs were verifiably called and the same report prints 'Real Data Integration: 100%'.",
+      "impact": "A directional pattern, not random error: every contradiction found favours the product. No counter-example was found in either direction.",
+      "remediation": "Delete the hardcoded verdict prints; gate every banner on the computed metric.",
+      "effort": "1w",
+      "evidence_grade": "OBSERVED",
+      "verification_method": "stored-output vs source reconciliation",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S3",
+      "evidence_tier": "E3"
+    },
+    {
+      "id": "F-8",
+      "severity": "CRITICAL",
+      "category": "fabricated-data",
+      "title": "Simulated scraped content with hash-derived word counts reported at a 100% success rate",
+      "affected_files": [
+        "D34_<unpublished-project> copy"
+      ],
+      "anchor_cell": "48,50,52",
+      "evidence": "'content': f\"Simulated content for {url}...\", 'success': True, 'word_count': 150 + (hash(url) % 500)  ... then: print(f\"Success rate: {successful}/{len(scraped_articles)} ({...*100:.1f}%)\")",
+      "impact": "Executed (execution_count 110). word_count is a pseudo-random integer presented as a measured document length; success hardcoded True makes the 100% rate arithmetically guaranteed. URLs are real (live GDELT), which conceals the fabricated payload. Cell 52 does the same for NER ('Simulation: Extract capitalized words as entities').",
+      "remediation": "Delete or hard-quarantine every Simulat* code path.",
+      "effort": "1w",
+      "evidence_grade": "OBSERVED",
+      "verification_method": "source read + stored execution_count",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S3",
+      "evidence_tier": "E1"
+    },
+    {
+      "id": "F-9",
+      "severity": "CRITICAL",
+      "category": "fabricated-metrics",
+      "title": "Clustering quality metrics fall back to hardcoded constants inside bare except:",
+      "affected_files": [
+        "spatial_<unpublished-project>_demo",
+        "khipu_spatial_<unpublished-project>",
+        "spatial_<unpublished-project>_demo 2"
+      ],
+      "anchor_cell": "13,19,20",
+      "evidence": "except:\\n    silhouette_fixed = 0.093\\n    davies_bouldin_fixed = 1.485    # and in khipu/demo2 also: silhouette_adaptive = 0.30; davies_bouldin_adaptive = 1.20",
+      "impact": "In two variants BOTH arms of the head-to-head are literals, so the 'adaptive wins' conclusion is producible entirely from an exception handler. Compounding: adaptive returned zero clusters and won on a 0.0% largest-cluster tiebreak; df_clustered was then silently reassigned at cell 31 so all downstream figures describe an unannounced clustering.",
+      "remediation": "Remove all metric fallbacks; make df_clustered single-assignment; fail loudly on empty clusterings.",
+      "effort": "1w",
+      "evidence_grade": "OBSERVED",
+      "verification_method": "source read + stored-output inspection",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S2",
+      "evidence_tier": "E3"
+    },
+    {
+      "id": "F-10",
+      "severity": "CRITICAL",
+      "category": "statistical-validity",
+      "title": "D30 draws significant conclusions from independently generated (zero-correlation) data",
+      "affected_files": [
+        "D30_subjective_wellbeing"
+      ],
+      "anchor_cell": "8,18,25,29,38",
+      "evidence": "Every column is an independent np.random.normal draw. Reproduced at seed 42: OLS F p=0.0291, unemployment_rate p=0.0482 (false positive); income p=0.1287, coverage p=0.1902, education p=0.0743. Stated takeaway: 'Income, health coverage, and education significantly predict life satisfaction'.",
+      "impact": "P(>=1 false 'determinant') = 18.4% over 2000 sims. Factor analysis 'reveals latent dimensions' in data with none; cluster labels {0:'High',1:'Moderate',2:'Lower'} assigned by index not by cluster means, so labels may be inverted. The stated takeaway is false by construction AND contradicted by the notebook's own p-values.",
+      "remediation": "Generate with a known covariance matrix (also makes it a better tutorial: true coefficients become recoverable), or use real BRFSS.",
+      "effort": "2d",
+      "evidence_grade": "VERIFIED",
+      "verification_method": "standalone reproduction + 2000-run Type I error simulation",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S2",
+      "evidence_tier": "E2"
+    },
+    {
+      "id": "F-11",
+      "severity": "HIGH",
+      "category": "reproducibility",
+      "title": "Execution provenance unsound in 6 of 7 root ML notebooks",
+      "affected_files": [
+        "economic_<unpublished-project>",
+        "economic_<unpublished-project> copy",
+        "<unpublished-project>_lstm",
+        "<unpublished-project>_gru",
+        "<unpublished-project>_gru_county_level",
+        "<unpublished-project>_gru_tract_level"
+      ],
+      "anchor_cell": "42,54",
+      "evidence": "3 never executed; healthcare dies at cell 5 ImportError; county dies at cell 42 NameError('causal_mask') with 22 downstream cells unrun incl. the production report and a 14,962-char policy section; county exec counts 11->14->16->17->19->5->2->6; tract achieved monotonic 1..50 only by demoting two failing code cells to markdown (cell 54 defines select_causal_features_adaptive as prose, never defined at runtime).",
+      "impact": "county notebook is titled _gru_ and trains no GRU (only RandomForestRegressor); its cell-39 merge collapses 6,289 county records to 36 rows (99.4% loss) while relabelling counties as states.",
+      "remediation": "Require a clean Restart & Run All before any notebook is committed; enforce in CI.",
+      "effort": "1w",
+      "evidence_grade": "OBSERVED",
+      "verification_method": "execution_count ordering + stored error outputs + cell_type inspection",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S1",
+      "evidence_tier": "E3"
+    },
+    {
+      "id": "F-12",
+      "severity": "HIGH",
+      "category": "leakage",
+      "title": "Universal panel leakage; preprocessing fitted before the split in 6 of 7; tautological targets in 5 of 7",
+      "affected_files": [
+        "all 7 root ML notebooks"
+      ],
+      "anchor_cell": "10,11,12,13,14,33,46",
+      "evidence": "economic copy cell 11: '# Fit on training data only' directly above X_scaled = scaler.fit_transform(X_flat). education cell 12: sequence=...; X_sequences.append(sequence); y_outcomes.append(sequence[-1].mean()) -- y is literally a slice of X. county cell 33: Train R2 0.9099 vs Test R2 0.6053 with same counties both sides.",
+      "impact": "No grouped split, no fixed effects, no clustered SEs anywhere in 7 notebooks. Reported R2 largely measures memorised entity levels.",
+      "remediation": "Grouped splits everywhere there are repeated measures; fit all preprocessing inside the training fold.",
+      "effort": "1w",
+      "evidence_grade": "OBSERVED",
+      "verification_method": "source read",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S2",
+      "evidence_tier": "E1"
+    },
+    {
+      "id": "F-13",
+      "severity": "HIGH",
+      "category": "data-provenance",
+      "title": "Real federal program names attached to fabricated numbers, and wrong constructs where data is real",
+      "affected_files": [
+        "economic_<unpublished-project>",
+        "<unpublished-project>_lstm",
+        "<unpublished-project>_ridge_state_level",
+        "<unpublished-project>_gru_county_level",
+        "<unpublished-project>_gru_tract_level"
+      ],
+      "anchor_cell": "8,10,12,16,25",
+      "evidence": "FRED/BLS fetched into fred_data/bls_data then never referenced again; under header '3.3 Merge Multi-Domain Data' no merge occurs and data is fabricated with np.random while the title block still lists FRED/BLS/BEA. Where real: year_data['uninsured_rate'] = year_data['B27001_005E'] / year_data['B01003_001E'] -- B27001_005E is males under 6 with no coverage; measured mean 0.001588 (0.16%) vs true ~9%.",
+      "impact": "uninsured_rate is off by ~50x and is one of only two confounders in the causal identification. education_level shares the denominator error.",
+      "remediation": "Fix denominators (B15003_022E/B15003_001E; correct uninsured table); re-run every downstream estimate.",
+      "effort": "2d",
+      "evidence_grade": "OBSERVED",
+      "verification_method": "source read + stored-output values",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S2",
+      "evidence_tier": "E4"
+    },
+    {
+      "id": "F-14",
+      "severity": "HIGH",
+      "category": "security",
+      "title": "Live API-key prefixes committed to git in stored notebook outputs",
+      "affected_files": [
+        "<unpublished-project>_ridge_state_level",
+        "<unpublished-project>_gru_county_level",
+        "<unpublished-project>_gru_tract_level",
+        "spatial_<unpublished-project>_demo"
+      ],
+      "anchor_cell": "0,14",
+      "evidence": "CENSUS_API_KEY: <redacted>... / FRED_API_KEY: <redacted>... / BLS_API_KEY: <redacted>... in cell-0 stored output of a git-TRACKED notebook; prefixes match live keys in .env. Also jina_<redacted>... (10 of 65 chars, with exact length), GCP project khipu-media-intel-<redacted>, 282 occurrences of <operator-home>/... paths, skip_license_check in 7 notebooks (16-20 calls each).",
+      "impact": ".env itself is correctly gitignored and never committed (verified via git log --all -- .env). Exposure is via stored outputs. Repo carries dual MIT/CC-BY-SA-4.0 licence and open CONTRIBUTING.md, i.e. built to be published.",
+      "remediation": "Rotate CENSUS, FRED, BLS and Jina keys. Install nbstripout. Strip stored outputs from all tracked notebooks.",
+      "effort": "1h",
+      "evidence_grade": "VERIFIED",
+      "verification_method": "git ls-files --error-unmatch + stored-output regex + .env cross-match",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S0",
+      "evidence_tier": "E3"
+    },
+    {
+      "id": "F-15",
+      "severity": "HIGH",
+      "category": "governance",
+      "title": "CI is structurally incapable of catching any of these defects (false green)",
+      "affected_files": [
+        ".github/workflows/notebook-validation.yml",
+        ".github/workflows/tutorial-quality.yml"
+      ],
+      "anchor_cell": "n/a",
+      "evidence": "notebook-validation.yml calls nbformat.read() and prints 'Valid structure' -- validates JSON well-formedness only, never compiles or executes a cell; all 53 pass incl. the 31 that cannot run. tutorial-quality.yml content-quality steps all carry continue-on-error: true (lines 129,183,218,250).",
+      "impact": "5 of 8 workflows disabled (test, tests, lint, security-checks, build-and-sign). <tool>.md's stated requirement 'All notebooks must execute without error via jupyter nbconvert --execute' has no implementing check anywhere.",
+      "remediation": "Add a blocking compile gate; remove continue-on-error from the 4 content steps; re-enable security-checks.yml and tests.yml; add an nbconvert --execute job with cached fixtures.",
+      "effort": "2h",
+      "evidence_grade": "VERIFIED",
+      "verification_method": "workflow source read",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S4",
+      "evidence_tier": "E1"
+    },
+    {
+      "id": "F-16",
+      "severity": "MEDIUM",
+      "category": "hygiene",
+      "title": "Undeclared dependencies, placeholder models counted as evaluated, and 3.92 MiB of duplicate files",
+      "affected_files": [
+        "D06_inequality_and_wealth",
+        "D11_cultural_economics",
+        "32 template notebooks",
+        "10_advanced_nlp/D34_<unpublished-project>/"
+      ],
+      "anchor_cell": "6,8",
+      "evidence": "mesa imported by D06/D11, absent from pyproject.toml dependencies; live kernel ModuleNotFoundError at cell 6 BEFORE the F-1 syntax error. \"Gradient Boosting\": None,  # Placeholder in all 32 templates, silently skipped then counted in f'Evaluated {len(comparison_results)} models'. Byte-identical pairs: advanced==advanced copy, demo copy 2==demo copy 4 (1.20 MiB); 3.92 MiB across 14 duplicate groups incl. 38 *.ipynb.backup* files.",
+      "impact": "demo copy 2/copy 4 are renamed stale backups from a known newline-corruption incident (fix_cell9_newlines.py in the same dir): 4 cells newline-stripped into single lines beginning with #, silently commenting out clustering, visualisation and bias steps. Neither has ever been executed.",
+      "remediation": "Declare mesa; delete the duplicates, the corrupt backups and test_kernel.ipynb; implement or remove the placeholder models.",
+      "effort": "1d",
+      "evidence_grade": "VERIFIED",
+      "verification_method": "live kernel + pyproject read + SHA-256 duplicate detection",
+      "status": "open",
+      "outcome": null,
+      "failure_class": "S6",
+      "evidence_tier": "E2"
+    },
+    {
+      "id": "F-17",
+      "severity": "HIGH",
+      "failure_class": "S4",
+      "evidence_tier": "E3",
+      "category": "governance",
+      "title": "Production mechanism for 33 shipped artifacts is not under version control",
+      "affected_files": [
+        "notebooks/01-fundamentals/..09_planned/ (D01-D33)",
+        "the showcase sub-project/templates/notebook_template.ipynb"
+      ],
+      "anchor_cell": "n/a",
+      "evidence": "Exactly 31 of 33 domain notebooks contain the 'Khipu notebook executor' block and exactly those 31 fail to parse (100% penetrance). No generator/scaffold/builder producing D01-D33 exists in either tree. the showcase sub-project/templates/notebook_template.ipynb (committed 2025-11-29) is unrelated and parses cleanly; it imports `SyntheticDataGenerator`, `DataProvenance` and a `DEMO_MODE` flag.",
+      "impact": "The provenance discipline whose absence causes F-2/F-3/F-8/F-9/F-13 already exists in this repository and was never applied to the tutorial corpus. Two cohort-wide remediation sweeps on 2026-04-30 (#20, #21) touched these files and neither executed them; a parse failure survived both. All 33 domain notebooks carry zero stored outputs and zero execution counts, so for this family there is no output-vs-source mismatch to explain - they were committed without being run.",
+      "remediation": "Locate or reconstruct the generator before regenerating. The P0 scripted fix across 31 files is containment and disposable work, not remediation.",
+      "effort": "1w",
+      "verification_method": "penetrance correlation + repository-wide search + git log + execution-count scan",
+      "status": "open",
+      "outcome": null
+    }
+  ],
+  "self_corrections": [
+    "Preliminary corpus similarity of ~93% used difflib.quick_ratio (an upper bound). Exact median ratio to D01 across the other 32 domain notebooks is 45.7% (min 1.1%, max 100.0%). Clone claim restated on SHA-256 identity (D31/32/33) and section-header fingerprinting (12 sequences across 33 notebooks).",
+    "An initial undefined-name pass checked loads against prior cells only, ignoring intra-cell definitions, and over-reported ~14 symbols per notebook. Resolved per-symbol: `viz` in line B is a false positive (string literal); `validated_articles` is a silent wrong number, not a crash; only `nx` in D34_<unpublished-project>_advanced cell 32 is a confirmed hard break, and it is latent.",
+    "D34_<unpublished-project> copy cell 48 fails static compile() with \"'await' outside function\" -- an analysis artefact; IPython permits top-level await. Dismissed, not reported."
+  ],
+  "uncertain": [
+    {
+      "item": "Whether FREDFullConnector.fetch_series(frequency='monthly') interpolates quarterly GDPC1",
+      "resolves_by": "read krl-data-connectors/.../economic/"
+    },
+    {
+      "item": "Whether the lambda=0.15 'empirically optimised across 50+ policy topics' study exists",
+      "resolves_by": "produce the sweep artefact, or withdraw the claim from cells 0/30/66"
+    },
+    {
+      "item": "Whether GRUModel.causal_gates.causal_mask assignment has any effect",
+      "resolves_by": "read krl-model-zoo/.../gru.py; constant-output behaviour is consistent with either a working mask or a dead network"
+    },
+    {
+      "item": "Whether the state notebook's stored outputs come from a single run",
+      "resolves_by": "fresh Restart & Run All"
+    },
+    {
+      "item": "Exact CDC PLACES MRP covariate set (basis of the county/tract circularity argument)",
+      "resolves_by": "PLACES methodology docs for the release years"
+    }
+  ],
+  "audit_limitations": [
+    "Root ML notebook execution failures are ENV-CONFOUNDED (private krl_data_connectors absent) and are excluded from the 31-failure count; their defects rest on code reading and stored outputs, not on this audit's execution.",
+    "34 of 53 notebooks were not executed: all are either compile-failures (proof of non-execution) or D34 variants covered by dedicated source review.",
+    "This audit was produced by systems of the same class that generated the notebooks. Not mitigated; stated on the record. Every CRITICAL finding is anchored to a verbatim quote and a reproducible command."
+  ],
+  "revision": {
+    "issue": 2,
+    "date": "2026-09-13",
+    "trigger": "independent adversarial review of issue 1",
+    "changes": [
+      "severity reclassified into S0-S6 failure classes alongside CRITICAL/HIGH/MEDIUM",
+      "evidence tiers E1-E5 introduced and applied; no finding reaches E5",
+      "corpus-wide 'never executed' claim withdrawn and rescoped to the domain family",
+      "'fabricated' replaced with provenance-misrepresentation language throughout",
+      "F-6 placebo-timing inference withdrawn (see withdrawn_inferences)",
+      "F-17 added: generator not under version control; provenance discipline exists unused",
+      "F-13 raised to E4 by Census API data-dictionary verification",
+      "earlier false-positive template finding corrected"
+    ]
+  },
+  "failure_class_counts": {
+    "S1": 2,
+    "S2": 6,
+    "S3": 5,
+    "S0": 1,
+    "S4": 2,
+    "S6": 1
+  },
+  "withdrawn_inferences": [
+    {
+      "finding": "F-6",
+      "withdrawn": "That the placebo-timing result (future poverty -> past diabetes, +2.1999pp, CI [+1.8202,+2.5914], n=261) is direct evidence the main ATE is confounded.",
+      "reason": "Test mechanics verified sound (genuine within-state groupby('state').shift(-1) on a real 51-state x 7-year panel). But state poverty rates are near-perfectly persistent year-over-year, so poverty_high_lead is close to collinear with the actual treatment. The test has little power to discriminate and would be expected to fail for ANY highly persistent exposure, valid main estimate or not.",
+      "what_survives": "The narrative contradiction is E2-verified and release-blocking: the notebook's own diagnostics show positivity violations, poor post-IPW balance on both confounders, and E-value 1.29, while summary cells assert the falsification suite passed. Correct statement: the causal estimand is not release-ready and the validation claim is inconsistent with the notebook's own diagnostic output - NOT that the effect is confounded."
+    },
+    {
+      "finding": "(issue 1 headline)",
+      "withdrawn": "That the corpus 'was never executed'.",
+      "reason": "The D34 family carries monotonic execution counts and the diabetes notebooks called live CDC and Census endpoints. Execution demonstrably occurred.",
+      "what_survives": "Scoped to the domain family the claim is E2-verified: all 33 of D01-D33 carry zero stored outputs and zero execution counts. Corpus-wide, the correct claim is uncontrolled execution provenance."
+    },
+    {
+      "finding": "(issue 1, F-17 precursor)",
+      "withdrawn": "That the showcase sub-project/templates/notebook_template.ipynb carries the F-1 defect.",
+      "reason": "False positive from a substring match on the word 'Khipu' in an import line. The template parses cleanly and shares no code with the domain family.",
+      "what_survives": "A stronger finding: no generator for the domain family is under version control at all (F-17)."
+    }
+  ],
+  "e4_validations": [
+    {
+      "variable": "B27001_005E",
+      "label": "Estimate!!Total:!!Male:!!Under 6 years:!!No health insurance coverage",
+      "source": "https://api.census.gov/data/2022/acs/acs5/groups/B27001.html",
+      "supports": "F-13",
+      "result": "claim confirmed"
+    },
+    {
+      "variable": "B15003_022E",
+      "label": "Estimate!!Total:!!Bachelor's degree",
+      "universe": "Population 25 Years and Over",
+      "source": "https://api.census.gov/data/2022/acs/acs5/groups/B15003.html",
+      "supports": "F-13",
+      "result": "claim confirmed; correct denominator is B15003_001E, not B01003_001E"
+    }
+  ],
+  "release_contract": "A notebook is releasable only if its executable state, data provenance, computational results, statistical interpretation and narrative claims are mutually consistent, and every reported quantity is explicitly classified as empirical, estimated, simulated, illustrative or hypothetical.",
+  "evidence_package": {
+    "manifest": "docs/audits/audit_manifest_2026-09-13.jsonl",
+    "environment": "docs/audits/audit_environment_2026-09-13.json",
+    "note": "53 records; each carries artifact_sha256, code_source_sha256, live-tree commit, execution_count vector, monotonicity flag, and for every parse failure the cell index, exception class and that cell's source sha256."
+  }
+}

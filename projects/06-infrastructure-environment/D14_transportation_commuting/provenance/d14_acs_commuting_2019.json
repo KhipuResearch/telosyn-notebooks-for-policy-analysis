@@ -1,0 +1,46 @@
+{
+  "source_name": "U.S. Census Bureau",
+  "dataset": "American Community Survey (acs/acs5)",
+  "vintage": "2019",
+  "endpoint": "https://api.census.gov/data/2019/acs/acs5",
+  "variables": {
+    "B08301_001E": "B08301_001E",
+    "B08301_001M": "B08301_001M",
+    "B08301_021E": "B08301_021E",
+    "B08301_021M": "B08301_021M",
+    "B08303_001E": "B08303_001E",
+    "B08303_001M": "B08303_001M",
+    "B08136_001E": "B08136_001E",
+    "B08136_001M": "B08136_001M",
+    "B08303_002E": "B08303_002E",
+    "B08303_003E": "B08303_003E",
+    "B08303_004E": "B08303_004E",
+    "B08303_005E": "B08303_005E",
+    "B08303_006E": "B08303_006E",
+    "B08303_007E": "B08303_007E",
+    "B08303_008E": "B08303_008E",
+    "B08303_009E": "B08303_009E",
+    "B08303_010E": "B08303_010E",
+    "B08303_011E": "B08303_011E",
+    "B08303_012E": "B08303_012E",
+    "B08303_013E": "B08303_013E"
+  },
+  "retrieved_utc": "2026-09-18T12:13:07+00:00",
+  "row_count": 133,
+  "column_count": 23,
+  "content_sha256": "a5c2583bde19bf375ec73b5a8fe7f697e2d81f46ca0bf5dd726c682e2ee6aea8",
+  "mode": "empirical",
+  "notes": [
+    "ACS estimates are survey-based and carry margins of error that are not retrieved here; differences between geographies may not be statistically distinguishable.",
+    "Jam values (suppressed / unavailable estimates) were converted to missing. Sentinels recognised: [-999999999, -888888888, -777777777, -666666666, -555555555, -333333333, -222222222, -111111111].",
+    "5-year estimates are period estimates, not point-in-time measures."
+  ],
+  "pinned": true,
+  "hash_basis": "canonical-rows",
+  "request_params": {
+    "get": "NAME,B08301_001E,B08301_001M,B08301_021E,B08301_021M,B08303_001E,B08303_001M,B08136_001E,B08136_001M,B08303_002E,B08303_003E,B08303_004E,B08303_005E,B08303_006E,B08303_007E,B08303_008E,B08303_009E,B08303_010E,B08303_011E,B08303_012E,B08303_013E",
+    "for": "county:*",
+    "key": "<redacted>",
+    "in": "state:51"
+  }
+}

@@ -7,6 +7,10 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 # Telosyn Notebooks for Policy Analysis
 
+[![CI](https://github.com/KhipuResearch/telosyn-notebooks-for-policy-analysis/actions/workflows/test.yml/badge.svg)](https://github.com/KhipuResearch/telosyn-notebooks-for-policy-analysis/actions/workflows/test.yml)
+![Python 3.11 | 3.12](https://img.shields.io/badge/python-3.11%20%7C%203.12-3776AB?logo=python&logoColor=white)
+![License: Proprietary](https://img.shields.io/badge/license-Proprietary-7f1d1d)
+
 **A reproducible portfolio of public-data case studies in Python: for each of
 eighteen U.S. federal and institutional sources, what it measures, what it
 withholds, and the specific conclusion it cannot carry.**

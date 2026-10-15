@@ -1,13 +1,13 @@
 cff-version: 1.2.0
 message: "If you refer to this corpus, cite it as below. Citation does not imply any licence to reuse the material; see LICENSE."
-title: "Khipu Methods Corpus"
+title: "Telosyn Notebooks for Policy Analysis"
 type: software
 authors:
   - name: "Telosyn, Inc."
     email: contact@telosyn.co
 version: "1.0.0"
 date-released: "2026-10-15"
-repository-code: "https://github.com/KhipuResearch/khipu-methods-corpus"
+repository-code: "https://github.com/KhipuResearch/telosyn-notebooks-for-policy-analysis"
 license: "LicenseRef-Proprietary"
 keywords:
   - public-data

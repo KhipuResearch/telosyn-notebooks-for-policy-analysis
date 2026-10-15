@@ -1,117 +1,51 @@
+<!--
+© 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
+Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
+SPDX-License-Identifier: LicenseRef-Proprietary
+-->
+
 # Security Policy
 
-## Supported Versions
+## Reporting a vulnerability
 
-We provide security updates for the following versions:
+**Do not report security problems through public GitHub issues.**
 
-| Version | Supported          |
-| ------- | ------------------ |
-| main    | :white_check_mark: |
-| < 1.0   | :x:                |
+Email **contact@telosyn.co** with: what the problem is, the file or notebook it
+affects (path and, if relevant, commit), how to reproduce it, and what you
+believe the impact to be. You will receive an acknowledgment, and the report
+will be worked with you until it is resolved. Public disclosure follows a fix,
+and you will be credited unless you ask not to be.
 
-## Reporting a Vulnerability
+## What the repository does to protect you
 
-**Please do not report security vulnerabilities through public GitHub issues.**
-
-If you discover a security vulnerability, please send an email to:
-
-**contact@telosyn.co**
-
-Include the following information:
-
-- Type of vulnerability
-- Full paths of source file(s) related to the vulnerability
-- Location of the affected source code (tag/branch/commit or direct URL)
-- Step-by-step instructions to reproduce the issue
-- Proof-of-concept or exploit code (if possible)
-- Impact of the vulnerability
-
-### What to Expect
-
-- **Acknowledgment**: Within 48 hours
-- **Initial Assessment**: Within 5 business days
-- **Regular Updates**: Every 5-7 days until resolution
-- **Fix Timeline**: Varies by severity (critical issues prioritized)
-
-### Disclosure Policy
-
-- We will confirm receipt of your report
-- We will work with you to understand and validate the issue
-- We will develop and test a fix
-- We will publicly disclose the vulnerability after a fix is released
-- We will credit you for the discovery (unless you prefer to remain anonymous)
-
-## Security Best Practices for Users
-
-### API Keys
-
-**Never commit API keys to version control.**
-
-Always use environment variables:
+**Credentials.** The notebooks read at most six named API keys, all free, from
+a file you keep outside the repository and point to with `KRL_SECRETS_PATH`:
 
 ```bash
-export FRED_API_KEY=your_key_here
-export CENSUS_API_KEY=your_key_here
-export BLS_API_KEY=your_key_here
+cp .env.example ~/.krl/tutorials.env       # fill in your keys
+export KRL_SECRETS_PATH=~/.krl/tutorials.env
 ```
 
-Or create a local configuration file (excluded from git):
+The six names are a closed set (`ALLOWED_KEYS` in
+`src/krl_tutorials_data/sources.py`). Anything else in that file is never
+opened. Keys are never logged, echoed or written into a notebook's output; one
+release gate scans committed output for key material, and the client redacts
+credentials from any error it surfaces. A filled-in `.env` is ignored by git,
+and `.gitleaks.toml` and the pre-commit configuration scan for secrets before a
+commit lands.
 
-```bash
-# ~/.krl/apikeys
-FRED_API_KEY=your_key_here
-CENSUS_API_KEY=your_key_here
-```
+**Data.** The notebooks retrieve only public, published data from the sources
+named in each provenance record. No personal data is collected or stored.
 
-### Data Privacy
+**Dependencies.** Runtime dependencies are declared in `pyproject.toml` and
+checked by a test that every one is actually imported and nothing imported is
+undeclared. Dependabot is enabled.
 
-- Never include personally identifiable information (PII) in notebooks
-- Sanitize or anonymize data before sharing
-- Be cautious when publishing notebooks with real data
+**Network.** The test suite makes no network calls. Only a notebook, run by you
+with your keys, reaches a publisher's endpoint, and every such retrieval is
+recorded with its digest.
 
-### Dependencies
+## Scope
 
-Keep dependencies up to date:
-
-```bash
-pip install --upgrade -r requirements.txt
-```
-
-### Pre-commit Hooks
-
-Use our security checks:
-
-```bash
-pip install pre-commit
-pre-commit install
-pre-commit run --all-files
-```
-
-This runs:
-- Secret detection (gitleaks)
-- Security scanning (bandit)
-- Code quality checks
-
-## Known Issues
-
-We maintain a list of known security issues and their status in our [Security Advisory](https://github.com/KhipuResearch/krl-tutorials/security/advisories) page.
-
-## Security Tools
-
-This repository uses:
-
-- **gitleaks**: Secret detection in commits
-- **bandit**: Python security linter
-- **safety**: Dependency vulnerability scanner
-- **pre-commit**: Automated security checks
-
-## Questions?
-
-For security questions (non-vulnerability related), contact:
-
-**contact@telosyn.co**
-
----
-
-© 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.  
-Khipu℠ is a service mark of Telosyn, Inc.
+This policy covers the contents of this repository. Problems with a publisher's
+API belong with that publisher.

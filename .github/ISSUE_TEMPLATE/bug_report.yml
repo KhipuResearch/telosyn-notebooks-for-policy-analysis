@@ -1,0 +1,99 @@
+name: Bug Report
+description: Report a bug or issue with a tutorial notebook
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please provide detailed information to help us fix the issue.
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain/Notebook
+      description: Which domain or notebook is affected?
+      options:
+        - D01 - Income & Poverty
+        - D02 - Employment & Labor
+        - D03 - Education
+        - D04 - Health
+        - D05 - Housing
+        - D06 - Inequality & Wealth
+        - D07 - Demographics & Migration
+        - D08 - Consumer Behavior
+        - D09 - Industry & Economic Structure
+        - D10 - Social Mobility
+        - D11 - Cultural Economics
+        - D12 - Environmental Economics
+        - D13 - Crime & Public Safety
+        - D14 - Transportation & Commuting
+        - D15 - Business & Entrepreneurship
+        - D16 - Internet & Technology Access
+        - D17 - Food Security & Agriculture
+        - D18 - Social Services & Safety Net
+        - D19 - Civic Engagement & Political
+        - D20 - Digital Economy
+        - D21 - Social Capital
+        - D22 - Cultural Consumption
+        - D23 - Transportation Equity
+        - D24 - Environmental Justice
+        - D25 - Food & Nutrition
+        - D26 - Public Safety
+        - D27 - Housing Affordability & Gentrification
+        - D28 - Mental Health & Wellbeing
+        - D29 - Innovation & Entrepreneurship
+        - D30 - Subjective Wellbeing
+        - D31 - Civic Trust
+        - D32 - Freedom & Civil Liberties
+        - D33 - Gender Equality
+        - Other / Multiple
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear description of what the bug is
+      placeholder: When I run cell X, I get error Y...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Open notebook '...'
+        2. Execute cell '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Please provide your environment details
+      value: |
+        - OS: [e.g., macOS 14, Windows 11, Ubuntu 22.04]
+        - Python Version: [e.g., 3.9, 3.10, 3.11]
+        - Key Package Versions: [e.g., pandas 2.0, numpy 1.24]
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, or error logs

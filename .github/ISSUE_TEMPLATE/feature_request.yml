@@ -1,0 +1,59 @@
+name: Feature Request
+description: Suggest a new tutorial, domain, or enhancement
+title: "[FEATURE] "
+labels: ["enhancement", "needs-review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement! We welcome ideas for new tutorials, domains, and features.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Request Type
+      description: What type of feature are you suggesting?
+      options:
+        - New tutorial/notebook
+        - New domain area
+        - Enhancement to existing tutorial
+        - New visualization
+        - New data source integration
+        - Documentation improvement
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What need does it address?
+      placeholder: Currently, there's no tutorial covering X, which would help analysts...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your proposed solution
+      placeholder: I suggest adding a notebook that demonstrates...
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples & References
+      description: Any examples, academic papers, or references that support this feature?
+      placeholder: |
+        - Similar analysis: https://...
+        - Research paper: Author et al. (2024)
+        - Data source: https://...
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context, mockups, or details

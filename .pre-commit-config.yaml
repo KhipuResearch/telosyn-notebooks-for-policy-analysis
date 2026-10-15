@@ -1,0 +1,33 @@
+# © 2026 Telosyn, Inc. All rights reserved.
+# SPDX-License-Identifier: LicenseRef-Proprietary
+#
+# Everything here runs on a clean checkout with `pre-commit install`. The
+# previous configuration referenced a secrets baseline and two scripts that
+# did not exist, so it failed at install time; a hook that cannot run is a
+# claim about rigour with nothing behind it.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=5000"]
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+        exclude: \.ipynb$
+      - id: trailing-whitespace
+        exclude: \.ipynb$
+      - id: detect-private-key
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+        files: ^(src|scripts|tests)/
+      - id: ruff-format
+        files: ^(src|scripts|tests)/
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks

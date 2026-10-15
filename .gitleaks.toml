@@ -1,0 +1,66 @@
+# © 2026 Telosyn, Inc. All rights reserved.
+# Exclusively licensed to Deloatch, Williams, Faison & Parker, LLLP.
+#
+# CONFIDENTIAL AND PROPRIETARY. Unauthorized use, reproduction, or
+# distribution is strictly prohibited. See LICENSE for terms.
+
+# GIT Leaks configuration for secret detection
+# Detects hardcoded secrets, API keys, credentials
+
+title = "Khipu Intelligence Suite - Secret Detection"
+
+[extend]
+# Use default gitleaks rules
+useDefault = true
+
+# Additional custom rules for KRL-specific secrets
+[[rules]]
+id = "krl-api-key"
+description = "Detected KRL API key"
+regex = '''krl_[a-zA-Z0-9]{32,}'''
+tags = ["key", "KRL"]
+
+[[rules]]
+id = "fred-api-key"
+description = "Detected FRED API key"
+regex = '''[a-f0-9]{32}'''
+path = '''(fred|data_connectors)'''
+tags = ["key", "FRED"]
+
+[[rules]]
+id = "census-api-key"
+description = "Detected Census API key"
+regex = '''[a-f0-9]{40}'''
+path = '''(census|data_connectors)'''
+tags = ["key", "Census"]
+
+[[rules]]
+id = "aws-access-key"
+description = "Detected AWS Access Key"
+regex = '''AKIA[0-9A-Z]{16}'''
+tags = ["key", "AWS"]
+
+[[rules]]
+id = "generic-secret"
+description = "Detected generic secret variable"
+regex = '''(?i)(secret|password|token|api_key)\s*=\s*["'][^"']{8,}["']'''
+tags = ["secret"]
+
+# Allowlist patterns to reduce false positives
+[allowlist]
+description = "Global allowlist"
+paths = [
+    '''\.md$''',  # Markdown files (documentation)
+    '''\.txt$''',  # Text files
+    '''LICENSE''',  # License files
+    '''CHANGELOG''',  # Changelog files
+    '''^tests/fixtures/''',  # Test fixtures
+]
+
+regexes = [
+    '''example\.com''',  # Example domains
+    '''your-api-key-here''',  # Placeholder text
+    '''xxx+''',  # Placeholder secrets
+    '''123456789''',  # Example numeric values
+    '''abcdefghijklmnop''',  # Example alphabetic values
+]

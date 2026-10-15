@@ -1,0 +1,31 @@
+{
+  "source_name": "Zillow Research",
+  "dataset": "ZHVI, All Homes (SFR/Condo), smoothed & seasonally adjusted, county (2026-08 release (series through 2026-07))",
+  "vintage": "2026-08 release (series through 2026-07)",
+  "endpoint": "file://data/zillow/2026-08/County_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv",
+  "variables": {
+    "RegionName": "county name",
+    "StateName": "state postal abbreviation",
+    "StateCodeFIPS": "state FIPS",
+    "MunicipalCodeFIPS": "county FIPS within state",
+    "2000-01-31": "ZHVI at the baseline month",
+    "2026-07-31": "ZHVI at the latest published month"
+  },
+  "retrieved_utc": "2026-09-18T12:16:50+00:00",
+  "row_count": 3071,
+  "column_count": 328,
+  "content_sha256": "01ccc62277cd314e80c008a9816d8e39fb23339115d28ea78e25ab62cf3c3574",
+  "mode": "empirical",
+  "notes": [
+    "Bulk download, not an API. Publisher: Zillow Research.",
+    "Vintage 2026-08 release (series through 2026-07), retrieved 2026-09-13.",
+    "File size 13,520,396 bytes; SHA-256 of the bytes read is recorded above.",
+    "Digest was pinned in the notebook and matched.",
+    "Parsed by krl-data-connectors, which this package treats as read-only upstream and does not modify.",
+    "Publisher terms: https://www.zillow.com/corporate/terms-of-use/"
+  ],
+  "pinned": true,
+  "hash_basis": "response-bytes",
+  "request_params": {},
+  "request_method": "GET"
+}

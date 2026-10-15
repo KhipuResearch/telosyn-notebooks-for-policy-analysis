@@ -1,0 +1,27 @@
+{
+  "source_name": "Centers for Disease Control and Prevention (PLACES)",
+  "dataset": "PLACES county estimates, 2025 release, crude prevalence",
+  "vintage": "2025",
+  "endpoint": "https://data.cdc.gov/resource/i46a-9kgh.json?%24select=countyfips%2Ccountyname%2Cstatedesc%2Ctotalpopulation%2Cdiabetes_crudeprev%2Cdiabetes_crude95ci%2Ccasthma_crudeprev%2Ccasthma_crude95ci%2Cobesity_crudeprev%2Cobesity_crude95ci%2Cdepression_crudeprev%2Cdepression_crude95ci&%24limit=5000&%24where=statedesc%3D%27Virginia%27",
+  "variables": {
+    "diabetes": "diabetes crude prevalence and 95% interval",
+    "casthma": "casthma crude prevalence and 95% interval",
+    "obesity": "obesity crude prevalence and 95% interval",
+    "depression": "depression crude prevalence and 95% interval"
+  },
+  "retrieved_utc": "2026-09-18T12:12:58+00:00",
+  "row_count": 133,
+  "column_count": 28,
+  "content_sha256": "b7f44c799599220986a6adbee0b5774ed887fa168df83357047da273a65264c9",
+  "mode": "empirical",
+  "notes": [
+    "MODEL-BASED estimate. Each county value is a prediction from a multilevel model fitted to BRFSS and poststratified against Census population and ACS covariates; it is not a measurement taken in that county, and a county may contribute no BRFSS respondents at all.",
+    "The published interval is a modelled credible interval, not a sampling margin of error. It is not comparable to an ACS MOE.",
+    "Standard errors here are recovered from the interval assuming symmetry. Worst observed asymmetry in this pull: 2.000 percentage points.",
+    "Measures within one release may rest on different BRFSS years: the 2025 release uses 2023 BRFSS for 35 measures and 2022 for 5. A single release is not a single vintage.",
+    "Do not rank counties on these estimates. Handbook \u00a77.2 measures the consequence: 0 of 2,956 counties have a determined rank, including for a measure whose reliability is 0.87."
+  ],
+  "pinned": true,
+  "hash_basis": "canonical-json",
+  "request_params": {}
+}

@@ -12,9 +12,9 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "krl-tutorials"
+name = "telosyn-notebooks"
 version = "0.2.0"
-description = "Khipu Methods Corpus: reproducible notebooks on what public socioeconomic data can and cannot support"
+description = "Telosyn Notebooks for Policy Analysis: reproducible notebooks on what public socioeconomic data can and cannot support"
 readme = "README.md"
 authors = [
     { name = "Telosyn, Inc.", email = "contact@telosyn.co" },

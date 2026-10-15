@@ -1,5 +1,5 @@
 <!--
-© 2026 Telosyn, Inc. All rights reserved.
+© 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
 SPDX-License-Identifier: LicenseRef-Proprietary
 -->
 
@@ -48,7 +48,7 @@ Inferred from hook id and entry line:
 
 | Script | Inferred purpose | Downstream effect of absence |
 |---|---|---|
-| `add_copyright_headers.py` | Inject `© 2026 Telosyn, Inc. All rights reserved.` header into Python / Markdown / YAML files missing one | New files can land without copyright headers; manual review catches most but not all |
+| `add_copyright_headers.py` | Inject `© 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.` header into Python / Markdown / YAML files missing one | New files can land without copyright headers; manual review catches most but not all |
 | `check_trademarks.py` | Verify `README.md` contains the `<retired-name>™ is a trademark of <retired-name>, Inc.` line | `README.md` could drift out of trademark compliance without detection |
 | `inject_watermark.py` | Stamp a release watermark into distributed artifacts before signing | Disabled pipeline would publish unwatermarked artifacts if ever re-enabled |
 | `.secrets.baseline` | Known-non-secret fingerprints to suppress false positives in `detect-secrets` | Every `detect-secrets` run treats the baseline as empty; false-positive-heavy output or outright hook failure |

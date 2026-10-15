@@ -1,4 +1,4 @@
-# © 2026 Telosyn, Inc. All rights reserved.
+# © 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
 # Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
 
 """BLS QCEW connector mock-fixture (D02 dependency).

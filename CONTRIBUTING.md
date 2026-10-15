@@ -158,5 +158,5 @@ By contributing, you agree that your contributions are licensed on those terms.
 
 ---
 
-© 2026 Telosyn, Inc. All rights reserved.  
+© 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.  
 Khipu℠ is a service mark of Telosyn, Inc.

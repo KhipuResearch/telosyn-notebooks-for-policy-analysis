@@ -1,4 +1,4 @@
-# © 2026 Telosyn, Inc. All rights reserved.
+# © 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
 # Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
 #
 # CONFIDENTIAL AND PROPRIETARY. Unauthorized use, reproduction, or
@@ -17,7 +17,7 @@ version = "0.2.0"
 description = "Telosyn Notebooks for Policy Analysis: reproducible notebooks on what public socioeconomic data can and cannot support"
 readme = "README.md"
 authors = [
-    { name = "Telosyn, Inc.", email = "contact@telosyn.co" },
+    { name = "Deloatch, Williams, Faison & Parker, LLLP" },
 ]
 maintainers = [
     { name = "Telosyn, Inc.", email = "contact@telosyn.co" },

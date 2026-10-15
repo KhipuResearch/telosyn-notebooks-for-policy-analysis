@@ -1,4 +1,4 @@
-# © 2026 Telosyn, Inc. All rights reserved.
+# © 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-Proprietary
 """Gate 11 — a document may only point at things that exist.
 

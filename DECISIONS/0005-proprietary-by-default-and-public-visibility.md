@@ -30,7 +30,7 @@ statement that granted permissions in prose without naming one:
 
 | Location | What it said |
 |---|---|
-| `<tool>.md:45` | *"Dual license: MIT for code, CC-BY-SA 4.0 for educational content"* — the operating brief **every <tool> session reads** before touching the repository |
+| Internal operating brief, line 45 | *"Dual license: MIT for code, CC-BY-SA 4.0 for educational content"* — the brief **every contributor reads** before touching the repository |
 | `docs/wiki/FAQ.md` | *"Can I use these for teaching a class? **Yes! That's encouraged.** The dual licensing allows: … Modifying for your curriculum … Creating derivative materials"* |
 | `docs/wiki/FAQ.md` | *"Who owns the copyright? [the project's then name] retains copyright. Content is dual-licensed"* |
 | `docs/wiki/Home.md:89` | *"**License**: Dual Licensed (MIT + CC-BY-SA-4.0)"* |
@@ -81,7 +81,7 @@ permission, and the licence said nothing about the distinction.
   "licensed under the Apache", and similar — outside a short list of files that
   quote it as history;
 - `LICENSE` must carry both new clauses;
-- `<tool>.md` must state the posture, so no future session inherits the old one;
+- the operating brief must state the posture, so no future contributor inherits the old one;
 - `the showcase sub-project` must declare no open licence;
 - the archived corpus must **still** carry its drift, so the exclusion protecting
   evidence cannot quietly become a sweep.

@@ -1,7 +1,7 @@
 # KRL Tutorials — Notebook Corpus Forensic Audit
 
 **Artifact ID:** KRL-TUT-AUDIT-2026-09-13
-**Auditor:** Institutional Data Science, ML & Engineering <tool> (KRL Model Integrity)
+**Auditor:** KRL Model Integrity (internal review function)
 **Date:** 2026-09-13
 **Corpus:** `<audited-tree>` — 53 notebooks
 **Terminology.** This report avoids *fabrication* as a characterisation, because it imports a claim about intent that the artifacts do not evidence. Where a random draw or a hardcoded scalar is presented in an evaluative context, the finding is stated as an **undisclosed synthetic value presented without the provenance required to read it as observed or estimated**; where a conclusion is printed with no computational antecedent, it is stated as a **hardcoded claim with no demonstrated computational antecedent**. Both formulations are harder to dispute than the stronger word and describe the defect exactly.
@@ -136,14 +136,14 @@ Both hold. Claims in this report about PLACES MRP covariates, FRED frequency beh
 | Domain tutorials (D01–D33) that fail to compile | **31 / 33 (94%)** | VERIFIED |
 | Notebooks with **zero stored outputs** (never executed, or cleared) | **38 / 53 (72%)** | OBSERVED |
 | Notebooks presenting **RNG output as a metric** | **32 / 53**, 128 instances | VERIFIED |
-| Domain tutorials with **learning objectives** (mandated by `<tool>.md`) | **1 / 33** | OBSERVED |
-| Domain tutorials with **exercises** (mandated by `<tool>.md`) | **0 / 33** | OBSERVED |
+| Domain tutorials with **learning objectives** (mandated by the operating brief) | **1 / 33** | OBSERVED |
+| Domain tutorials with **exercises** (mandated by the operating brief) | **0 / 33** | OBSERVED |
 | Domain tutorials using **real data** | **0 / 33** | VERIFIED |
 | Notebooks that complete a clean `Restart & Run All` | **3 / 19 sampled** (D04, D30, `test_kernel`) | VERIFIED |
 
 **Release disposition: BLOCKED.** The assessed artifacts do not meet minimum requirements for executable reproducibility, data-and-result provenance, statistical validity, narrative fidelity, or secrets hygiene. The defects are systemic and generator-level. Remediation belongs at the source-template and release-governance layers, not in notebook-by-notebook repair.
 
-> **The corpus does not meet its own published standard.** `<tool>.md` states: *"Every notebook must be executable end-to-end with `Restart & Run All`"*, *"Every notebook must state learning objectives at the top"*, *"Real-world data examples preferred over synthetic data"*, *"All notebooks must execute without error via `jupyter nbconvert --execute`"*. Each of these is violated by a majority of the corpus.
+> **The corpus does not meet its own published standard.** The operating brief states: *"Every notebook must be executable end-to-end with `Restart & Run All`"*, *"Every notebook must state learning objectives at the top"*, *"Real-world data examples preferred over synthetic data"*, *"All notebooks must execute without error via `jupyter nbconvert --execute`"*. Each of these is violated by a majority of the corpus.
 
 ---
 

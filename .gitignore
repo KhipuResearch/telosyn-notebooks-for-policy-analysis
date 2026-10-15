@@ -129,8 +129,7 @@ _to_delete/
 *.tgz
 *.zip
 
-# <tool> and tooling scratch that appears at the repo root.
-<tool> outputs/
+# Tooling scratch that appears at the repo root.
 .forensics/
 
 # NOTE: notebooks_v2/**/provenance/ is deliberately NOT ignored. Those records

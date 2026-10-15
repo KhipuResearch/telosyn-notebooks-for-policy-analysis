@@ -5,6 +5,13 @@ CONFIDENTIAL AND PROPRIETARY. See LICENSE for terms.
 SPDX-License-Identifier: LicenseRef-Proprietary
 -->
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/telosyn-white.png">
+    <img src="assets/brand/telosyn-color.png" alt="telosyn" width="320">
+  </picture>
+</p>
+
 # Telosyn Notebooks for Policy Analysis
 
 [![CI](https://github.com/KhipuResearch/telosyn-notebooks-for-policy-analysis/actions/workflows/test.yml/badge.svg)](https://github.com/KhipuResearch/telosyn-notebooks-for-policy-analysis/actions/workflows/test.yml)

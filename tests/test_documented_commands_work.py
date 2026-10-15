@@ -136,8 +136,12 @@ def _imported_modules() -> set[str]:
 def test_every_runtime_dependency_is_actually_imported() -> None:
     """A dependency nothing imports is a reason the install fails, and no more."""
     imported = _imported_modules()
+    # Engines pandas loads lazily are declared without being imported by name;
+    # test_lazy_engine_dependencies_are_declared is the check that owns them.
+    lazy_engines = {"openpyxl", "pyarrow"}
     phantom = [d for d in _runtime_deps()
-               if _IMPORT_NAME.get(d, d.replace("-", "_")) not in imported]
+               if d not in lazy_engines
+               and _IMPORT_NAME.get(d, d.replace("-", "_")) not in imported]
     assert not phantom, (
         f"pyproject.toml declares runtime dependencies nothing imports: {phantom}. "
         "Each one is a package every reader must be able to install before a "
@@ -205,3 +209,24 @@ def test_env_example_names_exactly_the_keys_the_client_accepts() -> None:
         f"present but never read: {sorted(named - set(ALLOWED_KEYS))}"
     )
     assert not re.search(r"^[A-Z_]+=\S", text, re.M), ".env.example must carry no values"
+
+
+def test_lazy_engine_dependencies_are_declared() -> None:
+    """Some runtime needs never appear as an import statement.
+
+    `pandas.read_excel` loads its engine lazily, so a module that reads a
+    workbook depends on openpyxl without ever naming it. The declared-imports
+    test above cannot see that, and CI run #2 on a clean runner found it the
+    hard way: four food-atlas tests failing with ModuleNotFoundError.
+    """
+    lazy = {"read_excel": "openpyxl", "read_parquet": "pyarrow", "to_parquet": "pyarrow"}
+    used: set[str] = set()
+    for f in (REPO_ROOT / "src" / "krl_tutorials_data").glob("*.py"):
+        src = f.read_text(encoding="utf-8")
+        used.update(dist for call, dist in lazy.items() if f".{call}(" in src)
+    declared = {d.replace("-", "_") for d in _runtime_deps()}
+    missing = sorted(d for d in used if d not in declared)
+    assert not missing, (
+        f"the package calls pandas I/O that needs {missing} at runtime, but "
+        "pyproject.toml does not declare it; a clean install will fail at the call."
+    )

@@ -1,5 +1,5 @@
 # © 2026 Telosyn, Inc. All rights reserved.
-# Exclusively licensed to Deloatch, Williams, Faison & Parker, LLLP.
+# Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
 #
 # CONFIDENTIAL AND PROPRIETARY. Unauthorized use, reproduction, or
 # distribution is strictly prohibited. See LICENSE for terms.

@@ -28,7 +28,7 @@ Forensic evidence from `SPEC.md` §10.1 and Appendix A.2:
 | Previous `README.md:150-173` | MIT (code) + CC-BY-SA-4.0 (content), with learner-facing marketing | Superseded by the Tier U README rewrite |
 | `CONTRIBUTING.md:150-159` | Dual-license pitch to contributors | `CONTRIBUTING.md:150-159` |
 | Notebook cell-0 banners | `SPDX-License-Identifier: MIT AND CC-BY-SA-4.0` (e.g. `notebooks/01_fundamentals/D01_income_and_poverty/D01_D01_income_and_poverty.ipynb` cell 0) | `SPEC.md` §10.1 |
-| `CLAUDE.md:35` (internal operating brief) | *"Dual license: MIT for code, CC-BY-SA 4.0 for educational content"* | `CLAUDE.md:35` |
+| Internal operating brief, line 35 | *"Dual license: MIT for code, CC-BY-SA 4.0 for educational content"* | operating brief, line 35 |
 | `khipu-showcase/pyproject.toml:19` | `Apache-2.0` | `khipu-showcase/pyproject.toml:19` |
 | `khipu-showcase/LICENSE` | Proprietary text (contradicts the Apache-2.0 declaration) | `khipu-showcase/LICENSE:1-10` |
 
@@ -38,12 +38,12 @@ No CI gate scans for self-contradiction across these sources. `markdown-link-che
 
 ## 3. Decision
 
-1. **The authoritative license is proprietary.** `LICENSE` + `pyproject.toml:49-50` prevail over any contradicting README marketing, notebook banner, or `CLAUDE.md` instruction.
+1. **The authoritative license is proprietary.** `LICENSE` + `pyproject.toml:49-50` prevail over any contradicting README marketing, notebook banner, or operating-brief instruction.
 2. **`LICENSE-CODE` and `LICENSE-CONTENT` are misleading file names.** Their byte-identical proprietary content means the split-filename convention is cosmetic. Either (a) both files must be replaced with real MIT / CC-BY-SA-4.0 text matching the advertising, or (b) both files must be deleted and the dual-license claim removed from every downstream surface.
 3. **The `khipu-showcase/` Apache-2.0 vs proprietary drift is a parallel gap** and must be resolved in the same remediation PR.
 4. **Notebook cell-0 SPDX banners are drift** and must be corrected to `SPDX-License-Identifier: LicenseRef-Proprietary` (or the chosen OSS license if remediation goes the other way). Because notebook content is owned by many contributors, corrections will cross 52 outer + 26 showcase notebooks.
 5. **The Tier U README rewrite already removes the MIT/CC-BY-SA-4.0 advertising** and replaces it with a license-posture warning (`README.md` §3). This ADR is the formal record of why.
-6. **Remediation is explicitly deferred.** This ADR does NOT modify source notebooks, `LICENSE*` files, `pyproject.toml`, `CONTRIBUTING.md`, or `CLAUDE.md`. Remediation is captured in `CALIBRATION_REQUIRED.md` under `<OWNER_TBD:license-drift-remediation-owner>`.
+6. **Remediation is explicitly deferred.** This ADR does NOT modify source notebooks, `LICENSE*` files, `pyproject.toml`, `CONTRIBUTING.md`, or the operating brief. Remediation is captured in `CALIBRATION_REQUIRED.md` under `<OWNER_TBD:license-drift-remediation-owner>`.
 7. **A CI gate MUST be added** that fails when the SPDX identifier in any notebook cell-0 does not match `pyproject.toml:49-50`. Tracked at `<OWNER_TBD:license-drift-ci-gate-owner>`.
 
 ## 4. Alternatives Considered
@@ -54,7 +54,7 @@ No CI gate scans for self-contradiction across these sources. `markdown-link-che
 
 ### Alternative B — Delete `LICENSE-CODE` and `LICENSE-CONTENT` and normalize everything to proprietary
 
-**Rejected as the single action now because:** it requires cross-cutting edits to `README.md`, `CONTRIBUTING.md`, `CLAUDE.md`, and 78 notebook cell-0 banners. The Tier U stack corrects `README.md` only; the rest is tracked in `CALIBRATION_REQUIRED.md` so the remediation can land as one coherent legal-review PR rather than piecemeal.
+**Rejected as the single action now because:** it requires cross-cutting edits to `README.md`, `CONTRIBUTING.md`, the operating brief, and 78 notebook cell-0 banners. The Tier U stack corrects `README.md` only; the rest is tracked in `CALIBRATION_REQUIRED.md` so the remediation can land as one coherent legal-review PR rather than piecemeal.
 
 ### Alternative C — Keep the contradictions in place (no ADR)
 
@@ -74,9 +74,9 @@ No CI gate scans for self-contradiction across these sources. `markdown-link-che
 ## 6. Consequences
 
 - The Tier U `README.md` rewrite removes the MIT+CC-BY-SA-4.0 advertising block and installs a §3 "License Posture (Read Before Contributing)" warning pointing to this ADR.
-- `policy/ci-authority.yaml` declares `LICENSE`, `LICENSE-CODE`, `LICENSE-CONTENT`, `pyproject.toml`, and all `notebooks/**/*.ipynb` as `must_never_modify` for CI auto-fix agents — this ADR is the justification.
+- `policy/ci-authority.yaml` declares `LICENSE`, `LICENSE-CODE`, `LICENSE-CONTENT`, `pyproject.toml`, and all `notebooks/**/*.ipynb` as `must_never_modify` for automated CI fixes — this ADR is the justification.
 - Downstream learners reading the notebook SPDX banner will continue to see `MIT AND CC-BY-SA-4.0` until remediation lands. Consumers MUST NOT rely on notebook banners as the source of truth for distribution terms.
-- The ECC `security-reviewer` agent (invoked on escalation per the repository-group CE/ECC boundary) will flag this gap on every PR that touches any `LICENSE*` file or any notebook cell-0.
+- The repository group's escalated security review will flag this gap on every PR that touches any `LICENSE*` file or any notebook cell-0.
 - `CONTRIBUTING.md:150-159` becomes a document that misrepresents the legal posture until corrected. Accepting contributions in this state requires an explicit contributor acknowledgment; `<OWNER_TBD:legal-and-engineering-lead>` must decide whether to pause merges until remediation.
 
 ## 7. Reversal Conditions
@@ -88,7 +88,7 @@ This ADR is reversed when **all** of the following are true:
 3. `khipu-showcase/LICENSE` either contains true Apache-2.0 text or `khipu-showcase/pyproject.toml:19` is changed to declare proprietary.
 4. Every notebook cell-0 in `notebooks/**/*.ipynb` and `khipu-showcase/notebooks/**/*.ipynb` carries a `SPDX-License-Identifier` that matches the authoritative `LICENSE` file(s) for its tree.
 5. `pyproject.toml:49-50` and any source-level `__license__` string agree (the outer repo has no `src/` so no `__license__` exists today; any future `src/` must observe this rule).
-6. `CONTRIBUTING.md:150-159` and `CLAUDE.md:35` (Content Standards → Dual License line) are updated to reflect the final posture.
+6. `CONTRIBUTING.md:150-159` and the operating brief's Content Standards → Dual License line are updated to reflect the final posture.
 7. A CI gate exists and passes that asserts SPDX-banner-to-`pyproject.toml` consistency, implemented by `<OWNER_TBD:license-drift-ci-gate-owner>`.
 
 At that point, a follow-up ADR (0004+) records the remediation outcome and this ADR is marked **Superseded**.

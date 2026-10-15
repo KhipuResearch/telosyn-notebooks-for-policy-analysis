@@ -60,7 +60,7 @@ the development logs. Reposition the reader-facing prose in the present tense.
 | `khipu-showcase/` (117 files) | Separate unfinished project, referenced by nothing, advertising a repository that does not exist |
 | `sowellian_chains/`, `causal_workflow/`, `active_eligible_gap/`, `cultural_sowellian_chains/`, `cultural_network_helpers/` | Five packages at the repository root, imported only by the archive and by their own tests |
 | `tests/` for those five, and `test_d{02,06,07,18,27}_l15_regression.py` + helper | Read notebooks in the removed archive |
-| `SPEC.md`, `ARCHITECTURE.md`, `CALIBRATION_REQUIRED.md`, `CLAUDE.md` | Internal working documents; `CALIBRATION_REQUIRED.md` still held unfilled `<OWNER_TBD:…>` slots |
+| `SPEC.md`, `ARCHITECTURE.md`, `CALIBRATION_REQUIRED.md`, the operating brief | Internal working documents; `CALIBRATION_REQUIRED.md` still held unfilled `<OWNER_TBD:…>` slots |
 | `policy/` (4 files), `tests/README.md`, `.github/workflows/README.md`, `docs/WORKFLOWS.md` | Keyed to `SPEC.md` and the showcase's CI. All four described a repository that no longer exists — `tests/README.md` stated "0 test modules" against a suite of 1,525 |
 | `docs/compound-notes/` (12), `docs/ce-findings/` (5) | Development logs about the retired corpus |
 | Sphinx scaffolding, `.readthedocs.yml`, `.cspell.json`, `.markdownlint.json`, `.markdown-link-check.json` | Build and lint configuration for a docs site that is not built here |
@@ -77,8 +77,8 @@ were never written. The corpus documents itself in
 `notebooks_v2/DATA_SOURCE_HANDBOOK.md`, 2,270 lines against the sources actually
 used; the wiki duplicated that badly and contradicted it.
 
-**Two removals have a cost, stated plainly.** `CLAUDE.md` was the agent operating
-brief, and the licence gate's `test_the_operating_brief_states_the_posture` went
+**Two removals have a cost, stated plainly.** The operating brief was the internal
+working standard, and the licence gate's `test_the_operating_brief_states_the_posture` went
 with it. `.readthedocs.yml` was the Read the Docs build configuration; there is no
 docs-site build in this repository now. Either can be restored.
 

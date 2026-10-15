@@ -1574,7 +1574,7 @@ mistake the other catches.
 
 Encountered on the desktop bridge and worth recording, because the failure is silent and
 reads like a missing key. After a new line was appended to `~/.krl/secrets.env` on the host,
-the mounted copy inside the session VM kept the old content: `grep` on the host found the
+the mounted copy inside the container kept the old content: `grep` on the host found the
 line, `load_key` in the VM raised `MissingCredentialError`.
 
 The diagnostic that separated the causes: `touch` on the host **did** propagate — the mount's
@@ -1583,7 +1583,7 @@ did not change. So the mount was live and the cache was on content alone. Writin
 file in the same directory was visible immediately, which places the cache per-file rather
 than per-directory.
 
-**[rule]** When a credential that exists on the host is missing inside a session, compare the
+**[rule]** When a credential that exists on the host is missing inside a container, compare the
 mount's size and mtime before concluding anything about the key. Matching mtime with stale
 size is a cache, not a missing entry, and re-saving the same path will not clear it — write a
 new path instead.

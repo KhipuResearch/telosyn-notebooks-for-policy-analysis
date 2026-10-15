@@ -139,7 +139,7 @@ def test_the_evidence_files_still_exist(name: str) -> None:
 #:
 #: All four of the misstatements this catches survived the SPDX sweep of
 #: 2026-09-18, because none of them contained an identifier -- including
-#: the operating brief every agent session read before touching the repository.
+#: the operating brief every contributor read before touching the repository.
 PERMISSION_LANGUAGE: Final = (
     "dual license",
     "dual licensed",

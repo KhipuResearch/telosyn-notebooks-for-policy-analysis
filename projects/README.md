@@ -97,7 +97,7 @@ narrowing that stops the archived corpus failing has been blunted, not fixed.
 ## Execution environment — a known inconsistency
 
 `pyproject.toml` declares `requires-python = ">=3.11"`. The six notebooks in this tree were
-executed in a sandbox where only **Python 3.10.12** was available, and each artifact's
+executed in an isolated environment where only **Python 3.10.12** was available, and each artifact's
 `language_info` truthfully records that. The artifacts therefore carry an execution-environment
 stamp that does not match the project's declared floor.
 

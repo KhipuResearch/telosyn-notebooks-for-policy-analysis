@@ -19,7 +19,7 @@ Forensic inventory from `SPEC.md` §15 (every notebook enumerated with cell coun
 
 | Source | Claim | Evidence |
 |---|---|---|
-| `CLAUDE.md:3-4` | *"29 interactive Jupyter notebooks organized across 8 domains with 33 specialized topics"* | `CLAUDE.md:3-4` |
+| Internal operating brief, lines 3-4 | *"29 interactive Jupyter notebooks organized across 8 domains with 33 specialized topics"* | operating brief, lines 3-4 |
 | `README.md:49` (pre-rewrite) | *"8 core domains with 29 interactive notebooks spanning 33 specialized topics"* | Superseded by Tier U rewrite |
 | Outer `notebooks/` tree | **52** `.ipynb` files | `SPEC.md` §2.1, §15 |
 | `khipu-showcase/notebooks/` tree | **26** `.ipynb` files (23 canonical + 1 duplicate + 2 validation + 1 executed-for-PDF) | `SPEC.md` §15.12 |
@@ -90,7 +90,7 @@ The public catalog gaps at 08, 09, 24 (`SPEC.md` §15.12) are a separate drift �
 ## 3. Decision
 
 1. **The single source-of-truth notebook count is a machine-generated manifest**, not a hard-coded number in prose. The manifest MUST be produced by a CI step that walks `notebooks/**/*.ipynb` and `khipu-showcase/notebooks/**/*.ipynb`, classifies each entry (canonical / planned / duplicate / validation / executed-for-PDF / empty-kernel), and emits a `docs/notebook_manifest.json` artifact on every `main` push.
-2. **Prose documentation MUST NOT state a hard-coded notebook count.** `README.md` (post-rewrite) no longer states a count. `CLAUDE.md:3-4` and any future revision MUST reference the manifest instead of a literal number.
+2. **Prose documentation MUST NOT state a hard-coded notebook count.** `README.md` (post-rewrite) no longer states a count. The operating brief (lines 3-4) and any future revision MUST reference the manifest instead of a literal number.
 3. **Three categorical axes are authoritative going forward:**
    - **`Dnn` domain code** (D01–D34 today; expandable to D99)
    - **Status** (`canonical` | `planned` | `duplicate` | `validation` | `executed_for_pdf` | `empty_kernel`)
@@ -108,29 +108,29 @@ The public catalog gaps at 08, 09, 24 (`SPEC.md` §15.12) are a separate drift �
 
 ### Alternative B — Delete every duplicate and every `09_planned/` placeholder; advertise a smaller canonical count
 
-**Rejected at this commit because:** the `09_planned/` placeholders are intentional scaffolds for future tutorials (`CLAUDE.md:22`). Deleting them removes commitment signals to learners. Deletion of advanced-NLP duplicates alone is safe and recommended as a follow-up PR, but the manifest-based approach handles the semantics correctly either way.
+**Rejected at this commit because:** the `09_planned/` placeholders are intentional scaffolds for future tutorials (operating brief, line 22). Deleting them removes commitment signals to learners. Deletion of advanced-NLP duplicates alone is safe and recommended as a follow-up PR, but the manifest-based approach handles the semantics correctly either way.
 
-### Alternative C — Hard-code the count in `CLAUDE.md` + `README.md` + a CI gate that greps for the number
+### Alternative C — Hard-code the count in the operating brief + `README.md` + a CI gate that greps for the number
 
 **Rejected because:** hand-counting is exactly the pattern that drifted to 29 while the tree grew past 52. Any substitute based on human-maintained literals will drift again. A machine-readable manifest is the only self-correcting solution.
 
 ### Alternative D — Keep the drift as documented but non-blocking
 
-**Rejected because:** the drift affects learner expectations (`README.md:49` is the first thing a prospective contributor reads) and contradicts the `CLAUDE.md:4` operating brief that steers AI-assisted tooling. Both surfaces are load-bearing.
+**Rejected because:** the drift affects learner expectations (`README.md:49` is the first thing a prospective contributor reads) and contradicts line 4 of the operating brief that every contributor works from. Both surfaces are load-bearing.
 
 ## 5. Trade-offs Accepted
 
 - **Every PR that adds a notebook MUST also update the manifest** (or the CI step regenerates it). This is one additional merge step per content PR.
 - **Duplicate cleanup is cross-cutting** — resolving the 11 `D34/` variants plus the `ML_04 copy.ipynb` and the dual `17-*.ipynb` showcase pair requires editorial decisions, not mechanical edits. The manifest CI gate can surface the duplicates but cannot adjudicate which is canonical.
 - **Manifest JSON becomes a new artifact** that must itself be versioned and diff-reviewed. Accepting this governance surface is the cost of eliminating prose drift.
-- **`09_planned/` placeholders remain counted as `planned` in the manifest.** Learners see them as coming-soon rather than fully formed — this is the correct signal but requires narrative alignment in `CLAUDE.md` and Sphinx intro pages.
+- **`09_planned/` placeholders remain counted as `planned` in the manifest.** Learners see them as coming-soon rather than fully formed — this is the correct signal but requires narrative alignment in the operating brief and Sphinx intro pages.
 
 ## 6. Consequences
 
 - `README.md` (Tier U rewrite) removes the "29 notebooks" tagline in favor of referencing `SPEC.md` §15 for the authoritative inventory.
-- `CLAUDE.md:3-4` and `CLAUDE.md:43` (Content Standards) MUST be corrected in a follow-up PR per `CALIBRATION_REQUIRED.md`.
+- The operating brief's lines 3-4 and 43 (Content Standards) MUST be corrected in a follow-up PR per `CALIBRATION_REQUIRED.md`.
 - `tutorial-quality.yml:78-100` MUST be corrected to use the `Dnn` axis; until then, CI continues to print the `Missing tutorials in tiers: ['D1', 'D2', 'D3', 'D4', 'D5', 'D6']` warning on every run.
-- `policy/ci-authority.yaml` declares `CLAUDE.md` and `README.md` as `must_never_modify` for CI auto-fix agents — the manifest update required here must land via human PR.
+- `policy/ci-authority.yaml` declares the operating brief and `README.md` as `must_never_modify` for automated CI fixes — the manifest update required here must land via a reviewed PR.
 - `khipu-showcase/notebooks/` catalog gaps at 08, 09, 24 are a parallel drift not covered by this ADR. They are documented in `SPEC.md` §15.12 and tracked as a separate `CALIBRATION_REQUIRED.md` item.
 - Future notebook additions under new domain codes (`D35+`) proceed automatically through the manifest without prose edits.
 
@@ -139,7 +139,7 @@ The public catalog gaps at 08, 09, 24 (`SPEC.md` §15.12) are a separate drift �
 This ADR is reversed when **all** of the following are true:
 
 1. `docs/notebook_manifest.json` exists and is regenerated by CI on every `main` push.
-2. `CLAUDE.md` and `README.md` contain zero hard-coded notebook counts.
+2. The operating brief and `README.md` contain zero hard-coded notebook counts.
 3. A `notebook-inventory-gate` CI step blocks merge on manifest staleness or on notebooks lacking a `Dnn` prefix.
 4. The 11 duplicate variants in `10_advanced_nlp/D34/` are either resolved to one canonical plus renamed variants, or deleted.
 5. `tutorial-quality.yml:78-100` tier-axis logic is rewritten around the `Dnn` axis.

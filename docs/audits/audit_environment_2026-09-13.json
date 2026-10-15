@@ -1,0 +1,31 @@
+{
+  "audit_run_id": "2026-09-13T09:00Z",
+  "artifact_id": "KRL-TUT-AUDIT-2026-09-13",
+  "instruments": {
+    "static_parse": {"tool": "python ast.parse", "python": "3.10.12 (device VM) and 3.11.15 (container)", "note": "IPython magics neutralised to `pass`, not stripped; results identical under both interpreters"},
+    "execution": {"tool": "nbclient", "python": "3.11.15", "kernel": "python3", "per_cell_timeout_s": 90, "outputs_cleared_before_run": true, "coverage": "19 of 53 notebooks"},
+    "reproduction": {"tool": "standalone python", "targets": ["D01 data+model path", "D04 data+model path", "D30 OLS/correlation + 2000-run Type I simulation"]},
+    "structural": {"tools": ["hashlib.sha256", "difflib.SequenceMatcher.ratio", "section-header fingerprint", "execution_count ordering"]}
+  },
+  "execution_environment": {
+    "python": "3.11.15",
+    "packages_installed": ["pandas", "numpy", "scikit-learn", "statsmodels", "scipy", "plotly", "matplotlib", "seaborn", "nbformat", "nbclient", "jupyter_client", "ipykernel", "joblib", "pyarrow", "requests"],
+    "absent_by_design": ["krl_data_connectors", "krl_model_zoo", "mesa", "torch"],
+    "api_keys_present": false,
+    "network": "allowlisted egress only"
+  },
+  "known_limitations": [
+    "Root ML notebook execution failures are ENVIRONMENT-CONFOUNDED (private krl packages absent) and are excluded from the 31-failure count.",
+    "34 of 53 notebooks were not executed; all are either parse failures (proof of non-execution) or D34 variants covered by source review.",
+    "No finding in this audit is E5 (independently replicated by a second reviewer or environment). This manifest exists so that tier can be reached by someone other than the author.",
+    "Claims about CDC PLACES MRP covariates, FRED frequency behaviour and BLS definitions remain E1/E3 and are NOT raised to E4."
+  ],
+  "e4_validations": [
+    {"variable": "B27001_005E", "label": "Estimate!!Total:!!Male:!!Under 6 years:!!No health insurance coverage", "source": "https://api.census.gov/data/2022/acs/acs5/groups/B27001.html", "supports": "F-13"},
+    {"variable": "B15003_022E", "label": "Estimate!!Total:!!Bachelor's degree", "universe": "Population 25 Years and Over", "source": "https://api.census.gov/data/2022/acs/acs5/groups/B15003.html", "supports": "F-13"}
+  ],
+  "reproduce": [
+    "python3 -c \"import ast,json,re,pathlib; [ast.parse(re.sub(r'^\\\\s*[%!].*$','pass',''.join(c['source']),flags=re.M)) for p in pathlib.Path('notebooks').rglob('*.ipynb') for c in json.loads(p.read_text())['cells'] if c['cell_type']=='code']\"",
+    "Each manifest record carries artifact_sha256 and, for failures, the failing cell index and that cell's source sha256."
+  ]
+}

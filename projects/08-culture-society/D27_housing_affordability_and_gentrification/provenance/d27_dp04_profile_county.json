@@ -1,0 +1,28 @@
+{
+  "source_name": "U.S. Census Bureau",
+  "dataset": "American Community Survey (acs/acs5/profile)",
+  "vintage": "2023",
+  "endpoint": "https://api.census.gov/data/2023/acs/acs5/profile",
+  "variables": {
+    "DP04_0141PE": "Percent!!GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME (GRAPI)!!Occupied units paying rent (excluding units where GRAPI cannot be computed)!!30.0 to 34.9 percent",
+    "DP04_0142PE": "Percent!!GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME (GRAPI)!!Occupied units paying rent (excluding units where GRAPI cannot be computed)!!35.0 percent or more"
+  },
+  "retrieved_utc": "2026-09-18T12:17:01+00:00",
+  "row_count": 3222,
+  "column_count": 5,
+  "content_sha256": "fb6f6283d24e84b92d312eb14ce7c1feb122d980d31cc5116cc40809794ca581",
+  "mode": "empirical",
+  "notes": [
+    "ACS estimates are survey-based and carry margins of error that are not retrieved here; differences between geographies may not be statistically distinguishable.",
+    "Jam values (suppressed / unavailable estimates) were converted to missing. Sentinels recognised: [-999999999, -888888888, -777777777, -666666666, -555555555, -333333333, -222222222, -111111111].",
+    "5-year estimates are period estimates, not point-in-time measures."
+  ],
+  "pinned": true,
+  "hash_basis": "canonical-rows",
+  "request_params": {
+    "get": "NAME,DP04_0141PE,DP04_0142PE",
+    "for": "county:*",
+    "key": "<redacted>"
+  },
+  "request_method": "GET"
+}

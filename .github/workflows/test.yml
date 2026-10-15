@@ -1,0 +1,39 @@
+# © 2026 Telosyn, Inc. All rights reserved.
+# SPDX-License-Identifier: LicenseRef-Proprietary
+#
+# What a reader's machine will do: install from pyproject.toml as documented,
+# run the suite, confirm the derived READMEs match the notebooks. No network,
+# no keys. The live-execution gate with credentials is notebook-release-gates.yml.
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install exactly as the README says
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[notebooks,test]'
+      - name: Suite
+        run: pytest tests/
+      - name: Derived READMEs match the notebooks
+        run: |
+          python scripts/build_project_readmes.py --check
+          python scripts/build_data_readme.py --check

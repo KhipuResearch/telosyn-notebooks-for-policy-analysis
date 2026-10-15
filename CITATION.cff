@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you refer to this corpus, cite it as below. Citation does not imply any licence to reuse the material; see LICENSE."
+title: "Khipu Methods Corpus"
+type: software
+authors:
+  - name: "Telosyn, Inc."
+    email: contact@telosyn.co
+version: "1.0.0"
+date-released: "2026-10-15"
+repository-code: "https://github.com/KhipuResearch/khipu-methods-corpus"
+license: "LicenseRef-Proprietary"
+keywords:
+  - public-data
+  - socioeconomic-data
+  - data-provenance
+  - reproducibility
+  - census-acs
+  - policy-analysis
+abstract: >-
+  Thirty-three executable notebooks, each built on a live U.S. federal or
+  institutional data source, each holding one methodological lesson about what
+  that source permits a reader to conclude. Every retrieval is pinned by digest;
+  every figure in the prose is checked against stored output; the failures found
+  during the build are published alongside the results.

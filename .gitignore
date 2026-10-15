@@ -1,0 +1,138 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.pytest_cache/
+htmlcov/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# Documentation
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# Distribution
+*.whl
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Cache
+.krl_cache/
+*.cache
+
+# Data files (don't commit API responses)
+# Data lifecycle: raw, external, interim and processed trees are regenerated
+# by code and never versioned. Provenance records, the two HUD schedules the
+# API does not serve, fixtures and schemas are committed.
+data/raw/
+data/external/
+data/interim/
+data/processed/
+!data/README.md
+!data/fixtures/
+!data/fixtures/**
+!data/schemas/
+!data/schemas/**
+
+# Bulk third-party downloads: the BYTES stay out of git, the PIN goes in.
+# krl_tutorials_data.connectors.BulkFileSource records the URL, vintage and
+# SHA-256, so SOURCES.md reproduces the acquisition without committing ~15 MB
+# of a publisher's file into permanent history.
+#
+# data/hud/ is DELIBERATELY NOT LISTED HERE. Those files are U.S. Government
+# works in the public domain, they total under 1 MB, and `huduser.gov` is
+# refused by the egress allowlist in the environment these notebooks execute in
+# -- so the committed copy is the only way D05 is reproducible at all. The pin
+# in data/hud/fmr/SOURCES.md is what reproduces them where the host IS
+# reachable. Zillow's terms are not equivalent, hence the rule below.
+data/zillow/**/*.csv
+data/zillow/**/*.csv.gz
+data/zillow/**/*.zip
+data/zillow/**/*.xlsx
+
+# Internal planning/metadata (not for public repo)
+.github/REPOSITORY_METADATA.md
+.github/TOPICS.txt
+.github/DESCRIPTION.md
+.github/discussions/
+docs/wiki/README.md
+*_INTERNAL*.md
+*_PLANNING*.md
+_to_delete/
+
+# --- added during the public-readiness pass, 2026-09-18 ---
+# A literal "~" directory, created when a shell quoted the home path wrong.
+# It held 15 cache files and 6.2 MB of nothing anyone wanted.
+~/
+
+# No archives. Three copies of a 56 MB Google Cloud CLI tarball were tracked in
+# notebooks/10_advanced_nlp/D34_<unpublished-project>/ -- 168 MB of vendor binary,
+# 58% of everything the repository tracked, referenced by no file and absent
+# from the audit manifest.
+*.tar.gz
+*.tgz
+*.zip
+
+# <tool> and tooling scratch that appears at the repo root.
+<tool> outputs/
+.forensics/
+
+# NOTE: notebooks_v2/**/provenance/ is deliberately NOT ignored. Those records
+# are committed evidence. A provenance/ directory at the REPO ROOT is the
+# defect, and tests/test_provenance_location.py fails on it.

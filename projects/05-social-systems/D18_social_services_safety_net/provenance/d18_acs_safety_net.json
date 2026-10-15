@@ -1,0 +1,40 @@
+{
+  "source_name": "U.S. Census Bureau",
+  "dataset": "American Community Survey (acs/acs5)",
+  "vintage": "2023",
+  "endpoint": "https://api.census.gov/data/2023/acs/acs5",
+  "variables": {
+    "B22003_001E": "households",
+    "B22003_001M": "households MOE",
+    "B22003_002E": "received SNAP",
+    "B22003_002M": "received SNAP MOE",
+    "B22003_003E": "SNAP, income below poverty",
+    "B22003_003M": "SNAP below poverty MOE",
+    "B22003_004E": "SNAP, income at or above poverty",
+    "B22003_004M": "SNAP above poverty MOE",
+    "B19058_001E": "households (B19058 universe)",
+    "B19058_002E": "public assistance income OR SNAP",
+    "B19058_002M": "PA or SNAP MOE",
+    "B17001_001E": "population poverty status determined",
+    "B17001_002E": "persons below poverty",
+    "B17001_002M": "persons below poverty MOE"
+  },
+  "retrieved_utc": "2026-09-18T12:13:04+00:00",
+  "row_count": 133,
+  "column_count": 17,
+  "content_sha256": "6e8ac1c5def45838d9265f7514a21eb8876bcaa6e34c062db783ee56a381c260",
+  "mode": "empirical",
+  "notes": [
+    "ACS estimates are survey-based and carry margins of error that are not retrieved here; differences between geographies may not be statistically distinguishable.",
+    "Jam values (suppressed / unavailable estimates) were converted to missing. Sentinels recognised: [-999999999, -888888888, -777777777, -666666666, -555555555, -333333333, -222222222, -111111111].",
+    "5-year estimates are period estimates, not point-in-time measures."
+  ],
+  "pinned": true,
+  "hash_basis": "canonical-rows",
+  "request_params": {
+    "get": "NAME,B22003_001E,B22003_001M,B22003_002E,B22003_002M,B22003_003E,B22003_003M,B22003_004E,B22003_004M,B19058_001E,B19058_002E,B19058_002M,B17001_001E,B17001_002E,B17001_002M",
+    "for": "county:*",
+    "key": "<redacted>",
+    "in": "state:51"
+  }
+}

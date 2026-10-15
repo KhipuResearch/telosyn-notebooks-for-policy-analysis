@@ -1,0 +1,33 @@
+{
+  "source_name": "U.S. Census Bureau",
+  "dataset": "County Business Patterns 2022",
+  "vintage": "2022",
+  "endpoint": "https://api.census.gov/data/2022/cbp",
+  "variables": {
+    "EMP": "Number of employees (pay period including 12 March)",
+    "EMP_N": "Noise range flag for EMP",
+    "ESTAB": "Number of establishments",
+    "NAICS2017": "NAICS 2017 industry code"
+  },
+  "retrieved_utc": "2026-09-18T12:41:20+00:00",
+  "row_count": 124,
+  "column_count": 6,
+  "content_sha256": "904cab2781d328ca089620b8c719b1c1765199ec3b36465092372186c94e16d6",
+  "mode": "empirical",
+  "notes": [
+    "CBP counts establishments from the Business Register; these are not survey estimates and carry no margin of error.",
+    "Confidentiality is protected by NOISE INFUSION, not suppression: a published value may be perturbed. Flag column(s) present: EMP_N.",
+    "CBP omits industry cells it does not publish rather than flagging them, so an industry absent from a response may not exist or may simply be unpublished. The response cannot distinguish the two.",
+    "Reference period is the pay period including 12 March.",
+    "Digest pinned by the notebook and verified on this run (canonical-rows). The publisher serves no prior vintage; this pin does not restore one, it guarantees a change cannot pass unnoticed."
+  ],
+  "pinned": true,
+  "hash_basis": "canonical-rows",
+  "request_params": {
+    "get": "EMP,EMP_N,ESTAB,NAICS2017",
+    "for": "county:750",
+    "key": "<redacted>",
+    "in": "state:51"
+  },
+  "request_method": "GET"
+}

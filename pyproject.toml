@@ -1,0 +1,98 @@
+# © 2026 Telosyn, Inc. All rights reserved.
+# Exclusively licensed to Deloatch, Williams, Faison & Parker, LLLP.
+#
+# CONFIDENTIAL AND PROPRIETARY. Unauthorized use, reproduction, or
+# distribution is strictly prohibited. See LICENSE for terms.
+
+[build-system]
+requires = [
+    "setuptools>=65.0",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "the private source repository"
+version = "0.2.0"
+description = "Khipu Methods Corpus: reproducible notebooks on what public socioeconomic data can and cannot support"
+readme = "README.md"
+authors = [
+    { name = "Telosyn, Inc.", email = "contact@telosyn.co" },
+]
+maintainers = [
+    { name = "Telosyn, Inc.", email = "contact@telosyn.co" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+]
+requires-python = ">=3.11"
+dependencies = [
+    # What `krl_tutorials_data` itself imports. Nothing else is a runtime
+    # requirement: the package reaches no private KRL distribution, and the
+    # earlier declarations of krl-open-core, krl-model-zoo and krl-dashboard were
+    # imported by nothing in the repository (ADR 0007 follow-up, 2026-10-15).
+    "numpy>=1.26.0",
+    "pandas>=2.1.0",
+    "scipy>=1.11.0",
+    "requests>=2.31.0",
+]
+
+[project.license]
+text = "LicenseRef-Proprietary"
+
+[project.urls]
+Repository = "https://github.com/the private source repository"
+
+[project.optional-dependencies]
+# Everything a reader needs to open and execute the corpus. Thirteen notebooks
+# draw with matplotlib, two fit statsmodels, one uses scikit-learn.
+notebooks = [
+    "jupyterlab>=4.0.0",
+    "notebook>=7.0.0",
+    "matplotlib>=3.7.0",
+    "statsmodels>=0.14.0",
+    "scikit-learn>=1.2.0",
+]
+# Only `krl_tutorials_data.connectors.load_connector()` reaches this package,
+# through importlib, and no notebook in the corpus calls it. It is optional so
+# that a reader without access to the private index can install everything the
+# corpus actually runs.
+connectors = [
+    "krl-data-connectors>=1.0.0",
+]
+test = [
+    "pytest>=7.4.0",
+    # pytest.ini's addopts require coverage; without this the documented test
+    # command fails at start-up with "unrecognized arguments: --cov".
+    "pytest-cov>=4.1.0",
+    "nbval>=0.10.0",
+    "pyyaml>=6.0",        # tests/test_leak_check.py reads the gitleaks config
+]
+dev = [
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "nbqa>=1.7.0",
+]
+
+[tool.setuptools.packages.find]
+# src-layout: the only importable tree under src/ is the package.
+where = ["src"]
+include = ["krl_tutorials_data*"]
+
+[tool.black]
+line-length = 100
+target-version = [
+    "py311",
+    "py312",
+    "py313",
+]
+
+[tool.isort]
+profile = "black"
+line_length = 100

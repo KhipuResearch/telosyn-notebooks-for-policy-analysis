@@ -1,0 +1,31 @@
+{
+  "source_name": "Federal Reserve Bank of St. Louis",
+  "dataset": "FRED series CUUR0000SA0L2",
+  "vintage": "2000-01-01 to 2026-07-01, current revision",
+  "endpoint": "https://api.stlouisfed.org/fred/series/observations",
+  "variables": {
+    "CUUR0000SA0L2": "FRED CUUR0000SA0L2, frequency=m, units=lin"
+  },
+  "retrieved_utc": "2026-09-18T12:16:52+00:00",
+  "row_count": 319,
+  "column_count": 2,
+  "content_sha256": "43ce3ee22f0ca15cbc7c4831af243097655fc6cd585ff29d024d9010ac24319e",
+  "mode": "empirical",
+  "notes": [
+    "Window is pinned at both ends; an open end would change every derived number on re-run.",
+    "1 observation(s) were published as the missing sentinel '.' and became NaN before any arithmetic.",
+    "Current revision: FRED rewrites history at each revision and rebasing, so these values differ from what was published earlier. Pass `vintage` to recover a historical publication."
+  ],
+  "pinned": true,
+  "hash_basis": "response-bytes",
+  "request_params": {
+    "series_id": "CUUR0000SA0L2",
+    "api_key": "<redacted>",
+    "file_type": "json",
+    "observation_start": "2000-01-01",
+    "observation_end": "2026-07-01",
+    "frequency": "m",
+    "units": "lin"
+  },
+  "request_method": "GET"
+}

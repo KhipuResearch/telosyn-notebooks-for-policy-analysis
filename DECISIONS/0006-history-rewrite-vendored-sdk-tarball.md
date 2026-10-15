@@ -35,9 +35,9 @@ It was `google-cloud-cli-darwin-arm.tar.gz` — a macOS Google Cloud SDK install
 committed during D34 development, at three paths:
 
 ```
-notebooks/10_advanced_nlp/D34_<unpublished-project>/google-cloud-cli-darwin-arm.tar.gz
-notebooks/10_advanced_nlp/D34_<unpublished-project>/google-cloud-cli-darwin-arm 2.tar.gz
-notebooks/10_advanced_nlp/D34_<unpublished-project>/lean_validation/google-cloud-cli-darwin-arm.tar.gz
+notebooks/10_advanced_nlp/D34/google-cloud-cli-darwin-arm.tar.gz
+notebooks/10_advanced_nlp/D34/google-cloud-cli-darwin-arm 2.tar.gz
+notebooks/10_advanced_nlp/D34/lean_validation/google-cloud-cli-darwin-arm.tar.gz
 ```
 
 Commit `3cd6880` ("Prune: drop 163 MB of tracked vendor binary and root scratch")

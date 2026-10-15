@@ -1,19 +1,17 @@
 # © 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
 # Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
-#
-# CONFIDENTIAL AND PROPRIETARY. Unauthorized use, reproduction, or
-# distribution is strictly prohibited. See LICENSE for terms.
+# See LICENSE for terms.
 
 # GIT Leaks configuration for secret detection
 # Detects hardcoded secrets, API keys, credentials
 
-title = "Khipu Intelligence Suite - Secret Detection"
+title = "Telosyn Notebooks for Policy Analysis - Secret Detection"
 
 [extend]
 # Use default gitleaks rules
 useDefault = true
 
-# Additional custom rules for KRL-specific secrets
+# Additional custom rules for this repository
 [[rules]]
 id = "krl-api-key"
 description = "Detected KRL API key"

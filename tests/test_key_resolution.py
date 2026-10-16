@@ -98,7 +98,7 @@ def test_a_file_is_read_only_when_the_reader_names_it(
 ) -> None:
     """A file is read only when the reader names it."""
     mine = tmp_path / "mine.env"
-    mine.write_text("# mine\nFRED_API_KEY='abc123'\nOTHER=ignored\n", encoding="utf-8")
+    mine.write_text("# mine\nFRED_API_KEY='abc123'\nOTHER=ignored\n", encoding="utf-8")  # pragma: allowlist secret
     monkeypatch.setenv("KRL_SECRETS_PATH", str(mine))
     assert sources.secrets_path() == mine
     assert load_key("FRED_API_KEY") == "abc123"

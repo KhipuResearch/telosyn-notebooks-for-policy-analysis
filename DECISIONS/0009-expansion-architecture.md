@@ -191,7 +191,7 @@ with a compliant fixture and a planted-violation fixture, and is mutation-tested
 the defect it exists to catch is introduced and the gate is confirmed to fail.
 A gate is never weakened to make a notebook pass.
 
-The public-surface check (`scripts/check_public_surface.py`) is held to the same rule and one more: the patterns that name what must not be published are themselves not published. They live in a private denylist read from `KRL_SURFACE_DENYLIST`; the check exits with status 2, never 0, when that file is absent. Its repository tests use a synthetic denylist. Lines that legitimately match are listed individually, each with its reason, in an allowlist that the check also verifies is not stale.
+The public-surface check (`scripts/check_public_surface.py`) is held to the same rule and one more: the patterns that name what must not be published are themselves not published. They live in a private denylist read from `KRL_SURFACE_DENYLIST`; the check exits with status 2, never 0, when that file is absent. CI holds no secret and so runs only the public rules (`--public-rules`), and says so; the private rules run locally. Its repository tests use a synthetic denylist. Lines that legitimately match are listed individually, each with its reason, in an allowlist that the check also verifies is not stale.
 
 ### 3.11 Where this work is authored
 

@@ -110,8 +110,8 @@ has no in-scope notebook yet.
 | data-mode-reserved | a notebook that declares the `model` data mode, which is designed and not released |
 | pums-aggregate-only | a notebook that reaches for person-level records: the removed row-return argument, or the private helpers that hold the person frame |
 
-`scripts/check_public_surface.py` is not a notebook gate; it runs in `make check` and in
-the blocking workflow, and refuses names, paths, attribution trailers, tool caches and
-unheadered files that must not reach a public repository. The patterns for the names are
-not in this repository: it reads them from a private denylist named by
+`scripts/check_public_surface.py` is not a notebook gate. In the blocking workflow it runs
+with `--public-rules` (paths, tool caches, headers and a generic attribution-trailer rule) and
+says that the private rules were not run. The patterns for the names are not in this
+repository: locally and in `make check` the check reads them from a private denylist named by
 `KRL_SURFACE_DENYLIST` and exits with status 2 when that is absent.

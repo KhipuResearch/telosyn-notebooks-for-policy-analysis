@@ -73,8 +73,6 @@ class RangeError(DataAccessError):
 # Credentials
 # --------------------------------------------------------------------------- #
 
-_DEFAULT_SECRETS_PATH: Final = Path.home() / ".krl" / "secrets.env"
-
 # Least privilege. The secrets file a reader points us at may hold far more than
 # public-data API keys — database URLs, admin tokens, third-party credentials.
 # This layer may read ONLY the keys the tutorial corpus actually needs, so that a
@@ -90,52 +88,65 @@ ALLOWED_KEYS: Final[frozenset[str]] = frozenset({
 })
 
 
+#: Where a reader registers for each key. Free, and the only way to obtain one: this repository
+#: stores and uses no key of its own, and nothing is read from a default location. The
+#: addresses are the ones listed in ``.env.example``; a test holds the two together.
+KEY_REGISTRATION: Final[dict[str, str]] = {
+    "CENSUS_API_KEY": "https://api.census.gov/data/key_signup.html",
+    "FRED_API_KEY": "https://fred.stlouisfed.org/docs/api/api_key.html",
+    "BLS_API_KEY": "https://data.bls.gov/registrationEngine/",
+    "BEA_API_KEY": "https://apps.bea.gov/API/signup/",
+    "HUD_API_KEY": "https://www.huduser.gov/portal/dataset/fmr-api.html",
+    "DATA_GOV_API_KEY": "https://api.data.gov/signup/",
+}
+
+
 class DisallowedCredentialError(DataAccessError):
     """A key outside :data:`ALLOWED_KEYS` was requested.
 
-    Raised before the secrets file is opened, so a disallowed name is never
+    Raised before any key file is opened, so a disallowed name is never
     matched against its contents.
     """
 
 
-def secrets_path() -> Path:
-    """Where to look for the secrets file.
+def secrets_path() -> Path | None:
+    """The key file the reader named, or ``None``.
 
-    Resolution order, so that no absolute path is baked into a notebook:
-
-    1. ``KRL_SECRETS_PATH`` if set — required when the home directory differs
-       from the one holding the file (containers, CI, sandboxed shells).
-    2. ``<operator-path>/secrets.env``.
+    There is **no default location**. A key file is read only when the reader sets
+    ``KRL_SECRETS_PATH`` to a file of their own; otherwise keys come from the
+    environment alone. Nothing under a home directory is ever opened unprompted.
     """
     if (override := os.environ.get("KRL_SECRETS_PATH")):
         return Path(override)
-    return _DEFAULT_SECRETS_PATH
+    return None
 
 
 def load_key(name: str, *, path: Path | None = None) -> str:
-    """Return an API key from the environment or the secrets file.
+    """Return an API key from the environment or from the reader's own key file.
 
-    The key is returned to the caller for use in a request and is never logged.
-    Raises :class:`MissingCredentialError` naming only the *variable*, never a
-    value, so that a traceback in a shared notebook cannot leak material.
+    Order: the environment variable ``name``; then, only if ``KRL_SECRETS_PATH`` is
+    set (or ``path`` is passed), that file. The key is returned to the caller for use
+    in a request and is never logged. Raises :class:`MissingCredentialError` naming
+    the *variable* and where to register for it, never a value, so that a traceback in
+    a shared notebook cannot leak material.
 
     .. note::
-       Prefer a **scoped** secrets file holding only the keys a notebook needs.
-       A file that also carries database URLs or admin tokens gives every
-       tutorial reader's kernel more reach than the tutorial requires.
+       A key file should hold only the six names in :data:`ALLOWED_KEYS`. The
+       allowlist stops this library asking for anything else, but it cannot stop
+       another process in the same kernel from opening a file that holds more.
     """
     if name not in ALLOWED_KEYS:
         raise DisallowedCredentialError(
             f"{name} is not in the tutorial corpus's allowlist "
-            f"({', '.join(sorted(ALLOWED_KEYS))}). The secrets file was not opened. "
+            f"({', '.join(sorted(ALLOWED_KEYS))}). No key file was opened. "
             f"Tutorials read only the public-data keys they need; anything else in "
-            f"that file — database URLs, admin tokens — is out of reach by design."
+            f"a file — database URLs, admin tokens — is out of reach by design."
         )
     if (val := os.environ.get(name)):
         _SEEN_SECRETS.add(val)
         return val
     path = path or secrets_path()
-    if path.exists():
+    if path is not None and path.exists():
         # Stream the file and stop at the first match: no non-matching line is
         # retained, and nothing beyond the requested key is parsed.
         with path.open(encoding="utf-8") as fh:
@@ -148,10 +159,14 @@ def load_key(name: str, *, path: Path | None = None) -> str:
                     _value = v.strip().strip('"').strip("'")
                     _SEEN_SECRETS.add(_value)
                     return _value
+    where = (
+        f"the file KRL_SECRETS_PATH names does not define it"
+        if path is not None else "KRL_SECRETS_PATH is not set"
+    )
     raise MissingCredentialError(
-        f"{name} not found in the environment or in the configured secrets file. "
-        f"Set {name} in the environment, or point KRL_SECRETS_PATH at a file that "
-        f"defines it. "
+        f"{name} is not set ({where}). Set {name} in your environment — register for a "
+        f"free key at {KEY_REGISTRATION[name]} — or set KRL_SECRETS_PATH to a file of your "
+        "own that defines it. No key is read from any other location. "
         "This tutorial uses real data only and has no synthetic fallback, "
         "so it stops here rather than fabricating a result."
     )

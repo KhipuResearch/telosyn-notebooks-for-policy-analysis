@@ -22,11 +22,10 @@ readmes:          ## regenerate the derived READMEs from the notebooks, then con
 	$(PY) scripts/build_project_readmes.py --check
 	$(PY) scripts/build_data_readme.py --check
 
-# The name patterns are private. The check reads them from the file KRL_SURFACE_DENYLIST names
-# (default: your own copy) and exits 2, checking nothing, if it is absent.
-KRL_SURFACE_DENYLIST ?= $(HOME)/.krl/public_surface_denylist.json
-export KRL_SURFACE_DENYLIST
-
+# The name patterns are private and are not in this repository. The check reads them from
+# the file that KRL_SURFACE_DENYLIST names -- your own file, exported in your shell; there
+# is no default location -- and exits 2, checking nothing, if it is not set.
+# CI runs `--public-rules` instead (paths, caches, headers, generic trailers).
 surface:          ## refuse names, paths, trailers, tool caches and unheadered files that must not reach the public repo
 	$(PY) scripts/check_public_surface.py --tree --range origin/main
 

@@ -20,12 +20,14 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
 from types import ModuleType
 
 import pytest
+import yaml
 
 REPO = Path(__file__).resolve().parents[1]
 NOREPLY = "186650653+bcdelodx@users.noreply.github.com"
@@ -81,7 +83,7 @@ PLANTED = [
     ("tooling", "written with GizmoBot"),
     ("tooling", "ask the sidekick"),
     ("unpublished", "import frobnitz_42"),
-    ("path", "cd <operator-home>/work"),
+    ("path", "cd /Users/someone/work"),
     ("path", "see /home/someone/x"),
     ("path", "at /sessions/abc/data"),
     ("path", "mounted at /mnt/data"),
@@ -608,7 +610,7 @@ def test_the_baseline_file_is_gone_and_no_name_pattern_remains_in_the_checker() 
     assert not (REPO / "scripts" / "public_surface_baseline.json").exists()
     source = (REPO / "scripts" / "check_public_surface.py").read_text(encoding="utf-8")
     assert "baseline" not in source.lower().replace("baseline.", "")
-    assert "RULES" not in source and "TRAILER" not in source
+    assert not re.search(r"^(RULES|TRAILER)\b", source, re.M), "a name table is back in the checker"
 
 
 def test_every_allowlist_entry_has_a_reason_and_matches_a_line_in_its_file() -> None:
@@ -627,29 +629,90 @@ def test_every_allowlist_entry_has_a_reason_and_matches_a_line_in_its_file() -> 
     assert kinds <= {"path", "tooling", "unpublished"}
 
 
-def test_make_check_and_pre_commit_run_the_checker_and_ci_supplies_the_denylist() -> None:
-    """Make check and pre commit run the checker and ci supplies the denylist."""
+def test_make_check_and_pre_commit_run_the_checker_and_ci_runs_only_the_public_rules() -> None:
+    """Locally the private rules run and need the reader's own denylist; CI holds none."""
     makefile = (REPO / "Makefile").read_text(encoding="utf-8")
     assert "check_public_surface.py" in makefile and cps.DENYLIST_ENV in makefile
+    assert "$(HOME)" not in makefile and ".krl" not in makefile, "no default denylist location"
     check_line = next(line for line in makefile.splitlines() if line.startswith("check:"))
     assert "surface" in check_line
     hooks = (REPO / ".pre-commit-config.yaml").read_text(encoding="utf-8")
-    assert "check_public_surface.py --staged" in hooks
+    assert "check_public_surface.py --staged" in hooks and ".krl" not in hooks
     workflow = (REPO / ".github" / "workflows" / "notebook-release-gates.yml").read_text(
         encoding="utf-8"
     )
-    assert "KRL_SURFACE_DENYLIST_JSON" in workflow and "secrets." in workflow
+    assert "--public-rules" in workflow
+    doc = yaml.safe_load(workflow)
+    exported = {
+        k for job in doc["jobs"].values() for step in job["steps"] for k in step.get("env", {})
+    }
+    assert cps.DENYLIST_ENV not in exported, "CI has no private list to export"
+    assert "secrets." not in workflow.replace(".secrets.new", "")
 
 
-def test_git_missing_from_the_machine_is_a_surface_error_not_a_crash(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+# --- the public rules (CI) --------------------------------------------------------------
+def test_public_rules_run_without_a_denylist_and_say_the_private_rules_did_not_run(
+    repo: Repo, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """If git cannot be run at all, the check reports it and exits 2."""
+    """Public rules run without a denylist and say the private rules did not run."""
+    monkeypatch.delenv(cps.DENYLIST_ENV, raising=False)
+    base = ["--root", str(repo.root), "--allowlist", str(repo.root.parent / "none.json")]
+    assert cps.main([*base, "--public-rules", "--tree"]) == 0
+    out = capsys.readouterr().out
+    assert "private rules were NOT run" in out and "clean" in out
+    assert cps.main([*base, "--tree"]) == 2  # without the flag the denylist is still required
+    assert "no denylist" in capsys.readouterr().err
 
-    def boom(*_args: object, **_kwargs: object) -> None:
-        """Boom."""
-        raise FileNotFoundError(2, "No such file or directory")
 
-    monkeypatch.setattr(cps.subprocess, "run", boom)
-    with pytest.raises(cps.SurfaceError, match="git could not be run"):
-        cps.check_staged(tmp_path, _deny(), NO_ALLOW)
+def test_public_rules_still_catch_paths_caches_headers_authors_and_generic_trailers(
+    repo: Repo, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Public rules still catch paths caches headers authors and generic trailers."""
+    monkeypatch.delenv(cps.DENYLIST_ENV, raising=False)
+    repo.write("docs/a.md", "cd /Users/someone/x\nzorblax is a name only the private rules know\n")
+    repo.write(".hypothesis/x/leak.txt", "data")
+    repo.git("add", "-f", "docs/a.md", ".hypothesis/x/leak.txt")
+    repo.git(
+        "commit",
+        "-q",
+        "-m",
+        "subject\n\nCo-Authored-By: Someone <a@b.example>",
+        env={**repo.env, "GIT_AUTHOR_EMAIL": "someone@example.test"},
+    )
+    found = cps.check_range(repo.root, "origin/main", None, NO_ALLOW)
+    assert _rules(found) == ["author", "cache", "header", "path", "trailer"]
+    assert not [f for f in found if f.rule == "apex"], "private rules must not run"
+
+
+@pytest.mark.parametrize(
+    ("message", "flagged"),
+    [
+        ("subject\n\nCo-Authored-By: A <a@b.example>", True),
+        ("subject\n\nco-authored-by: A <a@b.example>", True),
+        ("subject\n\nGenerated with a tool", True),
+        ("subject\n\nA perfectly ordinary body.", False),
+    ],
+)
+def test_the_generic_trailer_rule(message: str, flagged: bool) -> None:
+    """The generic trailer rule."""
+    assert bool(cps.GENERIC_TRAILER.search(message)) is flagged
+
+
+def test_an_allowlist_entry_for_a_rule_that_was_not_run_is_not_called_stale(
+    repo: Repo, tmp_path: Path
+) -> None:
+    """An allowlist entry for a rule that was not run is not called stale."""
+    allow = cps.load_allowlist(
+        _write_allow(
+            tmp_path / "a.json",
+            [_entry("apex", "docs/gone.md", "zorblax"), _entry("path", "docs/p.md", "/Users/x")],
+        )
+    )
+    repo.write("docs/p.md", "/Users/x\n")
+    repo.git("add", "docs/p.md")
+    found, notes = cps.check_tree(repo.root, None, allow)
+    assert found == [] and notes == [
+        "allowlist: 1 entry used, each with a reason; 0 pending an owner ruling"
+    ]
+    found_private, _ = cps.check_tree(repo.root, _deny(), allow)
+    assert [(f.rule, f.where) for f in found_private] == [("allowlist", "docs/gone.md")]

@@ -53,7 +53,8 @@ def test_the_blocking_workflow_runs_the_public_surface_check_and_is_not_neutrali
     assert runs, "the blocking workflow does not run scripts/check_public_surface.py"
     for step in runs:
         assert not step.get("continue-on-error"), "the surface step must be able to fail the build"
-        assert "--range" in step["run"] and "--tree" in step["run"]
+        run = step["run"]
+        assert "--range" in run and "--tree" in run and "--public-rules" in run
 
 
 def _floor() -> int:

@@ -22,7 +22,7 @@ unredacted records can be verified and the rest are reported as unresolved.
 Usage::
 
     KRL_AUDITED_TREE=/path/to/tree python scripts/verify_forensic_corpus.py
-    KRL_AUDITED_TREE=/path/to/tree KRL_AUDIT_NAMEMAP=~/.krl/audit_namemap_2026-09-13.json \
+    KRL_AUDITED_TREE=/path/to/tree KRL_AUDIT_NAMEMAP=/path/to/namemap.json \
         python scripts/verify_forensic_corpus.py
 
 Exit codes: 0 intact; 1 a notebook changed or is missing; 2 the check itself

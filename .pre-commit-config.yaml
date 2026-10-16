@@ -35,7 +35,7 @@ repos:
     hooks:
       - id: public-surface
         name: public surface (names, paths, caches, headers)
-        entry: bash -c 'KRL_SURFACE_DENYLIST="${KRL_SURFACE_DENYLIST:-$HOME/.krl/public_surface_denylist.json}" python3 scripts/check_public_surface.py --staged'
+        entry: python3 scripts/check_public_surface.py --staged
         language: system
         pass_filenames: false
         always_run: true

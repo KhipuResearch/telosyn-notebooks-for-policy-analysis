@@ -48,7 +48,7 @@ PROBES = {
 
 def main() -> int:
     failures = 0
-    print(f"secrets file: {sources.secrets_path()}")
+    print(f"key file (KRL_SECRETS_PATH): {sources.secrets_path() or 'not set; environment only'}")
     print(f"allowed names: {len(sources.ALLOWED_KEYS)}\n")
 
     for name in sorted(sources.ALLOWED_KEYS):

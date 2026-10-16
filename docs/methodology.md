@@ -1544,49 +1544,16 @@ date is not valid, expected format MM-YYYY"*, which is the application validatin
 parameters **after** accepting the credential. An invalid key returns 403 `API_KEY_INVALID`,
 not a date-format complaint.
 
-Resolution order is environment variable, then `KRL_SECRETS_PATH`, then
-`~/.krl/secrets.env`. The file is streamed and reading stops at the first match; no
-non-matching line is retained.
-
-### 9.1 Point it at a scoped file, not at the operator's
+Every key is supplied by the reader. The repository stores none and reads none from a
+default location: a key comes from the environment variable of that name, or from the file
+that `KRL_SECRETS_PATH` names, and only when the reader has set it. Otherwise
+`MissingCredentialError` names the variable and the page where it is registered
+(`KEY_REGISTRATION` in `sources.py`). The file is streamed and reading stops at the first
+match; no non-matching line is retained.
 
 The allowlist is a **code-level** guard: it stops a tutorial asking for `DATABASE_URL`. It
-does nothing about a stray script in the same kernel, or a notebook a reader modifies, both
-of which can open the configured file directly. So the file itself should carry only what
-the corpus is allowed to ask for.
-
-    umask 077
-    { awk -F= '/^(CENSUS|FRED|BLS|BEA|HUD)_API_KEY=/' ~/.krl/secrets.env
-      awk -F= '/^GOVINFO_API_KEY=/{print "DATA_GOV_API_KEY=" substr($0, index($0,"=")+1); exit}' \
-          ~/.krl/secrets.env
-    } > ~/.krl/tutorials.env
-    chmod 600 ~/.krl/tutorials.env
-
-Then `KRL_SECRETS_PATH=~/.krl/tutorials.env`. Six names, matching `ALLOWED_KEYS` exactly, and
-the operator's database URLs are out of range structurally rather than by convention — which
-is the difference between a guard and a policy.
-
-**[rule]** Two independent barriers, not one. `ALLOWED_KEYS` bounds what the corpus *asks
-for*; a scoped secrets file bounds what the kernel can *reach*. Either alone fails to a
-mistake the other catches.
-
-### 9.2 A mounted file can be stale in content while fresh in metadata
-
-Encountered on the desktop bridge and worth recording, because the failure is silent and
-reads like a missing key. After a new line was appended to `~/.krl/secrets.env` on the host,
-the mounted copy inside the container kept the old content: `grep` on the host found the
-line, `load_key` in the VM raised `MissingCredentialError`.
-
-The diagnostic that separated the causes: `touch` on the host **did** propagate — the mount's
-mtime moved from 04:04:30 to 04:16:10 — while the size stayed at 2,099 bytes and the content
-did not change. So the mount was live and the cache was on content alone. Writing a *new*
-file in the same directory was visible immediately, which places the cache per-file rather
-than per-directory.
-
-**[rule]** When a credential that exists on the host is missing inside a container, compare the
-mount's size and mtime before concluding anything about the key. Matching mtime with stale
-size is a cache, not a missing entry, and re-saving the same path will not clear it — write a
-new path instead.
+does nothing about a notebook a reader modifies, which can open any file it likes. So a reader
+who keeps keys in a file should keep only these six in it.
 
 **Key material is never printed, logged, echoed, or written into a notebook output.**
 

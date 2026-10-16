@@ -8,16 +8,24 @@ This is the engagement's public-surface rule as code. It checks:
                 like, are *not in this repository*. They are read from a private
                 denylist (below), because a public file listing what must never be
                 published would publish it;
-* ``trailer``   attribution trailers in a commit message (pattern from the denylist);
+* ``trailer``   attribution trailers in a commit message: a generic rule always, and the
+                owner's own pattern from the denylist when there is one;
 * ``author``    any author address other than the owner's noreply address;
 * ``header``    a new file without the licence header;
 * ``cache``     a file under a tool-cache directory, which holds local paths;
 * ``ignore``    a tool-cache directory missing from ``.gitignore``;
 * ``allowlist`` an allowlist entry that no longer matches any line.
 
-The denylist is a JSON file named by the environment variable ``KRL_SURFACE_DENYLIST``
-(CI writes it from a repository secret). **If it is absent or unusable the check exits
-with status 2 and checks nothing**: a missing denylist is never read as a pass.
+The denylist is a JSON file named by the environment variable ``KRL_SURFACE_DENYLIST``.
+It is the reader's own file; there is no default location and this repository stores no
+copy. **If it is absent or unusable the check exits with status 2 and checks nothing**: a
+missing denylist is never read as a pass.
+
+``--public-rules`` is the one way to run without it, and exists for CI, which holds no
+secret and no private list. It checks only what needs no private knowledge -- paths, cache
+directories, licence headers, authors, and a generic attribution-trailer rule (a
+``Co-Authored-By:`` line or a ``Generated with`` line) -- and says in its output that the
+private rules were not run. It is never a substitute for the local run before publishing.
 Findings name a rule and a ``file:line``; they never print the text that matched, so a
 log cannot become a copy of the list.
 
@@ -27,6 +35,7 @@ Modes (combine freely; at least one is required)::
     --range BASE        what BASE..HEAD adds: lines, files, commit messages, authors
     --staged            what is staged now (a pre-commit hook)
     --suggest-allowlist print, for every unallowlisted tree hit, an entry to complete
+    --public-rules      with the above: run only the rules that need no private list
 
 The allowlist (``scripts/public_surface_allowlist.json``) holds one entry per line that
 legitimately matches, keyed by rule, file and the SHA-256 of the stripped line, with a
@@ -73,6 +82,14 @@ PATH_RULE_EXEMPT = frozenset(
     {"scripts/check_public_surface.py", "tests/test_check_public_surface.py"}
 )
 ALLOWLIST_FILE_EXEMPT = frozenset({"scripts/public_surface_allowlist.json"})
+
+#: A trailer anyone can recognise without a private list: a Co-Authored-By line, or a line
+#: saying the commit was generated with something.
+GENERIC_TRAILER = re.compile(r"^\s*co-authored-by:|\bgenerated with\b", re.I | re.M)
+PRIVATE_RULES_NOTE = (
+    "private rules were NOT run (--public-rules): name patterns and the private trailer "
+    "pattern were not checked; run without it, with KRL_SURFACE_DENYLIST set, before publishing"
+)
 
 HEADER_SUFFIXES = frozenset({".py", ".md", ".sh", ".yml", ".yaml", ".toml", ".ini", ".cfg"})
 HEADER_LINES = (
@@ -230,13 +247,16 @@ def line_hash(line: str) -> str:
 
 
 # --------------------------------------------------------------------- scanning
-def scan_text(path: str, text: str, deny: Denylist) -> list[tuple[str, int, str]]:
-    """``(rule, line number, line hash)`` for each line of ``text`` that breaks a content rule."""
+def scan_text(path: str, text: str, deny: Denylist | None) -> list[tuple[str, int, str]]:
+    """``(rule, line number, line hash)`` for each line of ``text`` that breaks a content rule.
+
+    With ``deny=None`` only the path rule runs (the public rules).
+    """
     hits: list[tuple[str, int, str]] = []
     for number, line in enumerate(text.splitlines(), 1):
         if path not in PATH_RULE_EXEMPT and PATH_RULE.search(line):
             hits.append(("path", number, line_hash(line)))
-        for rule in deny.rules:
+        for rule in deny.rules if deny else ():
             if path in rule.exempt_paths or path.endswith(rule.exempt_suffixes):
                 continue
             if rule.pattern.search(line) and not (rule.ordinary and rule.ordinary.search(line)):
@@ -301,7 +321,7 @@ def _added_lines(diff: str) -> list[tuple[str, int, str]]:
     return out
 
 
-def _content_findings(diff: str, deny: Denylist, allow: Allowlist) -> list[Finding]:
+def _content_findings(diff: str, deny: Denylist | None, allow: Allowlist) -> list[Finding]:
     by_file: dict[str, list[tuple[int, str]]] = {}
     for path, number, text in _added_lines(diff):
         by_file.setdefault(path, []).append((number, text))
@@ -345,7 +365,7 @@ def _path_findings(names: list[str]) -> list[Finding]:
     ]
 
 
-def check_range(root: Path, base: str, deny: Denylist, allow: Allowlist) -> list[Finding]:
+def check_range(root: Path, base: str, deny: Denylist | None, allow: Allowlist) -> list[Finding]:
     """What ``base..HEAD`` adds: content, files, headers, messages and authors."""
     _require_ref(root, base)
     span = f"{base}..HEAD"
@@ -366,7 +386,7 @@ def check_range(root: Path, base: str, deny: Denylist, allow: Allowlist) -> list
         if not record:
             continue
         sha, email, message = record.split("\x00", 2)
-        if deny.trailer.search(message):
+        if GENERIC_TRAILER.search(message) or (deny and deny.trailer.search(message)):
             findings.append(Finding("trailer", sha[:12], "attribution trailer in the message"))
         if email != NOREPLY:
             findings.append(
@@ -375,7 +395,7 @@ def check_range(root: Path, base: str, deny: Denylist, allow: Allowlist) -> list
     return findings
 
 
-def check_staged(root: Path, deny: Denylist, allow: Allowlist) -> list[Finding]:
+def check_staged(root: Path, deny: Denylist | None, allow: Allowlist) -> list[Finding]:
     """What is staged right now: content, files and headers (no messages yet)."""
     diff = _git(root, "diff", "--cached", "-U0", "--no-color", "--no-ext-diff")
     findings = _content_findings(diff, deny, allow)
@@ -406,7 +426,7 @@ def check_ignores(root: Path) -> list[Finding]:
 
 
 # ------------------------------------------------------------------------- tree
-def tree_hits(root: Path, deny: Denylist) -> dict[str, list[tuple[str, int, str]]]:
+def tree_hits(root: Path, deny: Denylist | None) -> dict[str, list[tuple[str, int, str]]]:
     """``{file: [(rule, line, line hash)]}`` over every tracked text file."""
     out: dict[str, list[tuple[str, int, str]]] = {}
     for name in filter(None, _git(root, "ls-files", "-z").split("\0")):
@@ -422,14 +442,17 @@ def tree_hits(root: Path, deny: Denylist) -> dict[str, list[tuple[str, int, str]
     return out
 
 
-def check_tree(root: Path, deny: Denylist, allow: Allowlist) -> tuple[list[Finding], list[str]]:
+def check_tree(
+    root: Path, deny: Denylist | None, allow: Allowlist
+) -> tuple[list[Finding], list[str]]:
     """Unallowlisted hits and stale allowlist entries, plus a one-line summary of the allowlist."""
     findings: list[Finding] = []
     used: set[tuple[str, str, str]] = set()
     for name, hits in sorted(tree_hits(root, deny).items()):
         findings += _apply_allowlist(name, hits, allow, used)
+    rules_run = {"path"} | ({r.name for r in deny.rules} if deny else set())
     for key, entry in sorted(allow.entries.items()):
-        if key not in used:
+        if key not in used and entry.rule in rules_run:  # an unrun rule cannot call its entry stale
             findings.append(
                 Finding(
                     "allowlist",
@@ -449,7 +472,7 @@ def check_tree(root: Path, deny: Denylist, allow: Allowlist) -> tuple[list[Findi
     return findings, notes
 
 
-def suggest_allowlist(root: Path, deny: Denylist, allow: Allowlist) -> list[dict[str, Any]]:
+def suggest_allowlist(root: Path, deny: Denylist | None, allow: Allowlist) -> list[dict[str, Any]]:
     """Entries to complete for every tree hit not yet allowed (reason left empty)."""
     out: list[dict[str, Any]] = []
     seen: set[tuple[str, str, str]] = set()
@@ -481,6 +504,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--range", dest="base", metavar="BASE")
     ap.add_argument("--staged", action="store_true")
     ap.add_argument("--suggest-allowlist", action="store_true")
+    ap.add_argument("--public-rules", action="store_true", help="skip the private rules (CI)")
     args = ap.parse_args(argv)
     if not (args.tree or args.base or args.staged or args.suggest_allowlist):
         print(
@@ -489,7 +513,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
     try:
-        deny = load_denylist(args.denylist)
+        deny = None if args.public_rules else load_denylist(args.denylist)
         allow = load_allowlist(args.allowlist)
         if args.suggest_allowlist:
             print(json.dumps(suggest_allowlist(args.root, deny, allow), indent=1))
@@ -506,6 +530,8 @@ def main(argv: list[str] | None = None) -> int:
     except SurfaceError as exc:
         print(f"public-surface check could not run: {exc}", file=sys.stderr)
         return 2
+    if args.public_rules:
+        notes = [PRIVATE_RULES_NOTE, *notes]
     for note in notes:
         print(f"note: {note}")
     for finding in findings:

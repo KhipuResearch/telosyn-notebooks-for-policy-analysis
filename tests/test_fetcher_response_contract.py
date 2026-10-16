@@ -96,6 +96,10 @@ FETCHERS: dict[str, Callable[[_Session], Any]] = {
     "fetch_acs": lambda s: sources.fetch_acs(
         year=2023, variables={"B01003_001E": "pop"}, geography="state:*", session=s
     ),
+    "fetch_acs_pums": lambda s: sources.fetch_acs_pums(
+        year=2023, variables={"AGEP": "Age"}, aggregate_by=["AGEP"],
+        geography="state:51", session=s
+    ),
     "fetch_fred": lambda s: sources.fetch_fred(
         series_id="PCE", start="2020-01-01", end="2020-06-01", session=s
     ),

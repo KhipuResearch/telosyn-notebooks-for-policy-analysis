@@ -618,6 +618,184 @@ def fetch_acs_wide(
 
 
 # ---------------------------------------------------------------------------
+# Census ACS PUMS -- person records, returned as weighted cell counts only
+# ---------------------------------------------------------------------------
+
+#: The person weight in the ACS PUMS (``PWGTP``, 1 to 9999 per the API's variable
+#: metadata). Replicate weights are not used here.
+PUMS_PERSON_WEIGHT: Final[str] = "PWGTP"
+
+#: The smallest ``min_cell_records`` a caller may ask for. A cell built from fewer
+#: records than this is withheld, because a count of one or two people is a person
+#: row under another name. The floor is this repository's rule, not a Census rule.
+PUMS_CELL_FLOOR: Final[int] = 5
+PUMS_DEFAULT_MIN_CELL: Final[int] = 10
+
+
+def fetch_acs_pums(
+    *,
+    year: int,
+    variables: Mapping[str, str],
+    aggregate_by: Sequence[str],
+    geography: str,
+    weight: str = PUMS_PERSON_WEIGHT,
+    dataset: str = "acs/acs1/pums",
+    min_cell_records: int = PUMS_DEFAULT_MIN_CELL,
+    return_rows: bool = False,
+    session: requests.Session | None = None,
+) -> tuple[pd.DataFrame, DataProvenance]:
+    """Fetch ACS PUMS person records and return weighted cell counts, or raise.
+
+    The Census API serves one record per person. This function reads them into
+    memory, groups them by ``aggregate_by`` and returns, per cell, the sum of
+    ``weight`` (``weighted_n``) and the number of records (``n_records``). **No
+    person-level row is returned, printed or stored** unless the caller passes
+    ``return_rows=True``, which notebooks must not do (a gate refuses it).
+
+    Parameters
+    ----------
+    year:
+        Pinned release. A PUMS 1-year file is a separately addressed immutable
+        product, so the retrieval is pinned.
+    variables:
+        Variable code -> verbatim published label (the provenance dictionary).
+        ``aggregate_by`` must be a subset; the weight is requested in addition.
+    geography:
+        One state, e.g. ``"state:51"``. A wildcard is refused: it would pull
+        every person record in the country into memory.
+    min_cell_records:
+        Cells with fewer records are withheld and reported in ``frame.attrs``
+        (``suppressed_cells``, ``suppressed_records``, ``suppressed_weighted_n``)
+        and in the provenance notes. Not below :data:`PUMS_CELL_FLOOR`.
+
+    Notes
+    -----
+    A missing value in a grouping column is kept as its own cell (the variable's
+    "not in universe"); it is never dropped or recoded. A non-numeric, non-null
+    value, a missing requested column, a weight that is missing or not positive,
+    or an unexpected empty response raises. The digest is taken over the
+    canonicalised **rows** the API returned, so it does not depend on row order.
+    """
+    if not variables:
+        raise ValueError("At least one PUMS variable is required.")
+    if not aggregate_by or not set(aggregate_by) <= set(variables):
+        raise ValueError(
+            "aggregate_by must be a non-empty subset of `variables`; "
+            f"got {list(aggregate_by)} against {list(variables)}."
+        )
+    if weight in aggregate_by:
+        raise ValueError(f"the weight {weight!r} cannot also be an aggregation column.")
+    if "*" in geography:
+        raise ValueError(
+            "Request one state per call (e.g. 'state:51'): a wildcard geography pulls "
+            "every person record in the country into memory."
+        )
+    if min_cell_records < PUMS_CELL_FLOOR:
+        raise ValueError(
+            f"min_cell_records must be at least {PUMS_CELL_FLOOR}: a cell of fewer "
+            "people is a person row under another name."
+        )
+    requested = [*variables, *([] if weight in variables else [weight])]
+    if len(requested) + 1 > CENSUS_GET_CEILING:
+        raise ValueError(
+            f"{len(requested)} variables exceeds the Census `get` ceiling of "
+            f"{CENSUS_GET_CEILING}."
+        )
+    endpoint = f"{CENSUS_HOST}/{year}/{dataset}"
+    params = {
+        "get": ",".join(requested),
+        "for": geography,
+        "key": load_key("CENSUS_API_KEY"),
+    }
+    http = session or requests
+    try:
+        resp = http.get(endpoint, params=params, timeout=300)
+    except requests.RequestException as exc:
+        raise UpstreamError(f"Census request to {endpoint} failed: {redact(exc)}") from exc
+    reject_bot_challenge(resp, source="the Census Bureau", endpoint=endpoint)
+    if resp.status_code != 200:
+        raise UpstreamError(f"Census returned HTTP {resp.status_code} for {endpoint}.")
+
+    rows = _assert_json_payload(resp, endpoint)
+    if not isinstance(rows, list) or len(rows) < 2:
+        raise ResponseShapeError(f"{endpoint} returned no data rows.")
+    header, *body = rows
+    raw = pd.DataFrame(body, columns=header)
+    missing = [c for c in requested if c not in raw.columns]
+    if missing:
+        raise SchemaError(
+            f"PUMS response is missing requested variables {missing}. "
+            f"Returned columns: {list(raw.columns)}"
+        )
+    person = pd.DataFrame(index=raw.index)
+    for code in requested:
+        column = pd.to_numeric(raw[code], errors="coerce")
+        broken = column.isna() & raw[code].notna()
+        if broken.any():
+            raise SchemaError(
+                f"{code} holds {int(broken.sum())} non-numeric value(s) that are not "
+                f"null, e.g. {str(raw.loc[broken, code].iloc[0])!r}; nothing is coerced."
+            )
+        person[code] = column
+    w = person[weight]
+    if w.isna().any() or (w <= 0).any():
+        raise RangeError(
+            f"the weight {weight} is missing or not positive in "
+            f"{int((w.isna() | (w <= 0)).sum())} record(s); a person weight is at least 1."
+        )
+
+    notes = [
+        "PUMS is a sample of person records; weighted cell counts estimate population "
+        "counts with sampling error that is not computed here (no replicate weights).",
+        "Missing values in grouping columns are kept as their own cell; their meaning "
+        "is the variable's universe in the PUMS data dictionary.",
+    ]
+    if return_rows:
+        notes.append(
+            "RETURNED PERSON-LEVEL RECORDS (return_rows=True). They must not be printed, "
+            "stored in an output or written to disk inside the repository."
+        )
+        out = person
+    else:
+        grouped = person.groupby(list(aggregate_by), dropna=False)
+        cells = grouped.agg(weighted_n=(weight, "sum"), n_records=(weight, "size")).reset_index()
+        small = cells["n_records"] < min_cell_records
+        withheld = cells[small]
+        out = cells[~small].sort_values(list(aggregate_by), na_position="last").reset_index(
+            drop=True
+        )
+        out["weighted_n"] = out["weighted_n"].astype(float)
+        out["n_records"] = out["n_records"].astype(int)
+        out.attrs.update(
+            suppressed_cells=int(small.sum()),
+            suppressed_records=int(withheld["n_records"].sum()),
+            suppressed_weighted_n=float(withheld["weighted_n"].sum()),
+            min_cell_records=int(min_cell_records),
+        )
+        notes.append(
+            f"Aggregated to {len(out)} cell(s) from {len(person)} person record(s); "
+            f"{int(small.sum())} cell(s) with fewer than {min_cell_records} records were "
+            f"withheld ({int(withheld['n_records'].sum())} record(s), weighted "
+            f"{float(withheld['weighted_n'].sum()):,.0f}). No person-level row is returned."
+        )
+
+    prov = DataProvenance.build(
+        hash_basis="canonical-rows",
+        request_params=params,
+        source_name="U.S. Census Bureau",
+        dataset=f"American Community Survey Public Use Microdata Sample ({dataset})",
+        vintage=str(year),
+        endpoint=endpoint,
+        variables=dict(variables),
+        payload=canonical_rows(resp.content),
+        row_count=len(person),
+        column_count=len(requested),
+        notes=tuple(notes),
+    )
+    return out, prov
+
+
+# ---------------------------------------------------------------------------
 # FRED (Federal Reserve Bank of St. Louis)
 # ---------------------------------------------------------------------------
 

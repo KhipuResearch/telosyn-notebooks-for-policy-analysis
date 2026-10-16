@@ -78,17 +78,13 @@ jobs:
           --strict-markers --strict-config
           ${{ env.PRE_EXISTING_EXCLUSIONS }}
 
-      - name: Public surface — names, paths, trailers, caches and licence headers
-        env:
-          # The name patterns are private; the check refuses to run without them (exit 2).
-          # Add the repository secret KRL_SURFACE_DENYLIST_JSON (the denylist file's content).
-          KRL_SURFACE_DENYLIST_JSON: ${{ secrets.KRL_SURFACE_DENYLIST_JSON }}
+      - name: Public surface — paths, caches, trailers and licence headers (public rules only)
+        # CI holds no private name list and no secret, so it runs the public rules only and
+        # the check says so in its output. The rules that need the private denylist run
+        # locally (`make check` with KRL_SURFACE_DENYLIST set) and refuse to pass without it.
         run: |
-          umask 077
-          printf '%s' "$KRL_SURFACE_DENYLIST_JSON" > "$RUNNER_TEMP/surface_denylist.json"
           BASE="origin/${GITHUB_BASE_REF:-main}"
-          KRL_SURFACE_DENYLIST="$RUNNER_TEMP/surface_denylist.json" \
-            python scripts/check_public_surface.py --tree --range "$BASE"
+          python scripts/check_public_surface.py --public-rules --tree --range "$BASE"
 
       - name: Secret scan across the surface this repository can change
         run: |
@@ -171,158 +167,8 @@ jobs:
           print("Every notebook carries stored output.")
           PY
 
-  # ---------------------------------------------------------------- slow lane
-  #
-  # The `notebook-release` environment now exists on this repository and holds
-  # CENSUS_API_KEY, FRED_API_KEY, BLS_API_KEY and HUD_API_KEY, so the original
-  # precondition for the label is met. The label is retained as a DELIBERATE
-  # choice, not a leftover, for one reason: this repository is private, so
-  # GitHub offers it no environment protection rules -- no required reviewer, no
-  # wait timer. The environment therefore scopes the four keys to this job and
-  # nothing else, which is real, but it does not gate their use behind a human.
-  # Until that is settled, spending live API budget stays opt-in per pull
-  # request. See the three options recorded alongside the environment.
-  execution-gate:
-    name: "Lane 2 — execution against real data (blocking when run)"
-    needs: static-gates
-    if: contains(github.event.pull_request.labels.*.name, 'release')
-    runs-on: ubuntu-latest
-    environment: notebook-release
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          # Full history: the public-surface check compares the branch with origin/main.
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
-
-      - name: Install
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e '.[notebooks,test]'
-
-      - name: Restart & Run All against live sources
-        env:
-          # Every credential any notebook in projects needs. The list sat at
-          # four while the corpus grew past it: D11 needs BEA and D13/D26 need
-          # DATA_GOV, and all three fail closed, so this job was failing three
-          # notebooks for want of two secrets rather than for any defect in them.
-          # tests/test_ci_credentials.py now fails when a notebook needs a key
-          # this block does not supply.
-          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
-          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
-          BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
-          HUD_API_KEY: ${{ secrets.HUD_API_KEY }}
-          BEA_API_KEY: ${{ secrets.BEA_API_KEY }}
-          DATA_GOV_API_KEY: ${{ secrets.DATA_GOV_API_KEY }}
-        run: |
-          python - <<'PY'
-          import json, os, pathlib, sys, nbformat
-          from nbclient import NotebookClient
-          from nbclient.exceptions import CellExecutionError
-
-          # Notebooks that CANNOT run here, with the reason, enforced in both
-          # directions below. Zillow publishes ZHVI as a download and its terms do
-          # not permit redistribution, so `data/zillow/**/*.csv` is gitignored
-          # (unlike the HUD bulk files, which are US Government works in the public
-          # domain and ARE committed -- both HUD notebooks pass here). A clean
-          # checkout therefore cannot satisfy this notebook's pinned input, and no
-          # amount of fixing changes that. Recording it as a declared exception is
-          # honest; letting it fail the gate forever would train everyone to ignore
-          # a red run, which is the exact defect this workflow replaced.
-          LICENSE_RESTRICTED = {
-              "projects/08-culture-society/D27_housing_affordability_and_gentrification/D27_gentrification.ipynb":
-                  "Zillow ZHVI county file is gitignored -- terms forbid redistribution",
-          }
-
-          notebooks = sorted(pathlib.Path("projects").rglob("*.ipynb"))
-          known = {str(n) for n in notebooks}
-          stale = sorted(set(LICENSE_RESTRICTED) - known)
-          if stale:
-              print("LICENSE_RESTRICTED names notebooks that do not exist:")
-              print("\n".join(f"  {s}" for s in stale))
-              sys.exit(1)
-
-          failures: list[str] = []
-          skipped: list[str] = []
-          leaks: list[str] = []
-
-          for path in notebooks:
-              notebook = nbformat.read(path, as_version=4)
-              for cell in notebook.cells:
-                  if cell.cell_type == "code":
-                      cell.outputs, cell.execution_count = [], None
-              try:
-                  # cwd is the repository root: notebooks resolve pinned bulk files
-                  # by repo-relative path (data/hud/..., data/zillow/...).
-                  NotebookClient(
-                      notebook, timeout=900, kernel_name="python3",
-                      resources={"metadata": {"path": "."}},
-                  ).execute()
-                  print(f"PASS {path}")
-              except CellExecutionError as exc:
-                  # A BulkFilePinError means a precondition was not met, which is
-                  # categorically different from a notebook that is wrong. It is
-                  # tolerated ONLY for a notebook declared above; anywhere else a
-                  # missing pinned file is a real failure and stays one.
-                  pinned = "BulkFilePinError" in str(exc)
-                  if pinned and str(path) in LICENSE_RESTRICTED:
-                      skipped.append(f"{path}: {LICENSE_RESTRICTED[str(path)]}")
-                      print(f"SKIP {path}  (declared: input cannot be committed)")
-                  else:
-                      failures.append(f"{path}: {exc}")
-                      print(f"FAIL {path}")
-
-              # Run this on EVERY notebook, passed or failed. The previous version
-              # skipped failed ones -- precisely backwards. The FRED key that leaked
-              # in this project leaked through a traceback printing a request URL
-              # with `api_key=` still in the query string, so a failed notebook's
-              # partial outputs are the HIGHEST-risk place for a key to appear, not
-              # a place to stop looking. nbclient populates cell outputs as it goes,
-              # so the traceback is present on the object even after the raise.
-              # Values, never names: the names are public.
-              # `.strip()` and the length floor are both load-bearing, and each
-              # closes a failure in a different direction. A secret pasted with a
-              # trailing newline is stored as "abc123\n"; the key as it actually
-              # appears in an output has no newline, so an unstripped comparison
-              # MISSES the leak -- the dangerous direction. And a secret that is
-              # empty or whitespace-only is truthy enough to pass `if value` while
-              # `" " in blob` is true of essentially any JSON, so every notebook
-              # would be reported as leaking -- a false rotation event, the noisy
-              # direction. Nothing shorter than 8 characters is a credential.
-              live = {}
-              for name in ("CENSUS_API_KEY", "FRED_API_KEY", "BLS_API_KEY", "HUD_API_KEY"):
-                  value = os.environ.get(name, "").strip()
-                  if len(value) >= 8:
-                      live[name] = value
-              blob = json.dumps(notebook, default=str)
-              for name, value in live.items():
-                  if value in blob:
-                      leaks.append(f"{path}: {name} appears in an executed output")
-
-          if skipped:
-              print("\nDeclared skips (input cannot be committed to this repository):")
-              print("\n".join(f"  {s}" for s in skipped))
-
-          # Leaks are reported before failures and exit on their own: a leak is a
-          # rotation event, and it must not be buried under an execution error.
-          if leaks:
-              print("\nCREDENTIAL LEAK -- rotate the named key before merging:")
-              print("\n".join(f"  {leak}" for leak in leaks))
-              sys.exit(1)
-          if failures:
-              print("\nNotebooks that did not complete a clean run:")
-              print("\n".join(f"  {f}" for f in failures))
-              sys.exit(1)
-          print(f"\n{len(notebooks) - len(skipped)} notebooks executed clean against live sources; "
-                f"{len(skipped)} declared skip(s); no credential reached an output.")
-          PY
-
-      - name: No synthetic data reached a reported figure
-        env:
-          KRL_NOTEBOOK_ROOT: projects
-        # Same pytest.ini coverage override as the static lane; see the comment
-        # on that step for why it is required rather than cosmetic.
-        run: pytest tests/test_gate_no_synthetic.py -o addopts="" -v --strict-markers
+  # There is no second lane. Re-executing the notebooks against live sources needs
+  # API keys, and this repository stores and uses no secrets (owner rule, 2026-10-16).
+  # A reader re-executes them with their own keys; see docs/reproducibility.md. What
+  # CI can establish without a key -- stored outputs, provenance digests, gates -- is
+  # established in the lane above.

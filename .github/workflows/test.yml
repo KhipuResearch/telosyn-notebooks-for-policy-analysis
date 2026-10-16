@@ -3,7 +3,7 @@
 #
 # What a reader's machine will do: install from pyproject.toml as documented,
 # run the suite, confirm the derived READMEs match the notebooks. No network,
-# no keys. The live-execution gate with credentials is notebook-release-gates.yml.
+# no keys. Nothing in this repository's workflows holds a secret.
 name: test
 
 on:

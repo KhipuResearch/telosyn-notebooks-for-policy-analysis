@@ -171,7 +171,7 @@ def test_an_empty_body_is_an_empty_result() -> None:
 def test_the_request_identifies_the_client() -> None:
     session = _Session(_Response(body=_workbook()))
     fetch_food_environment_atlas(sheet="INSECURITY", session=session)
-    assert "the private source repository" in session.calls[0]["headers"]["User-Agent"]
+    assert "telosyn-notebooks" in session.calls[0]["headers"]["User-Agent"]
 
 
 def test_provenance_names_the_state_replicated_columns() -> None:

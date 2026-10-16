@@ -1139,7 +1139,7 @@ def fetch_qcew(
         raise ValueError("A QCEW area code is required, e.g. '51059' or 'US000'.")
     qtr = str(quarter)
     endpoint = f"{QCEW_HOST}/{year}/{qtr}/area/{area}.csv"
-    <tool> = f"the private source repository research ({contact})" if contact else "the private source repository research"
+    <tool> = f"telosyn-notebooks/1.0 ({contact})" if contact else "telosyn-notebooks/1.0"
 
     http = session or requests
     try:
@@ -3673,7 +3673,7 @@ class GrainError(DataAccessError):
 def _fea_bytes(*, session: requests.Session | None = None) -> bytes:
     http = session or requests
     try:
-        resp = http.get(FEA_URL, timeout=300, headers={"User-Agent": "the private source repository/1.0"})
+        resp = http.get(FEA_URL, timeout=300, headers={"User-Agent": "telosyn-notebooks/1.0"})
     except requests.RequestException as exc:
         raise UpstreamError(f"Food Environment Atlas request failed: {redact(exc)}") from exc
     reject_bot_challenge(resp, source="USDA ERS", endpoint=FEA_URL)
@@ -3884,7 +3884,7 @@ def fetch_irs_bmf(
         endpoint = f"{IRS_BMF_HOST}/{region}.csv"
         try:
             resp = http.get(endpoint, timeout=300,
-                            headers={"User-Agent": "the private source repository/1.0"})
+                            headers={"User-Agent": "telosyn-notebooks/1.0"})
         except requests.RequestException as exc:
             raise UpstreamError(f"IRS BMF request failed: {redact(exc)}") from exc
         reject_bot_challenge(resp, source="IRS", endpoint=endpoint)
@@ -4031,7 +4031,7 @@ def fetch_cdc_socrata(
     http = session or requests
     try:
         resp = http.get(endpoint, params=params, timeout=180,
-                        headers={"User-Agent": "the private source repository/1.0"})
+                        headers={"User-Agent": "telosyn-notebooks/1.0"})
     except requests.RequestException as exc:
         raise UpstreamError(f"CDC Socrata request failed: {redact(exc)}") from exc
     reject_bot_challenge(resp, source="CDC open data", endpoint=endpoint)

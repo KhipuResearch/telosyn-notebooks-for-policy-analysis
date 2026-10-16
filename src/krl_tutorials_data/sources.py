@@ -92,12 +92,12 @@ ALLOWED_KEYS: Final[frozenset[str]] = frozenset({
 #: stores and uses no key of its own, and nothing is read from a default location. The
 #: addresses are the ones listed in ``.env.example``; a test holds the two together.
 KEY_REGISTRATION: Final[dict[str, str]] = {
-    "CENSUS_API_KEY": "https://api.census.gov/data/key_signup.html",
-    "FRED_API_KEY": "https://fred.stlouisfed.org/docs/api/api_key.html",
-    "BLS_API_KEY": "https://data.bls.gov/registrationEngine/",
-    "BEA_API_KEY": "https://apps.bea.gov/API/signup/",
-    "HUD_API_KEY": "https://www.huduser.gov/portal/dataset/fmr-api.html",
-    "DATA_GOV_API_KEY": "https://api.data.gov/signup/",
+    "CENSUS_API_KEY": "https://api.census.gov/data/key_signup.html",  # pragma: allowlist secret
+    "FRED_API_KEY": "https://fred.stlouisfed.org/docs/api/api_key.html",  # pragma: allowlist secret
+    "BLS_API_KEY": "https://data.bls.gov/registrationEngine/",  # pragma: allowlist secret
+    "BEA_API_KEY": "https://apps.bea.gov/API/signup/",  # pragma: allowlist secret
+    "HUD_API_KEY": "https://www.huduser.gov/portal/dataset/fmr-api.html",  # pragma: allowlist secret
+    "DATA_GOV_API_KEY": "https://api.data.gov/signup/",  # pragma: allowlist secret
 }
 
 

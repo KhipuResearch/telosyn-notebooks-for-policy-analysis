@@ -12,7 +12,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 ## 1. Title
 
 This repository is the public distribution of the Telosyn Notebooks for Policy Analysis. It is
-built from the private source of record, `krl-tutorials`, and restructured as a
+built from the private source repository, and restructured as a
 reproducible research portfolio: numbered projects, a `src/` package, a
 documented data lifecycle, generated project READMEs, a citation file, a
 Makefile and a CI workflow that installs exactly what the README says. It is
@@ -109,7 +109,7 @@ three figures represent the work is the owner's choice.
 
 ## 6. Consequences
 
-1. The public repository and `krl-tutorials` are now two trees. Changes to
+1. The public repository and the private source repository are now two trees. Changes to
    the corpus are made in the source of record and re-exported; the export is
    `git archive` plus `scripts/restructure.py`'s mapping, and should be scripted
    before the second export rather than repeated by hand.

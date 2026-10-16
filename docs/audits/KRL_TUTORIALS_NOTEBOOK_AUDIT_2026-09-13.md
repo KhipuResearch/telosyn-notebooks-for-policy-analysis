@@ -11,16 +11,14 @@
 ---
 
 > **Redaction note (2026-10-15).** This is the audit of record for the corpus from which
-> the published notebooks were rebuilt. Two families it examined — a media-intelligence
-> family (D34) and six machine-learning notebooks — are not published and not retired. Their
-> file names and the path of the audited tree are replaced with neutral identifiers
-> (`D34`, `D34_variant_b`, `D34_demo`, `ML_01` … `ML_06`, `<audited-tree>`). Hashes, findings,
-> grades and every figure are as issued.
+> the published notebooks were rebuilt. Two families it examined are not published. Their
+> file names and the path of the audited tree are replaced with neutral identifiers. Hashes,
+> findings, grades and every figure are as issued.
 
 
 ## 1. Objective Restatement
 
-Determine whether the 53 Jupyter notebooks constituting the `krl-tutorials` educational product are (a) **functional** — do they execute; (b) **methodologically sound** — are the statistical and causal claims supported by the code that produces them; and (c) **accurate** — do the narrative conclusions match the computed results. Produce a prioritised remediation plan. No code is modified by this pass.
+Determine whether the 53 Jupyter notebooks constituting the private source repository's educational product are (a) **functional** — do they execute; (b) **methodologically sound** — are the statistical and causal claims supported by the code that produces them; and (c) **accurate** — do the narrative conclusions match the computed results. Produce a prioritised remediation plan. No code is modified by this pass.
 
 **Decision this audit supports:** whether the tutorial corpus can be published, taught from, or shown to a design partner in its current state, and what must change before it can.
 

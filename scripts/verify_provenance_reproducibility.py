@@ -57,7 +57,7 @@ TIMEOUT_SECONDS = 60
 
 #: Same header every fetcher sends. Harvard Dataverse answers 403 to the default
 #: `python-requests` agent, so an unnamed client would mis-report a failure.
-HEADERS = {"User-Agent": "krl-tutorials/1.0 (research corpus; provenance replay)"}
+HEADERS = {"User-Agent": "telosyn-notebooks/1.0"}
 
 #: How each recorded basis turns response bytes into the hashed payload.
 BASES: dict[str, Callable[[bytes], bytes]] = {

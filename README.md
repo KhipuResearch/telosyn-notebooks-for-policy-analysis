@@ -132,7 +132,7 @@ requires any private package.
 | `src/krl_tutorials_data/` | Fail-closed clients for each source, with provenance, uncertainty, bracket and tabulation helpers |
 | `data/` | Provenance documentation and the two HUD schedules the API does not serve |
 | `docs/` | The methodology handbook, reproducibility statement, project index, source map, migration record and the audit of record |
-| `tests/` | The suite, including the nine release gates that run against every notebook |
+| `tests/` | The suite, including the release gates that run against every notebook (nine for the data-methods projects, three more for the expansion) |
 | `scripts/` | Verification and generation tools |
 | `DECISIONS/` | Architecture decision records |
 

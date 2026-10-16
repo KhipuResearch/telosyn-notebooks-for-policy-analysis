@@ -72,7 +72,7 @@ from any error it surfaces.
 
 ```bash
 make test               # the suite
-make gates              # the nine release gates only
+make gates              # the release gates only (nine, plus three added with the expansion)
 make verify-provenance  # replay every provenance record against its digest
 make readmes            # regenerate the derived READMEs and check nothing drifted
 ```
@@ -97,3 +97,21 @@ interpretation and narrative claims are mutually consistent:
 
 Each gate was mutation-tested: the defect it exists to catch was deliberately
 introduced and the gate confirmed to fail.
+
+### Gates added with the expansion
+
+Three further gates apply to projects 09 onward (DECISIONS/0009). Each ships with a
+compliant and a planted-violation fixture, so it is shown able to fail on a corpus that
+has no in-scope notebook yet.
+
+| Gate | Refuses |
+|---|---|
+| identification | a causal notebook whose declared estimand, assumption, falsification, inference or pre-analysis plan is missing; whose falsification cell has no stored `FALSIFICATION:` line; or whose plan digest differs between the notebook, the plan file and any provenance record |
+| data-mode-reserved | a notebook that declares the `model` data mode, which is designed and not released |
+| pums-aggregate-only | a notebook that reaches for person-level records: the removed row-return argument, or the private helpers that hold the person frame |
+
+`scripts/check_public_surface.py` is not a notebook gate; it runs in `make check` and in
+the blocking workflow, and refuses names, paths, attribution trailers, tool caches and
+unheadered files that must not reach a public repository. The patterns for the names are
+not in this repository: it reads them from a private denylist named by
+`KRL_SURFACE_DENYLIST` and exits with status 2 when that is absent.

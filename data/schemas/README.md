@@ -35,6 +35,12 @@ twenty-five written after it was added.
 
 A machine-readable copy of this schema is in [`provenance_record.json`](provenance_record.json).
 
+## Notebook metadata
+
+The `krl` block each notebook carries, including the identification contract
+used by the causal projects and the reserved `model` mode, is documented in
+[`notebook_metadata.md`](notebook_metadata.md).
+
 ## Local files
 
 The two HUD schedules under `data/hud/` have their column definitions in the

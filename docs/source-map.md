@@ -235,6 +235,25 @@ These sources publish files, not queryable APIs.
 
 ---
 
+## Expansion — sources for projects 09–14
+
+Added with the expansion (DECISIONS/0009). The same rule applies as above: a source is
+`VERIFIED` only where this repository's build reached it, and nothing here is asserted as
+available on the strength of the plan that names it.
+
+| Source | Used by | Retrieval | Status |
+|---|---|---|---|
+| **Census ACS PUMS** (`api.census.gov/data/{year}/acs/acs1/pums`) | C02, C05, C06 | keyed (`CENSUS_API_KEY`); person records read, **weighted cell counts returned**, never rows | **BUILT** (`fetch_acs_pums`). `VERIFIED` 2026-10-15 for 2023: the variable metadata (`AGEP`, `HICOV`, `PRIVCOV`, `PUBCOV`, `PWGTP`, `ESR`, `HINS4`) was fetched and one live aggregate was retrieved for one state. `UNVERIFIED` for the 2012–2019 releases C06 pools |
+| **Census CPS ASEC** (`api.census.gov/data/{year}/cps/asec/mar`) | E03 | keyed | `UNVERIFIED` — endpoint and variables named in the plan, not checked |
+| **CMS MBES** (Medicaid expenditure reports) | E01 | bulk file | `UNVERIFIED` — a `medicaid.gov` page answered a scripted client with HTTP 403 on 2026-10-16, so the access path is open |
+| **DOL Wage and Hour Division** state minimum-wage history | C03, C04 | a page, no API | **BUILT** as `data/policy/minimum_wage/`. Scripted clients are refused (HTTP 403), so it was captured in a browser; `SOURCES.md` there says what its digests do and do not identify |
+| **KFF** Medicaid expansion status | C01, E01 | a page with an embedded table | **BUILT** as `data/policy/medicaid/`. `VERIFIED` 2026-10-16: downloaded by script, original's SHA-256 recorded |
+| **USDA FNS** SNAP participation and state options | I01 | bulk | `UNVERIFIED` |
+| **IRS SOI** EITC participation by state | I01 | bulk | `UNVERIFIED` |
+| **CBO** *Distribution of Household Income* supplemental tables | E03 | bulk | `UNVERIFIED` |
+| **FRED** state series (`CALEIH` and the `<ST>LEIH` donors) | C04 | existing `fetch_fred` | `UNVERIFIED` — IDs must be checked against the live `series` endpoint before pinning |
+| **BLS QCEW** county × quarter, NAICS 722, 2012–2023 | C03 | existing `fetch_qcew` | `UNVERIFIED` at that scale |
+
 ## What this means for sequencing
 
 Regenerating all 33 is **not** 32 more notebooks. It is roughly:

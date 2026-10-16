@@ -135,3 +135,6 @@ _to_delete/
 # NOTE: notebooks_v2/**/provenance/ is deliberately NOT ignored. Those records
 # are committed evidence. A provenance/ directory at the REPO ROOT is the
 # defect, and tests/test_provenance_location.py fails on it.
+
+# Hypothesis example database: machine-specific paths, never committed
+.hypothesis/

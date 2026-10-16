@@ -33,6 +33,15 @@ SECTION_TITLES = {
     "06-infrastructure-environment": "Infrastructure and Environment",
     "07-justice-equity": "Justice and Equity",
     "08-culture-society": "Culture and Society",
+    # The expansion (DECISIONS/0009). Project 12 is designed and held to the next
+    # release; its title is here so that the folder can be added without touching
+    # this file again.
+    "09-causal-identification": "Causal Identification",
+    "10-economic-evaluation": "Economic Evaluation",
+    "11-distribution-heterogeneity": "Distribution and Heterogeneity",
+    "12-simulation-foresight": "Simulation and Foresight",
+    "13-evidence-synthesis": "Evidence Synthesis",
+    "14-implementation": "Implementation and Take-up",
 }
 
 #: The eighteen publishers the corpus draws on, as a reader would name them.
@@ -139,10 +148,30 @@ def describe(nb: Path) -> dict:
     }
 
 
+def _sections() -> list[Path]:
+    """Project folders that hold at least one notebook, in order.
+
+    A folder with no notebook has nothing to describe, so it gets no README and
+    is not counted as a project. That lets an expansion project's folder exist
+    before its first notebook without the generators claiming otherwise.
+    """
+    return sorted(p for p in PROJECTS.iterdir() if p.is_dir() and any(p.rglob("*.ipynb")))
+
+
+def _title(section: Path) -> str:
+    try:
+        return SECTION_TITLES[section.name]
+    except KeyError:
+        raise ValueError(
+            f"projects/{section.name} holds notebooks but has no entry in SECTION_TITLES "
+            "(scripts/build_project_readmes.py); add its title there."
+        ) from None
+
+
 def render_project(section: Path) -> str:
     nbs = sorted(section.rglob("*.ipynb"))
-    num, slug = section.name.split("-", 1)
-    out = [HEADER, f"# {num}. {SECTION_TITLES[section.name]}\n"]
+    num, _slug = section.name.split("-", 1)
+    out = [HEADER, f"# {num}. {_title(section)}\n"]
     out.append(f"{len(nbs)} notebook{'s' if len(nbs) != 1 else ''}. Each one is built on a live public "
                "source and holds a single methodological lesson about what that source permits a "
                "reader to conclude. Run any of them from the repository root:\n")
@@ -182,19 +211,19 @@ def render_index() -> str:
            "Every notebook in the corpus, by project. Thesis is the notebook's own title.\n",
            "| # | Project | Notebook | Thesis |\n|---|---|---|---|"]
     n = 0
-    for section in sorted(p for p in PROJECTS.iterdir() if p.is_dir()):
+    sections = _sections()
+    for section in sections:
         for nb in sorted(section.rglob("*.ipynb")):
             n += 1
             d = describe(nb)
             rel = nb.relative_to(REPO_ROOT)
-            out.append(f"| {n} | [{SECTION_TITLES[section.name]}](../projects/{section.name}/README.md) | [{d['title']}](../{rel}) | {d['thesis']} |")
-    out.append(f"\n{n} notebooks across {len(SECTION_TITLES)} projects.\n")
+            out.append(f"| {n} | [{_title(section)}](../projects/{section.name}/README.md) | [{d['title']}](../{rel}) | {d['thesis']} |")
+    out.append(f"\n{n} notebooks across {len(sections)} projects.\n")
     return "\n".join(out)
 
 
 def main(check: bool) -> int:
-    targets = {section / "README.md": render_project(section)
-               for section in sorted(p for p in PROJECTS.iterdir() if p.is_dir())}
+    targets = {section / "README.md": render_project(section) for section in _sections()}
     targets[REPO_ROOT / "docs" / "project-index.md"] = render_index()
     stale = []
     for path, content in targets.items():

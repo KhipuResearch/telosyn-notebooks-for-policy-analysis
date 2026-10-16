@@ -10,6 +10,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 - **Deciders:** Telosyn, Inc. (owner)
 - **Date:** 2026-10-15
 - **Amended 2026-10-15:** precedence of a pre-analysis plan over the data is proven by digest equality (notebook declaration = plan file = `pap_sha256` in every provenance record), not by commit time; commit order is a warning, and §3.2 rule 3–4 and the fail-closed clause read accordingly.
+- **Amended 2026-10-16:** the PUMS and CPS ASEC clients return cells only and have no row-level path at all (§3.8).
 
 ## 1. Title
 
@@ -161,10 +162,14 @@ updated in the same change as the notebook.
 ### 3.8 Person-level microdata
 
 ACS PUMS and CPS ASEC are retrieved through clients that return **weighted
-aggregates only**. Row-level return exists behind an explicit argument that no
-notebook may pass, and a gate asserts that no notebook source contains it. No
-person-level row is printed, stored in an output or written inside the
-repository.
+aggregates only**. There is no row-level return and no argument that asks for one:
+the client reads person records into a frame that exists only inside the call,
+reads it in one private function that returns weighted cells, and a gate keeps any
+notebook from reaching for the person frame. No person-level row is printed,
+stored in an output or written inside the repository. Analyses that would have used
+person rows (C05, C06) are specified on cells: covariates discretised, estimators
+weighted by cell population. *(Amended 2026-10-16; the first version of this
+section allowed an opt-in row return behind a gated argument.)*
 
 ### 3.9 Retrieval, hashing and vintage for new sources
 

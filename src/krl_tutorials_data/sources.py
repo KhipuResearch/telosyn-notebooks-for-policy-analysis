@@ -632,6 +632,68 @@ PUMS_CELL_FLOOR: Final[int] = 5
 PUMS_DEFAULT_MIN_CELL: Final[int] = 10
 
 
+def _pums_person_frame(raw: pd.DataFrame, requested: Sequence[str], weight: str) -> pd.DataFrame:
+    """Numeric person frame from the API's rows. Private: it is never returned.
+
+    Nothing is coerced silently: a non-null value that is not a number raises, and a
+    weight that is missing or not positive raises.
+    """
+    person = pd.DataFrame(index=raw.index)
+    for code in requested:
+        column = pd.to_numeric(raw[code], errors="coerce")
+        broken = column.isna() & raw[code].notna()
+        if broken.any():
+            raise SchemaError(
+                f"{code} holds {int(broken.sum())} non-numeric value(s) that are not "
+                f"null, e.g. {str(raw.loc[broken, code].iloc[0])!r}; nothing is coerced."
+            )
+        person[code] = column
+    w = person[weight]
+    if w.isna().any() or (w <= 0).any():
+        raise RangeError(
+            f"the weight {weight} is missing or not positive in "
+            f"{int((w.isna() | (w <= 0)).sum())} record(s); a person weight is at least 1."
+        )
+    return person
+
+
+def _pums_cells(
+    person: pd.DataFrame, aggregate_by: Sequence[str], weight: str, min_cell_records: int
+) -> tuple[pd.DataFrame, list[str]]:
+    """The only reader of the person frame: weighted cell counts, small cells withheld.
+
+    Returns ``(cells, notes)``. ``cells`` has the grouping columns plus ``weighted_n`` and
+    ``n_records``; what was withheld is in ``cells.attrs`` and in ``notes``. Missing values
+    in a grouping column form their own cell. Complexity O(n log n) in the records.
+    """
+    notes = [
+        "PUMS is a sample of person records; weighted cell counts estimate population "
+        "counts with sampling error that is not computed here (no replicate weights).",
+        "Missing values in grouping columns are kept as their own cell; their meaning "
+        "is the variable's universe in the PUMS data dictionary.",
+    ]
+    grouped = person.groupby(list(aggregate_by), dropna=False)
+    cells = grouped.agg(weighted_n=(weight, "sum"), n_records=(weight, "size")).reset_index()
+    small = cells["n_records"] < min_cell_records
+    withheld = cells[small]
+    out = cells[~small].sort_values(list(aggregate_by), na_position="last").reset_index(drop=True)
+    out["weighted_n"] = out["weighted_n"].astype(float)
+    out["n_records"] = out["n_records"].astype(int)
+    out.attrs.update(
+        suppressed_cells=int(small.sum()),
+        suppressed_records=int(withheld["n_records"].sum()),
+        suppressed_weighted_n=float(withheld["weighted_n"].sum()),
+        min_cell_records=int(min_cell_records),
+    )
+    notes.append(
+        f"Aggregated to {len(out)} cell(s) from {len(person)} person record(s); "
+        f"{int(small.sum())} cell(s) with fewer than {min_cell_records} records were "
+        f"withheld ({int(withheld['n_records'].sum())} record(s), weighted "
+        f"{float(withheld['weighted_n'].sum()):,.0f}). No person-level row is returned."
+    )
+    return out, notes
+
+
 def fetch_acs_pums(
     *,
     year: int,
@@ -641,7 +703,6 @@ def fetch_acs_pums(
     weight: str = PUMS_PERSON_WEIGHT,
     dataset: str = "acs/acs1/pums",
     min_cell_records: int = PUMS_DEFAULT_MIN_CELL,
-    return_rows: bool = False,
     session: requests.Session | None = None,
 ) -> tuple[pd.DataFrame, DataProvenance]:
     """Fetch ACS PUMS person records and return weighted cell counts, or raise.
@@ -649,8 +710,9 @@ def fetch_acs_pums(
     The Census API serves one record per person. This function reads them into
     memory, groups them by ``aggregate_by`` and returns, per cell, the sum of
     ``weight`` (``weighted_n``) and the number of records (``n_records``). **No
-    person-level row is returned, printed or stored** unless the caller passes
-    ``return_rows=True``, which notebooks must not do (a gate refuses it).
+    person-level row is returned, printed or stored, and there is no argument
+    that asks for one**: the person frame exists only inside this call and
+    :func:`_pums_cells`, the single place it is read, returns cells.
 
     Parameters
     ----------
@@ -727,57 +789,8 @@ def fetch_acs_pums(
             f"PUMS response is missing requested variables {missing}. "
             f"Returned columns: {list(raw.columns)}"
         )
-    person = pd.DataFrame(index=raw.index)
-    for code in requested:
-        column = pd.to_numeric(raw[code], errors="coerce")
-        broken = column.isna() & raw[code].notna()
-        if broken.any():
-            raise SchemaError(
-                f"{code} holds {int(broken.sum())} non-numeric value(s) that are not "
-                f"null, e.g. {str(raw.loc[broken, code].iloc[0])!r}; nothing is coerced."
-            )
-        person[code] = column
-    w = person[weight]
-    if w.isna().any() or (w <= 0).any():
-        raise RangeError(
-            f"the weight {weight} is missing or not positive in "
-            f"{int((w.isna() | (w <= 0)).sum())} record(s); a person weight is at least 1."
-        )
-
-    notes = [
-        "PUMS is a sample of person records; weighted cell counts estimate population "
-        "counts with sampling error that is not computed here (no replicate weights).",
-        "Missing values in grouping columns are kept as their own cell; their meaning "
-        "is the variable's universe in the PUMS data dictionary.",
-    ]
-    if return_rows:
-        notes.append(
-            "RETURNED PERSON-LEVEL RECORDS (return_rows=True). They must not be printed, "
-            "stored in an output or written to disk inside the repository."
-        )
-        out = person
-    else:
-        grouped = person.groupby(list(aggregate_by), dropna=False)
-        cells = grouped.agg(weighted_n=(weight, "sum"), n_records=(weight, "size")).reset_index()
-        small = cells["n_records"] < min_cell_records
-        withheld = cells[small]
-        out = cells[~small].sort_values(list(aggregate_by), na_position="last").reset_index(
-            drop=True
-        )
-        out["weighted_n"] = out["weighted_n"].astype(float)
-        out["n_records"] = out["n_records"].astype(int)
-        out.attrs.update(
-            suppressed_cells=int(small.sum()),
-            suppressed_records=int(withheld["n_records"].sum()),
-            suppressed_weighted_n=float(withheld["weighted_n"].sum()),
-            min_cell_records=int(min_cell_records),
-        )
-        notes.append(
-            f"Aggregated to {len(out)} cell(s) from {len(person)} person record(s); "
-            f"{int(small.sum())} cell(s) with fewer than {min_cell_records} records were "
-            f"withheld ({int(withheld['n_records'].sum())} record(s), weighted "
-            f"{float(withheld['weighted_n'].sum()):,.0f}). No person-level row is returned."
-        )
+    person = _pums_person_frame(raw, requested, weight)
+    out, notes = _pums_cells(person, list(aggregate_by), weight, min_cell_records)
 
     prov = DataProvenance.build(
         hash_basis="canonical-rows",

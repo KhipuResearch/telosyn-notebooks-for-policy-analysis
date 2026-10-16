@@ -2252,6 +2252,48 @@ reading error.
 
 ---
 
+## 18. Identification
+
+*Stub. This section is filled by the cards that deliver projects 09 and 13 (C01 to C06 and
+M01); until a card lands, it says only what it will contain. The expansion plan numbered this
+section 12; that number, and 13 and 14, were already in use, so the expansion sections follow
+the last existing one.*
+
+It will state, for each design the corpus uses to estimate an effect: the estimand; the
+identifying assumption written as an assumption; the falsification that was run and where its
+output is stored; the inference method and what it assumes about the number of clusters; and
+the specific conclusion the design is not entitled to. It will describe the identification
+contract each causal notebook declares in its metadata, the pre-analysis plan that precedes
+its data, and how that precedence is proven by a digest recorded in the provenance record
+rather than by commit time (DECISIONS/0009). Every figure in it will be traced to a notebook's
+stored output in the way the sections above are.
+
+---
+
+## 19. Appraisal and distribution
+
+*Stub. This section is filled by the cards that deliver projects 10 and 11 (E01, E03, Q01, and
+E02, Q02, Q03 if they are released).*
+
+It will state what a cost-effectiveness ratio is a ratio of and why no interval is offered for
+it; how discounting is applied and that no discount rate is stored in the code; what a
+distributional incidence table can and cannot say when two income concepts are reconciled; and
+what survives multiple-comparison correction in subgroup estimates, with the achieved power.
+
+---
+
+## 20. Models and scenarios
+
+*Stub. Project 12 is designed and held to the next release; nothing in this corpus is a model
+of that kind yet.*
+
+It will describe the `model` data mode, which is reserved and not accepted (DECISIONS/0009),
+the disclosure every such notebook must carry as its first cell, and the rule that a scenario
+is not an estimate of what a policy did. It will be filled by the first card that releases
+project 12.
+
+---
+
 ## Provenance
 
 Compiled from the FINDINGS blocks and key-takeaway cells of the 23 executed notebooks

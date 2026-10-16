@@ -1,12 +1,14 @@
-"""Gate -- no notebook may request person-level PUMS records.
+"""Gate -- no notebook may reach for person-level PUMS records.
 
-``sources.fetch_acs_pums`` returns weighted cell counts. Its ``return_rows=True``
-escape hatch returns person records and exists for tests of the aggregation
-itself; the corpus does not print, store or write person rows (DIRECTIVE
-standing order 6). A notebook source containing the argument fails here.
+``sources.fetch_acs_pums`` returns weighted cell counts and has no argument that
+asks for anything else (DECISIONS/0009, amendment of 2026-10-16). This gate keeps a
+notebook from working around that: it may not name the removed ``return_rows``
+argument, nor reach into the module's private PUMS helpers, which are where a person
+frame exists. Both are structurally unreachable by the public function now; the gate
+is the second lock.
 
-The planted-violation test proves the scan can fail: the corpus has no PUMS
-notebook until C02, so without it this gate would pass on nothing.
+The planted-violation tests prove the scan can fail: the corpus has no PUMS notebook
+until C02, so without them this gate would pass on nothing.
 
 © 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
 Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
@@ -15,53 +17,50 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 from __future__ import annotations
 
 import ast
-import re
 
 import pytest
 
 from gate_support import Notebook
 
-#: ``return_rows`` with a truthy value, however spaced, on any call.
-_TEXTUAL = re.compile(r"return_rows\s*=\s*(?!False\b|0\b|None\b)\w")
+#: Names a notebook must not use: the removed argument and the private helpers.
+FORBIDDEN = ("return_rows", "_pums_person_frame", "_pums_cells")
 
 
 def person_rows_requested(source: str) -> list[str]:
-    """Return a description of each call that asks for person-level records.
+    """Return a description of each use of a forbidden name in ``source``.
 
-    Parsed, not just grepped, so ``return_rows = flag`` and a ``**kwargs``
-    spread that includes it are reported; text that merely mentions the name
-    in a comment or string is not. Unparseable source falls back to the text
-    scan rather than passing silently.
+    Parsed so a keyword, an attribute, a bare name, a dict key and a ``getattr``
+    string are all reported; text that merely mentions a name in a comment is not.
+    Unparseable source falls back to a text scan rather than passing silently.
     """
     try:
         tree = ast.parse(source)
     except SyntaxError:
-        return [m.group(0) for m in _TEXTUAL.finditer(source)]
+        return [name for name in FORBIDDEN if name in source]
     found: list[str] = []
     for node in ast.walk(tree):
-        if isinstance(node, ast.Dict):
-            for key, value in zip(node.keys, node.values):
-                falsy = isinstance(value, ast.Constant) and value.value in (False, 0, None)
-                if isinstance(key, ast.Constant) and key.value == "return_rows" and not falsy:
-                    found.append(f"line {node.lineno}: {{'return_rows': {ast.unparse(value)}}}")
-        if not isinstance(node, ast.Call):
-            continue
-        for kw in node.keywords:
-            if kw.arg == "return_rows" and not (
-                isinstance(kw.value, ast.Constant) and kw.value.value in (False, 0, None)
-            ):
-                found.append(f"line {node.lineno}: return_rows={ast.unparse(kw.value)}")
-            if kw.arg is None and "return_rows" in ast.unparse(kw.value):
-                found.append(f"line {node.lineno}: **{ast.unparse(kw.value)}")
+        hit = None
+        if isinstance(node, ast.keyword) and node.arg in FORBIDDEN:
+            hit = node.arg
+        elif isinstance(node, ast.Attribute) and node.attr in FORBIDDEN:
+            hit = node.attr
+        elif isinstance(node, ast.Name) and node.id in FORBIDDEN:
+            hit = node.id
+        elif isinstance(node, ast.alias) and node.name.split(".")[-1] in FORBIDDEN:
+            hit = node.name
+        elif isinstance(node, ast.Constant) and isinstance(node.value, str) and node.value in FORBIDDEN:
+            hit = node.value
+        if hit:
+            found.append(f"line {getattr(node, 'lineno', '?')}: {hit}")
     return found
 
 
-def test_no_notebook_requests_person_level_records(notebook: Notebook) -> None:
+def test_no_notebook_reaches_for_person_level_records(notebook: Notebook) -> None:
     """The corpus asks for aggregates only."""
     hits = person_rows_requested(notebook.code_source)
     assert not hits, (
-        f"{notebook.path.name} asks for person-level PUMS records ({'; '.join(hits)}). "
-        "Notebooks use fetch_acs_pums as an aggregator; remove return_rows."
+        f"{notebook.path.name} reaches for person-level PUMS records ({'; '.join(hits)}). "
+        "Notebooks use fetch_acs_pums as an aggregator and nothing else."
     )
 
 
@@ -69,14 +68,15 @@ def test_no_notebook_requests_person_level_records(notebook: Notebook) -> None:
     "source",
     [
         "fetch_acs_pums(year=2023, return_rows=True)",
-        "fetch_acs_pums(year=2023, return_rows = 1)",
-        "flag = True\nfetch_acs_pums(year=2023, return_rows=flag)",
         "opts = {'return_rows': True}\nfetch_acs_pums(year=2023, **opts)",
+        "from krl_tutorials_data.sources import _pums_cells",
+        "import krl_tutorials_data.sources as s\ns._pums_person_frame(raw, [], 'PWGTP')",
+        "getattr(sources, '_pums_cells')",
         "fetch_acs_pums(year=2023, return_rows=True",  # does not parse: text fallback
     ],
 )
 def test_the_scan_catches_every_spelling(source: str) -> None:
-    """Each spelling of the request is reported."""
+    """Each way of reaching for the person frame is reported."""
     assert person_rows_requested(source)
 
 
@@ -84,11 +84,10 @@ def test_the_scan_catches_every_spelling(source: str) -> None:
     "source",
     [
         "fetch_acs_pums(year=2023)",
-        "fetch_acs_pums(year=2023, return_rows=False)",
-        "# return_rows=True is refused here\nfetch_acs_pums(year=2023)",
-        "msg = 'never pass return_rows=True'\nfetch_acs_pums(year=2023)",
+        "# return_rows is gone\nfetch_acs_pums(year=2023)",
+        "msg = 'there is no return_rows argument'\nfetch_acs_pums(year=2023)",
     ],
 )
 def test_the_scan_does_not_flag_compliant_source(source: str) -> None:
-    """A comment, a string or an explicit False is not a request."""
+    """A comment or a sentence in a string is not a use."""
     assert not person_rows_requested(source)

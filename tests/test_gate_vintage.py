@@ -36,7 +36,7 @@ from gate_support import Notebook
 #: imported because that module and this one are collected from different roots
 #: in CI; `test_the_two_lists_agree` below keeps them honest.
 PINNED_FETCHERS: Final[frozenset[str]] = frozenset({
-    "fetch_acs", "fetch_acs_wide", "fetch_fred", "fetch_places_county",
+    "fetch_acs", "fetch_acs_wide", "fetch_acs_pums", "fetch_fred", "fetch_places_county",
     "fetch_opportunity_atlas", "fetch_social_capital_atlas",
     "fetch_dataverse_file", "fetch_mit_president",
 })

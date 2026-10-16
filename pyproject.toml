@@ -68,6 +68,14 @@ notebooks = [
 connectors = [
     "krl-data-connectors>=1.0.0",
 ]
+# Optional packages that a single notebook of the expansion needs (DECISIONS/0009
+# section 3.6): pymc, econml, mesa, policyengine-us. Declared EMPTY on purpose.
+# A package is added here only with its notebook, after its existence on PyPI is
+# verified at that time, with a pinned lower bound, a cost-benefit paragraph in the
+# ADR, and an import that tests/test_src_imports_declared.py can see. Nothing is
+# declared that is not imported.
+methods = [
+]
 test = [
     "pytest>=7.4.0",
     # pytest.ini's addopts require coverage; without this the documented test

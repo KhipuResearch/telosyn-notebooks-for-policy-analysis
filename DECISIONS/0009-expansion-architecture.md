@@ -10,7 +10,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 - **Deciders:** Telosyn, Inc. (owner)
 - **Date:** 2026-10-15
 - **Amended 2026-10-15:** precedence of a pre-analysis plan over the data is proven by digest equality (notebook declaration = plan file = `pap_sha256` in every provenance record), not by commit time; commit order is a warning, and §3.2 rule 3–4 and the fail-closed clause read accordingly.
-- **Amended 2026-10-16:** the PUMS and CPS ASEC clients return cells only and have no row-level path at all (§3.8).
+- **Amended 2026-10-16:** the PUMS and CPS ASEC clients return cells only and have no row-level path at all (§3.8); the public-surface check reads its name patterns from a private denylist outside the repository (§3.10).
 
 ## 1. Title
 
@@ -190,6 +190,8 @@ cannot fail is counted as coverage (§11, closing). Every new gate therefore shi
 with a compliant fixture and a planted-violation fixture, and is mutation-tested:
 the defect it exists to catch is introduced and the gate is confirmed to fail.
 A gate is never weakened to make a notebook pass.
+
+The public-surface check (`scripts/check_public_surface.py`) is held to the same rule and one more: the patterns that name what must not be published are themselves not published. They live in a private denylist read from `KRL_SURFACE_DENYLIST`; the check exits with status 2, never 0, when that file is absent. Its repository tests use a synthetic denylist. Lines that legitimately match are listed individually, each with its reason, in an allowlist that the check also verifies is not stale.
 
 ### 3.11 Where this work is authored
 

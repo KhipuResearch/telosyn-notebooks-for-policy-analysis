@@ -75,6 +75,18 @@ jobs:
           --strict-markers --strict-config
           ${{ env.PRE_EXISTING_EXCLUSIONS }}
 
+      - name: Public surface — names, paths, trailers, caches and licence headers
+        env:
+          # The name patterns are private; the check refuses to run without them (exit 2).
+          # Add the repository secret KRL_SURFACE_DENYLIST_JSON (the denylist file's content).
+          KRL_SURFACE_DENYLIST_JSON: ${{ secrets.KRL_SURFACE_DENYLIST_JSON }}
+        run: |
+          umask 077
+          printf '%s' "$KRL_SURFACE_DENYLIST_JSON" > "$RUNNER_TEMP/surface_denylist.json"
+          BASE="origin/${GITHUB_BASE_REF:-main}"
+          KRL_SURFACE_DENYLIST="$RUNNER_TEMP/surface_denylist.json" \
+            python scripts/check_public_surface.py --tree --range "$BASE"
+
       - name: Secret scan across the surface this repository can change
         run: |
           # Scope and plugin set are both MEASURED, not guessed. Run unscoped,

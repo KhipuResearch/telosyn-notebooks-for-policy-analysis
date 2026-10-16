@@ -103,6 +103,15 @@ def test_every_credential_a_notebook_needs_is_supplied_by_ci() -> None:
     )
 
 
+#: Secrets the workflow may export that are NOT credentials for any data source and that
+#: no code in this library can load (``load_key`` refuses anything outside ALLOWED_KEYS).
+#: Each is exempt from the closed-set rule only for the one purpose named, and
+#: ``test_a_ci_only_secret_reaches_nothing_but_its_own_step`` proves the scope.
+CI_ONLY_SECRETS: Final[dict[str, str]] = {
+    "KRL_SURFACE_DENYLIST_JSON": "the private name patterns for scripts/check_public_surface.py",
+}
+
+
 def test_ci_supplies_no_credential_outside_the_allowed_set() -> None:
     """The workflow may not reach for a key this layer refuses to load.
 
@@ -110,7 +119,7 @@ def test_ci_supplies_no_credential_outside_the_allowed_set() -> None:
     the rest of an operator's secrets file. A workflow that exported something
     outside it would be re-opening that door from the other side.
     """
-    stray = _keys_supplied_by_ci() - set(sources.ALLOWED_KEYS)
+    stray = _keys_supplied_by_ci() - set(sources.ALLOWED_KEYS) - set(CI_ONLY_SECRETS)
     assert not stray, (
         f"the workflow exports {sorted(stray)}, which ALLOWED_KEYS does not "
         "permit this library to read."
@@ -123,3 +132,28 @@ def test_each_fetchers_key_is_in_the_allowed_set(fetcher: str, key: str) -> None
         f"{fetcher} loads {key}, which is not in ALLOWED_KEYS, so it can never "
         "succeed."
     )
+
+
+def test_a_ci_only_secret_reaches_nothing_but_its_own_step() -> None:
+    """The denylist secret is written to a temp file for the surface check and goes no further.
+
+    It must not be in the job that runs notebooks against real data, must not be loadable
+    by the library, and must appear only in a step that runs the public-surface check.
+    """
+    import yaml
+
+    doc = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    for name in CI_ONLY_SECRETS:
+        assert name not in sources.ALLOWED_KEYS
+        holders = [
+            (job_name, step)
+            for job_name, job in doc["jobs"].items()
+            for step in job.get("steps", [])
+            if name in json.dumps(step)
+        ]
+        assert holders, f"{name} is declared exempt but the workflow never uses it"
+        for job_name, step in holders:
+            assert job_name == "static-gates", f"{name} must not reach the {job_name} job"
+            assert "check_public_surface.py" in step.get("run", ""), (
+                f"{name} appears in a step that does not run the public-surface check"
+            )

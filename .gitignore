@@ -138,3 +138,4 @@ _to_delete/
 
 # Hypothesis example database: machine-specific paths, never committed
 .hypothesis/
+.ruff_cache/

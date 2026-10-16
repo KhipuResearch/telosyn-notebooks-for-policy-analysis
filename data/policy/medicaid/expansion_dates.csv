@@ -1,0 +1,52 @@
+state,status,expansion_effective,ballot_initiative,trigger_law
+Alabama,Not Adopted,,,
+Alaska,Adopted,2015-09-01,No,No
+Arizona,Adopted,2014-01-01,No,Yes
+Arkansas,Adopted,2014-01-01,No,Yes
+California,Adopted,2014-01-01,No,No
+Colorado,Adopted,2014-01-01,No,No
+Connecticut,Adopted,2014-01-01,No,No
+Delaware,Adopted,2014-01-01,No,No
+District of Columbia,Adopted,2014-01-01,No,No
+Florida,Not Adopted,,,
+Georgia,Not Adopted,,,
+Hawaii,Adopted,2014-01-01,No,No
+Idaho,Adopted,2020-01-01,Yes (November 2018),Yes
+Illinois,Adopted,2014-01-01,No,Yes
+Indiana,Adopted,2015-02-01,No,Yes
+Iowa,Adopted,2014-01-01,No,Yes
+Kansas,Not Adopted,,,
+Kentucky,Adopted,2014-01-01,No,No
+Louisiana,Adopted,2016-07-01,No,No
+Maine,Adopted,2019-01-10,Yes (November 2017),No
+Maryland,Adopted,2014-01-01,No,No
+Massachusetts,Adopted,2014-01-01,No,No
+Michigan,Adopted,2014-04-01,No,No
+Minnesota,Adopted,2014-01-01,No,No
+Mississippi,Not Adopted,,,
+Missouri,Adopted,2021-10-01,Yes (August 2020),No
+Montana,Adopted,2016-01-01,No,Yes
+Nebraska,Adopted,2020-10-01,Yes (November 2018),No
+Nevada,Adopted,2014-01-01,No,No
+New Hampshire,Adopted,2014-08-15,No,Yes
+New Jersey,Adopted,2014-01-01,No,No
+New Mexico,Adopted,2014-01-01,No,Yes
+New York,Adopted,2014-01-01,No,No
+North Carolina,Adopted,2023-12-01,No,Yes
+North Dakota,Adopted,2014-01-01,No,No
+Ohio,Adopted,2014-01-01,No,Yes
+Oklahoma,Adopted,2021-07-01,Yes (June 2020),No
+Oregon,Adopted,2014-01-01,No,No
+Pennsylvania,Adopted,2015-01-01,No,No
+Rhode Island,Adopted,2014-01-01,No,No
+South Carolina,Not Adopted,,,
+South Dakota,Adopted,2023-07-01,Yes (November 2022),No
+Tennessee,Not Adopted,,,
+Texas,Not Adopted,,,
+Utah,Adopted,2020-01-01,Yes (November 2018),Yes
+Vermont,Adopted,2014-01-01,No,No
+Virginia,Adopted,2019-01-01,No,Yes
+Washington,Adopted,2014-01-01,No,No
+West Virginia,Adopted,2014-01-01,No,No
+Wisconsin,Not Adopted,,,
+Wyoming,Not Adopted,,,

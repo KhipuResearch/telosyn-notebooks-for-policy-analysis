@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, asdict, field, replace
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
@@ -208,6 +208,18 @@ class DataProvenance:
     #: record.
     request_method: str = "GET"
 
+    #: SHA-256 of the pre-analysis plan this retrieval was made under, or ``None``
+    #: where no plan applies (every notebook in projects 01-08).
+    #:
+    #: A causal notebook's plan precedes its data. The record is written at the
+    #: moment of retrieval, so a digest carried inside it states which plan was
+    #: in force then, and the identification gate requires it to equal both the
+    #: plan on disk and the digest the notebook declares. Precedence is proven
+    #: by that equality, not by commit time (DECISIONS/0009, amendment of
+    #: 2026-10-15). Optional, and omitted from the written record when ``None``,
+    #: so records written before it existed are unchanged.
+    pap_sha256: str | None = None
+
     @staticmethod
     def hash_payload(payload: bytes) -> str:
         return hashlib.sha256(payload).hexdigest()
@@ -252,6 +264,17 @@ class DataProvenance:
             request_method=request_method.upper(),
         )
 
+    def with_pap(self, pap_path: str | Path) -> "DataProvenance":
+        """Return a copy bound to the pre-analysis plan at ``pap_path``.
+
+        The digest is taken from the file's bytes, never typed, so the record
+        cannot name a plan other than the one on disk at the moment of binding.
+        Raises ``FileNotFoundError`` for a missing plan: binding to nothing is
+        not a weaker binding, it is none.
+        """
+        digest = hashlib.sha256(Path(pap_path).read_bytes()).hexdigest()
+        return replace(self, pap_sha256=digest)
+
     def _pin_label(self) -> str:
         """Say which it is. The old block said "(pinned)" unconditionally.
 
@@ -267,6 +290,8 @@ class DataProvenance:
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
         d["mode"] = self.mode.value
+        if d["pap_sha256"] is None:
+            del d["pap_sha256"]
         return d
 
     def write(self, path: str | Path) -> Path:
@@ -285,8 +310,10 @@ class DataProvenance:
             f"Shape       : {self.row_count} rows x {self.column_count} cols",
             f"Payload hash: {self.content_sha256[:16]}...  ({self.hash_basis})",
             f"Data mode   : {self.mode.value.upper()}",
-            "Variables   :",
         ]
+        if self.pap_sha256 is not None:
+            lines.append(f"Plan digest : {self.pap_sha256[:16]}...  (pre-analysis plan)")
+        lines.append("Variables   :")
         for code, label in self.variables.items():
             lines.append(f"              {code:<16} {label}")
         if self.notes:

@@ -9,6 +9,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 - **Status:** Accepted, in execution (Timebox 0)
 - **Deciders:** Telosyn, Inc. (owner)
 - **Date:** 2026-10-15
+- **Amended 2026-10-15:** precedence of a pre-analysis plan over the data is proven by digest equality (notebook declaration = plan file = `pap_sha256` in every provenance record), not by commit time; commit order is a warning, and §3.2 rule 3–4 and the fail-closed clause read accordingly.
 
 ## 1. Title
 

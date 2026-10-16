@@ -31,6 +31,7 @@ twenty-five written after it was added.
 | `hash_basis` | string | `response-bytes`, `canonical-rows`, `canonical-stable-json` or `composed-digests` — see [`data/README.md`](../README.md) |
 | `pinned` | boolean | Whether a re-run is held to `content_sha256` |
 | `mode` | string | `empirical`, or `illustrative` for the one simulated artifact |
+| `pap_sha256` | string | Optional. SHA-256 of the pre-analysis plan in force at retrieval; present on records of causal notebooks only. See [`notebook_metadata.md`](notebook_metadata.md) |
 | `notes` | array of string | Caveats the client attached at retrieval time: margins of error, suppression, controlled totals |
 
 A machine-readable copy of this schema is in [`provenance_record.json`](provenance_record.json).

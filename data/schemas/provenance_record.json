@@ -17,6 +17,7 @@
     {"name": "hash_basis",     "type": "string",  "constraints": {"required": true, "enum": ["response-bytes", "canonical-rows", "canonical-stable-json", "composed-digests", "canonical-json"]}},
     {"name": "pinned",         "type": "boolean", "constraints": {"required": true}},
     {"name": "mode",           "type": "string",  "constraints": {"required": true, "enum": ["empirical", "illustrative"]}},
+    {"name": "pap_sha256",     "type": "string",  "constraints": {"pattern": "^[0-9a-f]{64}$"}},
     {"name": "notes",          "type": "array"}
   ],
   "missingValues": []

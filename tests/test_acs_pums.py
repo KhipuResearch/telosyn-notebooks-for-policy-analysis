@@ -12,6 +12,8 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 """
 from __future__ import annotations
 
+import ast
+import inspect
 import json
 from typing import Any
 
@@ -132,13 +134,6 @@ def test_no_person_level_column_is_ever_returned() -> None:
     (frame, _), _ = _fetch()
     assert "PWGTP" not in frame.columns and "state" not in frame.columns
     assert len(frame) <= 2
-
-
-def test_return_rows_exists_and_says_what_it_returned() -> None:
-    """The escape hatch is explicit, loud in the record, and refused by a gate in notebooks."""
-    (frame, prov), _ = _fetch(return_rows=True)
-    assert len(frame) == 13 and "PWGTP" in frame.columns
-    assert any("PERSON-LEVEL" in n for n in prov.notes)
 
 
 def test_the_request_names_a_state_and_carries_the_key_only_as_a_parameter() -> None:
@@ -262,3 +257,74 @@ def test_the_default_floor_is_ten_records_per_cell() -> None:
     )
     assert frame.empty
     assert frame.attrs["suppressed_cells"] == 3 and frame.attrs["min_cell_records"] == 10
+
+
+# --- there is no path to person rows -------------------------------------------
+def test_the_public_function_has_no_argument_that_asks_for_rows() -> None:
+    """The argument that once did is gone, and no name like it has replaced it."""
+    names = set(inspect.signature(sources.fetch_acs_pums).parameters)
+    assert names == {
+        "year", "variables", "aggregate_by", "geography", "weight", "dataset",
+        "min_cell_records", "session",
+    }
+    assert "return_rows" not in inspect.getsource(sources)
+
+
+def test_the_person_frame_has_one_producer_and_one_reader() -> None:
+    """Only fetch_acs_pums builds it, and only _pums_cells consumes it."""
+    tree = ast.parse(inspect.getsource(sources))
+    callers: dict[str, set[str]] = {"_pums_person_frame": set(), "_pums_cells": set()}
+    for fn in [n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]:
+        for call in [c for c in ast.walk(fn) if isinstance(c, ast.Call)]:
+            if isinstance(call.func, ast.Name) and call.func.id in callers:
+                callers[call.func.id].add(fn.name)
+    assert callers == {"_pums_person_frame": {"fetch_acs_pums"}, "_pums_cells": {"fetch_acs_pums"}}
+
+
+def _person(rows: list[tuple[float | None, float | None, float]]) -> pd.DataFrame:
+    """Person."""
+    return pd.DataFrame(rows, columns=["AGEP", "HICOV", "PWGTP"])
+
+
+def test_the_private_aggregator_on_a_fixture_frame_by_hand() -> None:
+    """Six records at (64, 1) weighing 10..60 sum to 210; five at (65, 1) at 100 sum to 500."""
+    frame = _person(
+        [(64, 1, w) for w in (10, 20, 30, 40, 50, 60)]
+        + [(65, 1, 100)] * 5 + [(65, 2, 7), (65, 2, 9)]
+    )
+    cells, notes = sources._pums_cells(frame, ["AGEP", "HICOV"], "PWGTP", 5)
+    assert cells.to_dict("records") == [
+        {"AGEP": 64, "HICOV": 1, "weighted_n": 210.0, "n_records": 6},
+        {"AGEP": 65, "HICOV": 1, "weighted_n": 500.0, "n_records": 5},
+    ]
+    assert list(cells.columns) == ["AGEP", "HICOV", "weighted_n", "n_records"]
+    assert cells.attrs["suppressed_cells"] == 1 and cells.attrs["suppressed_weighted_n"] == 16.0
+    assert any("No person-level row is returned" in n for n in notes)
+
+
+def test_the_private_aggregator_keeps_a_missing_grouping_value_as_a_cell() -> None:
+    """The private aggregator keeps a missing grouping value as a cell."""
+    frame = _person([(64, None, 10)] * 5 + [(64, 1, 10)] * 5)
+    cells, _ = sources._pums_cells(frame, ["AGEP", "HICOV"], "PWGTP", 5)
+    assert len(cells) == 2 and cells["HICOV"].isna().sum() == 1
+    assert cells["weighted_n"].sum() == 100.0
+
+
+def test_the_private_aggregator_never_emits_the_weight_or_a_row_per_person() -> None:
+    """The private aggregator never emits the weight or a row per person."""
+    frame = _person([(a, 1, 3) for a in (1, 2, 3) for _ in range(5)])
+    cells, _ = sources._pums_cells(frame, ["AGEP"], "PWGTP", 5)
+    assert "PWGTP" not in cells.columns and len(cells) == 3 < len(frame)
+
+
+def test_the_private_person_frame_refuses_what_it_cannot_make_numeric() -> None:
+    """The private person frame refuses what it cannot make numeric."""
+    raw = pd.DataFrame({"AGEP": ["64", "x"], "PWGTP": ["10", "20"]})
+    with pytest.raises(SchemaError, match="non-numeric"):
+        sources._pums_person_frame(raw, ["AGEP", "PWGTP"], "PWGTP")
+    bad_weight = pd.DataFrame({"AGEP": ["64"], "PWGTP": ["0"]})
+    with pytest.raises(RangeError, match="weight"):
+        sources._pums_person_frame(bad_weight, ["AGEP", "PWGTP"], "PWGTP")
+    good = pd.DataFrame({"AGEP": ["64", None], "PWGTP": ["10", "20"]})
+    out = sources._pums_person_frame(good, ["AGEP", "PWGTP"], "PWGTP")
+    assert out["AGEP"].isna().sum() == 1 and out["PWGTP"].tolist() == [10.0, 20.0]

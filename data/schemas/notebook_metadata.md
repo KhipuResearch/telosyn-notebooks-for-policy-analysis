@@ -43,6 +43,14 @@ not beside it, so that a plan and the contract it belongs to cannot be declared
 apart. `tests/gate_support.py` exposes both through `Notebook.identification`
 and `Notebook.pap`.
 
+A falsification cell prints one line the gate reads:
+
+```
+FALSIFICATION: <test> | statistic=<number> | verdict=PASS
+```
+
+`verdict` is `PASS` or `FAIL`; a `FAIL` is a finding and is reported as one.
+
 ## Reserved: `data_mode: model` and `krl.model`
 
 A third data mode, `model`, and a `krl.model` block (seed, calibration sources) are

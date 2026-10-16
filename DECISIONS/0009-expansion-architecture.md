@@ -75,8 +75,9 @@ Q01, Q02 and M01. Its fields are `design`, `estimand`, `assumption`,
 `pap_sha256`. A gate enforces it mechanically:
 
 1. every listed falsification `cell` exists, is a code cell and has stored output;
-2. that output contains a line beginning `FALSIFICATION:`, and the line carries
-   the computed statistic and a verdict token, so a static string cannot satisfy it;
+2. that output contains a line beginning `FALSIFICATION:` that carries
+   `statistic=<number>` and `verdict=PASS` or `verdict=FAIL`, so a bare string
+   cannot satisfy it. A `FAIL` is a finding, reported and not tuned away;
 3. `pap_sha256` equals the SHA-256 of the committed PAP file;
 4. the PAP's first git commit predates the earliest committed
    `retrieved_utc` among the notebook's provenance records.

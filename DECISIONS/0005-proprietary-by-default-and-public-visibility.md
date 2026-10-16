@@ -23,7 +23,7 @@ further is implied or granted.
 `DECISIONS/0001` recorded three-way licence drift and settled that the proprietary
 licence is authoritative. Its remediation, carried out 2026-09-18, aligned the
 `LICENSE*` files, `pyproject.toml`, SPDX banners, `CONTRIBUTING.md` and the
-`the showcase sub-project` sub-project.
+the showcase sub-project.
 
 That pass was driven by **SPDX identifiers**, and it therefore missed every
 statement that granted permissions in prose without naming one:

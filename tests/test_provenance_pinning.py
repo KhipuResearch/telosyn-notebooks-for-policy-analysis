@@ -86,7 +86,7 @@ def test_a_credential_parameter_never_survives(param: str) -> None:
 
 def test_redaction_keeps_the_name_and_none_of_the_value() -> None:
     """A replayer must know a key was sent; it must learn nothing about it."""
-    secret = "S3CR3T-material-9999"
+    secret = "S3CR3T-material-9999"  # pragma: allowlist secret -- a fake value, redaction is the subject
     out = redact_params({"key": secret})
     assert "key" in out
     for fragment in (secret, secret[:6], secret[-4:], str(len(secret))):

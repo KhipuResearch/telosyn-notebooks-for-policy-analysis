@@ -73,7 +73,6 @@ class RepoGit:
     """Real history. Raises, never skips, when history is unavailable."""
 
     def __init__(self, root: Path) -> None:
-        """Init."""
         self.root = root
         shallow = self._git("rev-parse", "--is-shallow-repository").strip()
         if shallow != "false":
@@ -83,6 +82,24 @@ class RepoGit:
                 "verified; fetch full history. The gate fails closed by design "
                 f"({ADR} section 3.2)."
             )
+
+    @classmethod
+    def containing(cls, folder: Path) -> "RepoGit":
+        """The repository that holds ``folder``; raises if there is none.
+
+        A notebook root can be pointed outside this checkout (KRL_NOTEBOOK_ROOT),
+        so the repository is found from the notebook, not assumed.
+        """
+        done = subprocess.run(
+            ["git", "-C", str(folder), "rev-parse", "--show-toplevel"],
+            check=False, capture_output=True, text=True,
+        )
+        if done.returncode != 0:
+            raise RuntimeError(
+                f"identification gate: {folder} is not inside a git repository, so the "
+                f"plan-before-retrieval ordering cannot be verified ({ADR} section 3.2)."
+            )
+        return cls(Path(done.stdout.strip()))
 
     def _git(self, *args: str) -> str:
         """Git."""
@@ -291,7 +308,7 @@ def test_identification_contract_holds(notebook: Notebook) -> None:
     root = Path(os.environ.get("KRL_NOTEBOOK_ROOT", str(repo / "projects")))
     if not in_scope(notebook, root):
         return
-    problems = check_identification(notebook, RepoGit(repo))
+    problems = check_identification(notebook, RepoGit.containing(notebook.path.parent))
     assert not problems, "\n  ".join(problems)
 
 
@@ -448,3 +465,47 @@ def test_a_notebook_not_in_git_history_is_never_silently_ordered(tmp_path: Path)
     (folder / "late.json").write_text(json.dumps({"retrieved_utc": "2026-03-01T00:00:00+00:00"}))
     assert git.earliest_record_epoch([folder / "late.json"]) is None
     assert git.first_commit_epoch(folder / "plan.md") is not None
+
+
+def _commit_fixture(repo: Path, plan_when: str, record_when: str) -> Notebook:
+    """Commit the compliant fixture into ``repo`` with the plan and record dated as given."""
+    src = FIXTURES / "compliant" / "C_demo"
+    base = {"GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.test",
+            "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.test"}
+
+    def commit(paths: list[str], when: str) -> None:
+        env = {**os.environ, **base, "GIT_AUTHOR_DATE": when, "GIT_COMMITTER_DATE": when}
+        subprocess.run(["git", "-C", str(repo), "add", *paths], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(repo), "commit", "-q", "-m", "c"],
+                       check=True, capture_output=True, env=env)
+
+    subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True, capture_output=True)
+    dst = repo / "09-causal-identification" / "C_demo"
+    for path in src.rglob("*"):
+        if path.is_file():
+            out = dst / path.relative_to(src)
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_bytes(path.read_bytes())
+    rel = "09-causal-identification/C_demo"
+    commit([f"{rel}/pap/C_demo_pap.md"], plan_when)
+    commit([f"{rel}/provenance/fixture.json", f"{rel}/C_demo.ipynb"], record_when)
+    return load_notebook(dst / "C_demo.ipynb")
+
+
+def test_end_to_end_on_a_repository_outside_this_checkout(tmp_path: Path) -> None:
+    """A plan committed first passes, with the repository found from the notebook."""
+    nb = _commit_fixture(tmp_path, "2026-10-01T00:00:00+00:00", "2026-10-02T00:00:00+00:00")
+    assert not check_identification(nb, RepoGit.containing(nb.path.parent))
+
+
+def test_end_to_end_a_plan_committed_after_the_record_fails(tmp_path: Path) -> None:
+    """A plan committed after the record's retrieved_utc (2026-10-15) fails."""
+    nb = _commit_fixture(tmp_path, "2026-10-20T00:00:00+00:00", "2026-10-21T00:00:00+00:00")
+    problems = check_identification(nb, RepoGit.containing(nb.path.parent))
+    assert any("not before the first retrieval" in p for p in problems), problems
+
+
+def test_a_notebook_outside_any_repository_fails_closed(tmp_path: Path) -> None:
+    """No git, no verdict: the gate raises rather than passing."""
+    with pytest.raises(RuntimeError, match="not inside a git repository"):
+        RepoGit.containing(tmp_path)

@@ -41,7 +41,7 @@ Under that contract the deliberate demonstration of a bad analysis is releasable
 | A3 | Stored outputs correspond to the code currently in the cell | **Falsified in ≥6 notebooks** (see F-11) | — |
 
 **Known gaps (not resolved by this pass):**
-- **Scope gap, declared:** this audit covered `notebooks/` (53 files) and not `khipu-showcase/notebooks/` (23 further notebooks with PDF exports, a validation harness and unit tests). Identified by the subject after issue 1; partially characterised in **F-18**, not fully audited.
+- **Scope gap, declared:** this audit covered `notebooks/` (53 files) and not `the showcase sub-project/notebooks/` (23 further notebooks with PDF exports, a validation harness and unit tests). Identified by the subject after issue 1; partially characterised in **F-18**, not fully audited.
 - The private packages `krl-data-connectors`, `krl-model-zoo` were not read; five UNCERTAIN items in §8 depend on them.
 - Notebooks were executed in Python 3.11 (container); the corpus declares 3.13.7 kernels. Syntax errors are version-independent and were reproduced under both.
 - No labelled ground-truth set exists anywhere in the repository, so no sentiment/NER/topic claim in the corpus is externally validatable, by anyone.
@@ -478,7 +478,7 @@ Version-control debris in `D34/`: two byte-identical pairs (`advanced` ≡ `adva
 
 F-1's 100% penetrance implicates a generation step. That generator is not in this repository. A search across both trees for any generator, scaffold, template or notebook-builder returns nothing that produces the `D01–D33` family.
 
-The one template that does exist — `khipu-showcase/templates/notebook_template.ipynb`, committed 2025-11-29 — is **unrelated** to the domain corpus. *(Correction: an earlier pass of this audit reported that this template carried the F-1 defect. That was a false positive from a substring match on the word "Khipu" in an import line. The template parses cleanly and shares no code with the domain family.)*
+The one template that does exist — `the showcase sub-project/templates/notebook_template.ipynb`, committed 2025-11-29 — is **unrelated** to the domain corpus. *(Correction: an earlier pass of this audit reported that this template carried the F-1 defect. That was a false positive from a substring match on the word "Khipu" in an import line. The template parses cleanly and shares no code with the domain family.)*
 
 What that template does contain is the finding:
 
@@ -503,13 +503,13 @@ Two further governance observations, both E3:
 ---
 
 ### F-18 · HIGH · S4 · Scope gap: a second, better-governed 23-notebook corpus was not audited — and it reframes the finding
-**Grade: VERIFIED (E1/E2)** · *Added after the subject identified `khipu-showcase/notebooks/pdf_exports` as holding executed notebooks with preserved results.*
+**Grade: VERIFIED (E1/E2)** · *Added after the subject identified `the showcase sub-project/notebooks/pdf_exports` as holding executed notebooks with preserved results.*
 
-This audit covered `notebooks/` — 53 files. It did **not** cover `khipu-showcase/notebooks/`, a further **23 notebooks** with their own PDF exports, an `_executed.ipynb` artifact, a validation directory and a test suite. That is a scope gap in the original engagement and it is declared here rather than quietly closed.
+This audit covered `notebooks/` — 53 files. It did **not** cover `the showcase sub-project/notebooks/`, a further **23 notebooks** with their own PDF exports, an `_executed.ipynb` artifact, a validation directory and a test suite. That is a scope gap in the original engagement and it is declared here rather than quietly closed.
 
 Checking the contrast was cheap and it is the most useful governance evidence in the report:
 
-| Measure | `notebooks/` domain family | `khipu-showcase/notebooks/` |
+| Measure | `notebooks/` domain family | `the showcase sub-project/notebooks/` |
 |---|---|---|
 | Notebooks | 33 | 23 |
 | Parse failures | **31** | **1** *(and see the caveat below)* |
@@ -526,7 +526,7 @@ Checking the contrast was cheap and it is the most useful governance evidence in
 
 **(a) The organisation demonstrably knows how to do this.** The showcase corpus is executed, output-preserved, PDF-exported, methodologically serious on its face (heterogeneous treatment effects, synthetic control, regression discontinuity, multi-unit SCM) and carries both a validation harness and unit tests. The tutorial corpus has none of that. This is not a capability gap. It is a **release-governance gap between two corpora in one repository**, which is a materially easier problem to fix than "the team cannot build valid notebooks."
 
-**(b) F-17 is sharper than stated.** The `DataProvenance` / `SyntheticDataGenerator` / `DEMO_MODE` machinery is declared in `khipu-showcase/templates/notebook_template.ipynb` and is used by **zero of the 33 tutorials and zero of the 23 showcase notebooks**. It exists in exactly one place — the template — and nothing downstream adopted it. Meanwhile showcase notebooks carry heavy `np.random` usage (up to 27 occurrences in one file) with no disclosure mechanism engaged. The provenance discipline was designed, committed, and never once instantiated.
+**(b) F-17 is sharper than stated.** The `DataProvenance` / `SyntheticDataGenerator` / `DEMO_MODE` machinery is declared in `the showcase sub-project/templates/notebook_template.ipynb` and is used by **zero of the 33 tutorials and zero of the 23 showcase notebooks**. It exists in exactly one place — the template — and nothing downstream adopted it. Meanwhile showcase notebooks carry heavy `np.random` usage (up to 27 occurrences in one file) with no disclosure mechanism engaged. The provenance discipline was designed, committed, and never once instantiated.
 
 **(c) The reviewer's root-governance question is answered, by file.** *How did plausible outputs come to coexist with broken source?* In `15-regression-discontinuity-toolkit.ipynb`: the execution-count vector is `[1, 3, 5, 7, None, None, None, None, 9, 10, None, None, None]` — non-contiguous, with 11 cells carrying stored outputs but only 6 carrying execution counts. **Five cells hold outputs with no execution count at all**: stale results from an earlier session, preserved across subsequent source edits. That is the mechanism. It is not exotic and it is not confined to one file; it is what happens when outputs are committed and no gate ever re-derives them.
 

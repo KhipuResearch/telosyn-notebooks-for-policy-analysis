@@ -16,7 +16,7 @@ surface that is actually here: every relative link and inline path reference in
 every tracked Markdown file.
 
 That is the check worth having. The 2026-09-18 reduction left dangling references
-to `SPEC.md`, `CALIBRATION_REQUIRED.md`, `policy/` and `khipu-showcase/` scattered
+to `SPEC.md`, `CALIBRATION_REQUIRED.md`, `policy/` and `the showcase sub-project/` scattered
 across prose, and they were found by hand. This finds the next ones.
 """
 from __future__ import annotations

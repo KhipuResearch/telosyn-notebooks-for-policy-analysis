@@ -29,10 +29,10 @@ Forensic evidence from `SPEC.md` §10.1 and Appendix A.2:
 | `CONTRIBUTING.md:150-159` | Dual-license pitch to contributors | `CONTRIBUTING.md:150-159` |
 | Notebook cell-0 banners | `SPDX-License-Identifier: MIT AND CC-BY-SA-4.0` (e.g. `notebooks/01_fundamentals/D01_income_and_poverty/D01_D01_income_and_poverty.ipynb` cell 0) | `SPEC.md` §10.1 |
 | Internal operating brief, line 35 | *"Dual license: MIT for code, CC-BY-SA 4.0 for educational content"* | operating brief, line 35 |
-| `khipu-showcase/pyproject.toml:19` | `Apache-2.0` | `khipu-showcase/pyproject.toml:19` |
-| `khipu-showcase/LICENSE` | Proprietary text (contradicts the Apache-2.0 declaration) | `khipu-showcase/LICENSE:1-10` |
+| `the showcase sub-project/pyproject.toml:19` | `Apache-2.0` | `the showcase sub-project/pyproject.toml:19` |
+| `the showcase sub-project/LICENSE` | Proprietary text (contradicts the Apache-2.0 declaration) | `the showcase sub-project/LICENSE:1-10` |
 
-There are **two independent drifts**: (a) the outer repo's three-way mismatch among `LICENSE*` files, `pyproject.toml`, and README/notebook banners; (b) the sub-project's two-way mismatch between `khipu-showcase/pyproject.toml` (Apache-2.0) and `khipu-showcase/LICENSE` (proprietary). Neither has ever been adjudicated in a commit.
+There are **two independent drifts**: (a) the outer repo's three-way mismatch among `LICENSE*` files, `pyproject.toml`, and README/notebook banners; (b) the sub-project's two-way mismatch between `the showcase sub-project/pyproject.toml` (Apache-2.0) and `the showcase sub-project/LICENSE` (proprietary). Neither has ever been adjudicated in a commit.
 
 No CI gate scans for self-contradiction across these sources. `markdown-link-check`, `cspell`, and `markdownlint` all leave license text alone. A learner or third party following `README.md:150-173` would commit derivative works under MIT+CC-BY-SA-4.0 terms that the actual `LICENSE` file disavows.
 
@@ -40,7 +40,7 @@ No CI gate scans for self-contradiction across these sources. `markdown-link-che
 
 1. **The authoritative license is proprietary.** `LICENSE` + `pyproject.toml:49-50` prevail over any contradicting README marketing, notebook banner, or operating-brief instruction.
 2. **`LICENSE-CODE` and `LICENSE-CONTENT` are misleading file names.** Their byte-identical proprietary content means the split-filename convention is cosmetic. Either (a) both files must be replaced with real MIT / CC-BY-SA-4.0 text matching the advertising, or (b) both files must be deleted and the dual-license claim removed from every downstream surface.
-3. **The `khipu-showcase/` Apache-2.0 vs proprietary drift is a parallel gap** and must be resolved in the same remediation PR.
+3. **The `the showcase sub-project/` Apache-2.0 vs proprietary drift is a parallel gap** and must be resolved in the same remediation PR.
 4. **Notebook cell-0 SPDX banners are drift** and must be corrected to `SPDX-License-Identifier: LicenseRef-Proprietary` (or the chosen OSS license if remediation goes the other way). Because notebook content is owned by many contributors, corrections will cross 52 outer + 26 showcase notebooks.
 5. **The Tier U README rewrite already removes the MIT/CC-BY-SA-4.0 advertising** and replaces it with a license-posture warning (`README.md` §3). This ADR is the formal record of why.
 6. **Remediation is explicitly deferred.** This ADR does NOT modify source notebooks, `LICENSE*` files, `pyproject.toml`, `CONTRIBUTING.md`, or the operating brief. Remediation is captured in `CALIBRATION_REQUIRED.md` under `<OWNER_TBD:license-drift-remediation-owner>`.
@@ -62,14 +62,14 @@ No CI gate scans for self-contradiction across these sources. `markdown-link-che
 
 ### Alternative D — Dual-license the outer repo (proprietary) and the sub-project (Apache-2.0) intentionally, treating them as separate products
 
-**Partially accepted.** `khipu-showcase/` is architecturally distinct (own `pyproject.toml`, own CI, own LICENSE, own build backend — `SPEC.md` §2.2). If legal sign-off approves Apache-2.0 for the showcase alone, the fix is to replace `khipu-showcase/LICENSE` with actual Apache-2.0 text. The outer repo remains proprietary. This is the recommended remediation shape; still requires legal confirmation.
+**Partially accepted.** `the showcase sub-project/` is architecturally distinct (own `pyproject.toml`, own CI, own LICENSE, own build backend — `SPEC.md` §2.2). If legal sign-off approves Apache-2.0 for the showcase alone, the fix is to replace `the showcase sub-project/LICENSE` with actual Apache-2.0 text. The outer repo remains proprietary. This is the recommended remediation shape; still requires legal confirmation.
 
 ## 5. Trade-offs Accepted
 
 - **Public-facing ambiguity persists** until remediation. Every day the drift remains, the probability of a third party cloning under the wrong license grows.
 - **Notebook contributor trust is undermined.** Contributors following `CONTRIBUTING.md:150-159` ("Code: MIT / Content: CC-BY-SA-4.0") commit under terms that the repository's actual `LICENSE` file disavows. Pending remediation, contributor attribution may be retroactively renegotiated.
 - **Three file names (`LICENSE`, `LICENSE-CODE`, `LICENSE-CONTENT`) with identical content** is itself a governance smell — it implies policy that the files do not encode. Until files diverge, the split naming is pure noise.
-- **No CI gate today**: `markdownlint`, `cspell`, and `markdown-link-check` do not touch license text. `licensee` is only run in the sub-project (`khipu-showcase/.github/workflows/ci.yml`), not the outer repo.
+- **No CI gate today**: `markdownlint`, `cspell`, and `markdown-link-check` do not touch license text. `licensee` is only run in the sub-project (`the showcase sub-project/.github/workflows/ci.yml`), not the outer repo.
 
 ## 6. Consequences
 
@@ -85,8 +85,8 @@ This ADR is reversed when **all** of the following are true:
 
 1. `LICENSE-CODE` either contains true MIT License text (and `README.md` §3 is updated to match) or is deleted from the tree.
 2. `LICENSE-CONTENT` either contains true CC-BY-SA-4.0 text (and `README.md` §3 is updated to match) or is deleted from the tree.
-3. `khipu-showcase/LICENSE` either contains true Apache-2.0 text or `khipu-showcase/pyproject.toml:19` is changed to declare proprietary.
-4. Every notebook cell-0 in `notebooks/**/*.ipynb` and `khipu-showcase/notebooks/**/*.ipynb` carries a `SPDX-License-Identifier` that matches the authoritative `LICENSE` file(s) for its tree.
+3. `the showcase sub-project/LICENSE` either contains true Apache-2.0 text or `the showcase sub-project/pyproject.toml:19` is changed to declare proprietary.
+4. Every notebook cell-0 in `notebooks/**/*.ipynb` and `the showcase sub-project/notebooks/**/*.ipynb` carries a `SPDX-License-Identifier` that matches the authoritative `LICENSE` file(s) for its tree.
 5. `pyproject.toml:49-50` and any source-level `__license__` string agree (the outer repo has no `src/` so no `__license__` exists today; any future `src/` must observe this rule).
 6. `CONTRIBUTING.md:150-159` and the operating brief's Content Standards → Dual License line are updated to reflect the final posture.
 7. A CI gate exists and passes that asserts SPDX-banner-to-`pyproject.toml` consistency, implemented by `<OWNER_TBD:license-drift-ci-gate-owner>`.
@@ -105,7 +105,7 @@ licence was adopted, so §4 Alternative A remains closed and needs no legal proc
 |---|---|
 | 1. Proprietary is authoritative | Unchanged, and now the only statement anywhere outside the evidence files |
 | 2. `LICENSE-CODE` / `LICENSE-CONTENT` misleading | **Option (b) taken.** Both deleted. They were byte-identical copies of the proprietary text under filenames advertising MIT and CC-BY-SA-4.0 |
-| 3. `khipu-showcase/` Apache-2.0 drift | **Resolved 2026-09-18** — and this ADR had it backwards; see §7 |
+| 3. `the showcase sub-project/` Apache-2.0 drift | **Resolved 2026-09-18** — and this ADR had it backwards; see §7 |
 | 4. Notebook cell-0 SPDX banners | Corrected in the **rebuild** (`notebooks_v2/`). **Not** corrected in `notebooks/` — see below |
 | 5. README advertising removed | Confirmed; the README now carries the licence-posture table |
 | 6. Remediation deferred | No longer deferred |
@@ -138,9 +138,9 @@ a line" to "identifier anywhere", which is what found them.
 
 §2's table states:
 
-> `khipu-showcase/LICENSE` | **Proprietary text** (contradicts the Apache-2.0 declaration)
+> `the showcase sub-project/LICENSE` | **Proprietary text** (contradicts the Apache-2.0 declaration)
 
-**That is wrong, and in the opposite direction.** `khipu-showcase/LICENSE` has held the
+**That is wrong, and in the opposite direction.** `the showcase sub-project/LICENSE` has held the
 full Apache License 2.0 text since the commit that introduced it (`c2802f4`), and has
 never contained proprietary text. The contradiction was between that file plus
 `pyproject.toml:19` (`Apache-2.0`) on one side, and the `pyproject.toml` **header

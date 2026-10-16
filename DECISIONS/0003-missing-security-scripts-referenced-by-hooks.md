@@ -40,7 +40,7 @@ These files carry the `.disabled` suffix so GitHub Actions does not load them. T
 
 - `pre-commit run --all-files` **fails** on first attempt for every contributor. Workarounds: (a) skip hooks with `--no-verify` (forbidden by global rules and by §5 trade-offs below), (b) comment out the hooks locally (creates commit-history drift), (c) ship the scripts.
 - `detect-secrets-hook --baseline .secrets.baseline` errors because baseline is absent. `detect-secrets` emits `ERROR: baseline not found` and exits non-zero.
-- The `khipu-showcase/` sub-project is unaffected — its CI uses `reviewdog/action-detect-secrets@v0.15.0` + `gitleaks/gitleaks-action@v2` rather than the local `detect-secrets-hook`, and does not invoke the outer `scripts/security/` scripts (`SPEC.md` §7.2).
+- The `the showcase sub-project/` sub-project is unaffected — its CI uses `reviewdog/action-detect-secrets@v0.15.0` + `gitleaks/gitleaks-action@v2` rather than the local `detect-secrets-hook`, and does not invoke the outer `scripts/security/` scripts (`SPEC.md` §7.2).
 
 ### 2.4 What the missing scripts are supposed to do
 

@@ -13,7 +13,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 The repository holds the corpus, the code that serves it, the tests that gate it,
 and the records that explain it. Everything else is removed: 1,183 of 1,388
-tracked files, including the frozen pre-rebuild corpus and the `khipu-showcase`
+tracked files, including the frozen pre-rebuild corpus and the `the showcase sub-project`
 sub-project. Reader-facing documents state what is true now; `DECISIONS/` records
 what changed. No document explains away a declaration a reader never saw, because
 this repository has never been published.
@@ -24,7 +24,7 @@ The deliverable is about 5 MB. The repository was 123 MB.
 
 | | Files | Size | Imported by the corpus |
 |---|---|---|---|
-| `khipu-showcase/` | 117 | 60.0 MB | nothing |
+| `the showcase sub-project/` | 117 | 60.0 MB | nothing |
 | `notebooks/` (frozen archive) | 1,003 | 56.7 MB | nothing in `notebooks_v2/` |
 | **`notebooks_v2/` — the corpus** | 77 | 3.6 MB | — |
 | everything else | 191 | 2.6 MB | — |
@@ -44,7 +44,7 @@ licence banners into a repository intended for public reading.
 site, Docker and Binder recipes, five roadmap and TODO documents, 52 MB of
 notebooks with embedded plotting bundles, and badges and clone commands pointing
 at a public URL under a retired organisation name — a repository that, as
-`khipu-showcase/docs/about/license.md` itself records, does not exist.
+`the showcase sub-project/docs/about/license.md` itself records, does not exist.
 
 ## 3. Decision
 
@@ -57,7 +57,7 @@ the development logs. Reposition the reader-facing prose in the present tense.
 | Removed | Reason |
 |---|---|
 | `notebooks/` (1,003 files) | Not the manifest-verified artifact; imported by nothing current; carried key prefixes and operator paths |
-| `khipu-showcase/` (117 files) | Separate unfinished project, referenced by nothing, advertising a repository that does not exist |
+| `the showcase sub-project/` (117 files) | Separate unfinished project, referenced by nothing, advertising a repository that does not exist |
 | `sowellian_chains/`, `causal_workflow/`, `active_eligible_gap/`, `cultural_sowellian_chains/`, `cultural_network_helpers/` | Five packages at the repository root, imported only by the archive and by their own tests |
 | `tests/` for those five, and `test_d{02,06,07,18,27}_l15_regression.py` + helper | Read notebooks in the removed archive |
 | `SPEC.md`, `ARCHITECTURE.md`, `CALIBRATION_REQUIRED.md`, the operating brief | Internal working documents; `CALIBRATION_REQUIRED.md` still held unfilled `<OWNER_TBD:…>` slots |

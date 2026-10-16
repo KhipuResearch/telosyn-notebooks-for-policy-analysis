@@ -16,14 +16,21 @@ The rules, each of which names the notebook, the rule and what to do:
    that output holds a line ``FALSIFICATION: ... statistic=<number> ...
    verdict=PASS|FAIL`` -- a verdict is a finding, so ``FAIL`` is accepted and a
    bare string is not;
-3. ``pap`` resolves inside the notebook's own folder and ``pap_sha256`` equals
-   the digest of that file;
-4. at least one provenance record exists, and the plan's first commit predates
-   the earliest committed ``retrieved_utc``;
+3. ``pap`` resolves inside the notebook's own folder, and the digest the
+   notebook declares equals the SHA-256 of that file **and** the ``pap_sha256``
+   carried by every provenance record beside it -- a record is written at
+   retrieval, so the digest it holds says which plan was in force then;
+4. at least one provenance record exists;
 5. the Limitations section says whether the analysis departed from the plan.
 
-The git evidence is injected, so the rules are tested on fixtures; ``RepoGit``
-reads real history and **fails closed** on a shallow clone rather than skipping.
+Precedence of the plan over the data is proven by that digest equality, not by
+commit time (DECISIONS/0009, amendment of 2026-10-15). Commit dates are still
+compared, but only as a *warning*: a squash or rebase can move a date without
+the plan having changed, and a date cannot say what the plan said.
+
+``RepoGit`` reads real history for that warning; where history is unavailable
+the warning says the ordering could not be checked, and the gate's verdict does
+not depend on it.
 
 On real corpus notebooks this gate is vacuous until project 09 lands. That is
 why the planted-violation tests below exist: a gate that cannot fail is counted
@@ -40,6 +47,7 @@ import json
 import os
 import re
 import subprocess
+import warnings
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Protocol
@@ -170,10 +178,10 @@ def _output_text(cell: Cell) -> str:
     return "\n".join(chunks)
 
 
-def check_identification(nb: Notebook, git: GitEvidence) -> list[str]:
+def check_identification(nb: Notebook) -> list[str]:
     """Return every violation of the contract, each stating rule and remedy.
 
-    Identifying assumption: none; this checks form and ordering, not truth.
+    Identifying assumption: none; this checks form and binding, not truth.
     Complexity O(cells + falsifications). Edge case a maintainer must not
     violate: an absent block and a malformed block are both failures.
     """
@@ -217,7 +225,7 @@ def check_identification(nb: Notebook, git: GitEvidence) -> list[str]:
                  "`statistic=<number>` and `verdict=PASS|FAIL`",
                  "print the line from the computed result, not a literal")
 
-    _check_plan(nb, block, git, fail)
+    _check_plan(nb, block, fail)
     limits = LIMITATIONS.search(nb.markdown_source)
     if limits is None or not re.search(r"pre-analysis plan", limits.group(0), re.I) \
             or not re.search(r"depart", limits.group(0), re.I):
@@ -226,8 +234,8 @@ def check_identification(nb: Notebook, git: GitEvidence) -> list[str]:
     return found
 
 
-def _check_plan(nb: Notebook, block: dict[str, Any], git: GitEvidence, fail: Any) -> None:
-    """Check plan."""
+def _check_plan(nb: Notebook, block: dict[str, Any], fail: Any) -> None:
+    """Check the plan's digest against the notebook block and every record."""
     pap = nb.pap
     if pap is None:
         return
@@ -244,21 +252,66 @@ def _check_plan(nb: Notebook, block: dict[str, Any], git: GitEvidence, fail: Any
     if digest != block.get("pap_sha256"):
         fail(f"`pap_sha256` does not match {pap!r} (file digest {digest[:12]}...)",
              "the plan changed after it was recorded; restore it or declare the departure")
-    records = sorted((folder / "provenance").glob("*.json"))
+    records = _records(folder)
     if not records:
         fail("no provenance record beside the notebook",
-             "call DataProvenance.write for every retrieval; "
-             "ordering cannot be checked without one")
+             "call DataProvenance.write for every retrieval; the plan digest is proven "
+             "by the record")
         return
-    plan_at = git.first_commit_epoch(target)
-    first_retrieval = git.earliest_record_epoch(records)
+    for path, doc in records:
+        held = doc.get("pap_sha256")
+        if held is None:
+            fail(f"provenance record {path.name} carries no `pap_sha256` for plan {pap!r}",
+                 "bind the record with DataProvenance.with_pap before writing it")
+        elif held != digest:
+            fail(f"provenance record {path.name} was written under a plan with digest "
+                 f"{str(held)[:12]}..., but {pap!r} hashes to {digest[:12]}...",
+                 "the plan changed after retrieval; restore it or declare the departure "
+                 "and re-retrieve")
+
+
+def _records(folder: Path) -> list[tuple[Path, dict[str, Any]]]:
+    """Every provenance record beside the notebook, as ``(path, document)``."""
+    found: list[tuple[Path, dict[str, Any]]] = []
+    for path in sorted((folder / "provenance").glob("*.json")):
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        for item in doc if isinstance(doc, list) else [doc]:
+            if isinstance(item, dict):
+                found.append((path, item))
+    return found
+
+
+def ordering_warnings(nb: Notebook, git: GitEvidence) -> list[str]:
+    """Warnings about commit-date ordering of the plan and the first retrieval.
+
+    Advisory: the verdict is the digest binding. Returns a warning, never
+    raises, when history is unavailable, so that a shallow clone costs the
+    reader a warning and not the gate its verdict.
+    """
+    pap = nb.pap
+    if pap is None:
+        return []
+    folder = nb.path.parent.resolve()
+    target = (folder / pap).resolve()
+    records = sorted((folder / "provenance").glob("*.json"))
+    if not target.is_file() or not records:
+        return []
+    name = nb.path.name
+    try:
+        plan_at = git.first_commit_epoch(target)
+        first_retrieval = git.earliest_record_epoch(records)
+    except (RuntimeError, ValueError, OSError) as exc:
+        return [f"{name}: plan-before-retrieval commit order could not be checked ({exc})"]
+    message = ""
     if plan_at is None:
-        fail(f"pre-analysis plan {pap!r} is not committed", "commit it before the first retrieval")
+        message = f"pre-analysis plan {pap!r} is not committed yet"
     elif first_retrieval is None:
-        fail("no provenance record is committed", "commit the record the retrieval wrote")
+        message = "no provenance record is committed yet"
     elif plan_at >= first_retrieval:
-        fail(f"the plan's first commit ({plan_at}) is not before the first retrieval "
-             f"({first_retrieval})", "the plan must land before the data are pulled")
+        message = (f"the plan {pap!r} was first committed at {plan_at}, not before the "
+                   f"first retrieval at {first_retrieval}; the digest binding is the proof, "
+                   "but the history does not show the order")
+    return [f"{name}: {message}"] if message else []
 
 
 class FakeGit:
@@ -287,8 +340,9 @@ def _compliant() -> Notebook:
     return load_notebook(FIXTURES / "compliant" / "C_demo" / "C_demo.ipynb")
 
 
-def _mutated(mutate: Any, tmp_path: Path) -> Notebook:
-    """Copy the compliant fixture into ``tmp_path`` and apply ``mutate`` to its JSON."""
+def _mutated(mutate: Any, tmp_path: Path, mutate_record: Any = None) -> Notebook:
+    """Copy the compliant fixture into ``tmp_path``; apply ``mutate`` to the notebook JSON
+    and ``mutate_record`` to its provenance record."""
     src = FIXTURES / "compliant" / "C_demo"
     dst = tmp_path / "C_demo"
     for path in src.rglob("*"):
@@ -299,6 +353,11 @@ def _mutated(mutate: Any, tmp_path: Path) -> Notebook:
     raw = json.loads((dst / "C_demo.ipynb").read_text(encoding="utf-8"))
     mutate(raw)
     (dst / "C_demo.ipynb").write_text(json.dumps(raw), encoding="utf-8")
+    if mutate_record is not None:
+        record = dst / "provenance" / "fixture.json"
+        doc = json.loads(record.read_text(encoding="utf-8"))
+        mutate_record(doc)
+        record.write_text(json.dumps(doc), encoding="utf-8")
     return load_notebook(dst / "C_demo.ipynb")
 
 
@@ -308,22 +367,39 @@ def test_identification_contract_holds(notebook: Notebook) -> None:
     root = Path(os.environ.get("KRL_NOTEBOOK_ROOT", str(repo / "projects")))
     if not in_scope(notebook, root):
         return
-    problems = check_identification(notebook, RepoGit.containing(notebook.path.parent))
+    problems = check_identification(notebook)
     assert not problems, "\n  ".join(problems)
+    try:
+        git: GitEvidence = RepoGit.containing(notebook.path.parent)
+    except RuntimeError as exc:
+        warnings.warn(f"{notebook.path.name}: commit order not checked ({exc})", stacklevel=1)
+        return
+    for message in ordering_warnings(notebook, git):
+        warnings.warn(message, stacklevel=1)
 
 
 def test_the_compliant_fixture_passes() -> None:
     """The compliant fixture passes."""
-    assert not check_identification(_compliant(), FakeGit(EARLY, LATE))
+    assert not check_identification(_compliant())
 
 
 def test_the_planted_fixture_fails_every_rule_it_plants() -> None:
     """The planted fixture fails every rule it plants."""
     nb = load_notebook(FIXTURES / "planted" / "C_demo" / "C_demo.ipynb")
-    text = "\n".join(check_identification(nb, FakeGit(EARLY, LATE)))
+    text = "\n".join(check_identification(nb))
     assert "prints no `FALSIFICATION:` line" in text
     assert "`pap_sha256` does not match" in text
     assert "departed from the pre-analysis plan" in text
+
+
+def test_a_record_written_under_a_different_plan_fails_and_names_the_plan() -> None:
+    """The notebook declares the right digest; the record holds another: binding fails."""
+    nb = load_notebook(FIXTURES / "planted_digest" / "C_demo" / "C_demo.ipynb")
+    problems = check_identification(nb)
+    assert len(problems) == 1, problems
+    assert "pap/C_demo_pap.md" in problems[0]
+    assert "provenance record fixture.json" in problems[0]
+    assert "111111111111" in problems[0]
 
 
 @pytest.mark.parametrize(
@@ -363,7 +439,7 @@ def test_the_planted_fixture_fails_every_rule_it_plants() -> None:
 )
 def test_each_mutation_is_caught(label: str, mutate: Any, expect: str, tmp_path: Path) -> None:
     """Each mutation is caught."""
-    problems = check_identification(_mutated(mutate, tmp_path), FakeGit(EARLY, LATE))
+    problems = check_identification(_mutated(mutate, tmp_path))
     assert any(expect in p for p in problems), f"{label}: expected {expect!r} in {problems}"
 
 
@@ -373,20 +449,58 @@ def test_a_verdict_of_fail_is_a_finding_not_a_violation(tmp_path: Path) -> None:
         """To fail."""
         line = "FALSIFICATION: placebo | statistic=3.1 | verdict=FAIL\n"
         raw["cells"][2]["outputs"][0]["text"] = [line]
-    assert not check_identification(_mutated(to_fail, tmp_path), FakeGit(EARLY, LATE))
+    assert not check_identification(_mutated(to_fail, tmp_path))
 
 
 @pytest.mark.parametrize(
     ("plan", "retrieval", "expect"),
     [(LATE, EARLY, "not before the first retrieval"),
      (EARLY, EARLY, "not before the first retrieval"),
-     (None, LATE, "is not committed"),
-     (EARLY, None, "no provenance record is committed")],
+     (None, LATE, "is not committed yet"),
+     (EARLY, None, "no provenance record is committed yet")],
 )
-def test_plan_ordering_is_enforced(plan: int | None, retrieval: int | None, expect: str) -> None:
-    """Plan ordering is enforced."""
-    problems = check_identification(_compliant(), FakeGit(plan, retrieval))
-    assert any(expect in p for p in problems), problems
+def test_commit_order_is_a_warning_and_never_a_verdict(
+    plan: int | None, retrieval: int | None, expect: str
+) -> None:
+    """Out-of-order or missing history warns; the digest-bound verdict is unchanged."""
+    nb = _compliant()
+    assert not check_identification(nb)
+    warned = ordering_warnings(nb, FakeGit(plan, retrieval))
+    assert any(expect in w for w in warned), warned
+    assert not ordering_warnings(nb, FakeGit(EARLY, LATE))
+
+
+def test_unreadable_history_warns_instead_of_raising() -> None:
+    """A shallow clone or missing git costs a warning, not the gate's verdict."""
+    class Broken:
+        """History that cannot be read."""
+
+        def first_commit_epoch(self, path: Path) -> int | None:
+            """Raise."""
+            raise RuntimeError("history is shallow")
+
+        def earliest_record_epoch(self, records: list[Path]) -> int | None:
+            """Raise."""
+            raise RuntimeError("history is shallow")
+
+    warned = ordering_warnings(_compliant(), Broken())
+    assert len(warned) == 1 and "could not be checked" in warned[0]
+
+
+def test_a_record_without_the_plan_digest_fails(tmp_path: Path) -> None:
+    """A record that never named a plan cannot prove the plan preceded it."""
+    nb = _mutated(lambda r: None, tmp_path, lambda d: d.pop("pap_sha256"))
+    problems = check_identification(nb)
+    assert any("carries no `pap_sha256`" in p and "pap/C_demo_pap.md" in p for p in problems)
+
+
+def test_a_changed_plan_breaks_both_bindings(tmp_path: Path) -> None:
+    """Editing the plan after retrieval fails the notebook digest and the record digest."""
+    nb = _mutated(lambda r: None, tmp_path)
+    (nb.path.parent / "pap" / "C_demo_pap.md").write_text("changed after the data\n")
+    problems = check_identification(nb)
+    assert any("`pap_sha256` does not match" in p for p in problems)
+    assert any("provenance record fixture.json was written under a plan" in p for p in problems)
 
 
 def test_a_missing_provenance_record_is_a_failure(tmp_path: Path) -> None:
@@ -394,7 +508,7 @@ def test_a_missing_provenance_record_is_a_failure(tmp_path: Path) -> None:
     nb = _mutated(lambda r: None, tmp_path)
     for record in (nb.path.parent / "provenance").glob("*.json"):
         record.unlink()
-    problems = check_identification(nb, FakeGit(EARLY, LATE))
+    problems = check_identification(nb)
     assert any("no provenance record beside the notebook" in p for p in problems)
 
 
@@ -493,19 +607,21 @@ def _commit_fixture(repo: Path, plan_when: str, record_when: str) -> Notebook:
 
 
 def test_end_to_end_on_a_repository_outside_this_checkout(tmp_path: Path) -> None:
-    """A plan committed first passes, with the repository found from the notebook."""
+    """A plan committed first passes with no warning, repository found from the notebook."""
     nb = _commit_fixture(tmp_path, "2026-10-01T00:00:00+00:00", "2026-10-02T00:00:00+00:00")
-    assert not check_identification(nb, RepoGit.containing(nb.path.parent))
+    assert not check_identification(nb)
+    assert not ordering_warnings(nb, RepoGit.containing(nb.path.parent))
 
 
-def test_end_to_end_a_plan_committed_after_the_record_fails(tmp_path: Path) -> None:
-    """A plan committed after the record's retrieved_utc (2026-10-15) fails."""
+def test_end_to_end_a_plan_committed_late_warns_and_still_passes(tmp_path: Path) -> None:
+    """History dated after the record's retrieved_utc (2026-10-15) warns; digests still bind."""
     nb = _commit_fixture(tmp_path, "2026-10-20T00:00:00+00:00", "2026-10-21T00:00:00+00:00")
-    problems = check_identification(nb, RepoGit.containing(nb.path.parent))
-    assert any("not before the first retrieval" in p for p in problems), problems
+    assert not check_identification(nb)
+    warned = ordering_warnings(nb, RepoGit.containing(nb.path.parent))
+    assert any("not before the first retrieval" in w for w in warned), warned
 
 
 def test_a_notebook_outside_any_repository_fails_closed(tmp_path: Path) -> None:
-    """No git, no verdict: the gate raises rather than passing."""
+    """No repository: locating one raises, and the caller turns that into a warning."""
     with pytest.raises(RuntimeError, match="not inside a git repository"):
         RepoGit.containing(tmp_path)

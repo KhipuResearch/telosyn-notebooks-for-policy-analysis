@@ -2,5 +2,6 @@
  "source_name": "fixture",
  "dataset": "fixture",
  "vintage": "2023",
- "retrieved_utc": "2026-10-15T12:00:00+00:00"
+ "retrieved_utc": "2026-10-15T12:00:00+00:00",
+ "pap_sha256": "74434d590ab82b51b25bf1a8ee33a436800b237c10596f275898182883e9a294"
 }

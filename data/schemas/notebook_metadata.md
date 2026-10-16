@@ -36,7 +36,7 @@ Absent from every notebook in projects 01–08, which make no causal claim.
 | `falsification` | array of object | Each `{test, cell, result}`: a test that could have failed, the code cell that ran it, and `"stored"` |
 | `inference` | string | How uncertainty is computed, and what is reported when the usual method is unreliable |
 | `pap` | string | Repository-relative path of the pre-analysis plan, which lives beside the notebook |
-| `pap_sha256` | string | SHA-256 of that file, recorded before the first retrieval |
+| `pap_sha256` | string | SHA-256 of that file. Must equal the file's digest and the `pap_sha256` in every provenance record beside the notebook (bind a record with `DataProvenance.with_pap`) |
 
 The pre-analysis plan is declared **inside** this block (`identification.pap`),
 not beside it, so that a plan and the contract it belongs to cannot be declared

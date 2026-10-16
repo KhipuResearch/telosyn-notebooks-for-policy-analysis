@@ -11,7 +11,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 ## 1. Title
 
-The published history of `the private source repository` was rewritten across every ref to remove a
+The published history of the private source repository was rewritten across every ref to remove a
 55 MB vendored Google Cloud SDK tarball that had never been part of the corpus and
 accounted for 62% of the repository's packed size. All commit, tag and branch SHAs
 below the rewrite point changed. Tracked content is unchanged.

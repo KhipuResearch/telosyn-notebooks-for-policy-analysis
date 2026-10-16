@@ -223,7 +223,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     session = requests.Session()
-    session.headers["User-Agent"] = "the private source repository/measurement (research)"
+    session.headers["User-Agent"] = "telosyn-notebooks/1.0"
     data = fetch(tuple(args.measures), session=session)
 
     print(f"CDC PLACES county release {PLACES_COUNTY_2025} (2025), crude prevalence\n")

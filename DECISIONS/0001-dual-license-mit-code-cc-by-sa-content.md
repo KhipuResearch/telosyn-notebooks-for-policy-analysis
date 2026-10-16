@@ -12,7 +12,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 ## 1. Title
 
-`the private source repository` carries three mutually contradictory license declarations. `LICENSE`, `LICENSE-CODE`, and `LICENSE-CONTENT` are byte-identical proprietary text; `pyproject.toml:49-50` declares `LicenseRef-Proprietary`; `README.md:150-173` (pre-rewrite) advertised MIT for code + CC-BY-SA-4.0 for content; notebook cell-0 banners declare `SPDX-License-Identifier: MIT AND CC-BY-SA-4.0`. This ADR records the authoritative posture and the remediation action items without modifying source files.
+The private source repository carries three mutually contradictory license declarations. `LICENSE`, `LICENSE-CODE`, and `LICENSE-CONTENT` are byte-identical proprietary text; `pyproject.toml:49-50` declares `LicenseRef-Proprietary`; `README.md:150-173` (pre-rewrite) advertised MIT for code + CC-BY-SA-4.0 for content; notebook cell-0 banners declare `SPDX-License-Identifier: MIT AND CC-BY-SA-4.0`. This ADR records the authoritative posture and the remediation action items without modifying source files.
 
 ## 2. Context
 
@@ -161,7 +161,7 @@ Two facts made that clean rather than a relicensing question:
    copyright line and the tree holds no `NOTICE` or `THIRD_PARTY` file.
 
 `mkdocs.yml` also pointed `site_url` and `repo_url` at that non-existent repository;
-both now point at `the private source repository`, which is where this work actually lives.
+both now point at the private source repository, which is where this work actually lives.
 
 `docs/about/license.md` states the history rather than erasing it, and
 `tests/test_gate_license_consistency.py` now covers the sub-project — it had been

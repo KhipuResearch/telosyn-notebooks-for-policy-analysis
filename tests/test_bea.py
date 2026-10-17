@@ -38,7 +38,7 @@ from krl_tutorials_data.sources import (
 )
 
 #: Shaped like a real key, and deliberately not one.
-STUB_KEY = "AAAAAAAA-1111-2222-3333-BBBBBBBBBBBB"  # pragma: allowlist secret
+STUB_KEY = "AAAAAAAA-1111-2222-3333-BBBBBBBBBBBB"
 
 
 @pytest.fixture(autouse=True)
@@ -122,7 +122,7 @@ def test_the_provenance_hash_does_not_depend_on_whose_key_was_used() -> None:
     different digest for identical data, and nobody could ever check anybody's.
     """
     hashes = set()
-    for key in (STUB_KEY, "ZZZZZZZZ-9999-8888-7777-CCCCCCCCCCCC"):  # pragma: allowlist secret
+    for key in (STUB_KEY, "ZZZZZZZZ-9999-8888-7777-CCCCCCCCCCCC"):
         _, prov = fetch_bea_regional(
             table="SAACArtsVA", line_code="10", year=2023, geo_fips="00000",
             session=_Session(_envelope([ROW], key=key)),

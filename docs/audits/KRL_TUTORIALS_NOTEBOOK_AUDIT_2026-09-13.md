@@ -435,7 +435,7 @@ year_data['uninsured_rate'] = year_data['B27001_005E'] / year_data['B01003_001E'
 
 `notebooks/ML_03.ipynb` is **tracked in git**, and its cell-0 stored output contains:
 ```
-🔑 Loading API keys from: <operator-path>/apikeys
+🔑 Loading API keys from: <operator-key-file>
    • CENSUS_API_KEY: <redacted>...
    • FRED_API_KEY: <redacted>...
    • BLS_API_KEY: <redacted>...
@@ -463,7 +463,7 @@ The corpus's stated testing requirement — *"All notebooks must execute without
 
 ### F-16 · MEDIUM · Undeclared dependencies and version-control debris
 
-`mesa` (<tool>-based modelling) is imported by D06 and D11 and is **not in `pyproject.toml`** — the declared dependency list is `krl-core, krl-data-connectors, krl-models, krl-dashboard, jupyter, jupyterlab, notebook, pandas, numpy, matplotlib, seaborn, plotly`. Live kernel: `ModuleNotFoundError: No module named 'mesa'` at cell 6, *before* the F-1 syntax error.
+`mesa` (agent-based modelling) is imported by D06 and D11 and is **not in `pyproject.toml`** — the declared dependency list is `krl-core, krl-data-connectors, krl-models, krl-dashboard, jupyter, jupyterlab, notebook, pandas, numpy, matplotlib, seaborn, plotly`. Live kernel: `ModuleNotFoundError: No module named 'mesa'` at cell 6, *before* the F-1 syntax error.
 
 `"Gradient Boosting": None,  # Placeholder` appears in all 32 template notebooks — named in the model suite, silently skipped, then counted in `f"Evaluated {len(comparison_results)} models"`.
 

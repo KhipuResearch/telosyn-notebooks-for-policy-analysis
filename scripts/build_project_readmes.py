@@ -175,7 +175,7 @@ def render_project(section: Path) -> str:
     out.append(f"{len(nbs)} notebook{'s' if len(nbs) != 1 else ''}. Each one is built on a live public "
                "source and holds a single methodological lesson about what that source permits a "
                "reader to conclude. Run any of them from the repository root:\n")
-    out.append("```bash\npip install -e '.[notebooks]'\nexport KRL_SECRETS_PATH=<operator-path>/tutorials.env   # your own keys; see docs/reproducibility.md\n"
+    out.append("```bash\npip install -e '.[notebooks]'\nexport KRL_SECRETS_PATH=~/.config/telosyn-notebooks/keys.env   # your own keys; see docs/reproducibility.md\n"
                f"jupyter lab projects/{section.name}/\n```\n")
     out.append("| Notebook | Thesis | Sources |\n|---|---|---|")
     for d in (describe(nb) for nb in nbs):

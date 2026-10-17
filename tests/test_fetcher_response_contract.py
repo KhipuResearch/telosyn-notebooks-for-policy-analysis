@@ -41,13 +41,12 @@ def _no_credential_lookup(monkeypatch: pytest.MonkeyPatch) -> None:
 
     Every keyed fetcher calls ``load_key`` on the way to the request, *before*
     the injected session is ever reached. Without this, a machine with no
-    ``~/.krl/secrets.env`` sees fifteen of these raise ``MissingCredentialError``
+    key in its environment sees fifteen of these raise ``MissingCredentialError``
     -- red for a reason that has nothing to do with firewall handling, and green
     only where a live key happens to exist. That is the whole defect this file
     was written to catch, reproduced in the file itself.
 
-    CI's static lane holds no secrets by design; the four keys live in the
-    ``notebook-release`` environment that only the execution lane uses. So the
+    CI holds no secrets at all (this repository stores and uses none), so the
     stub is not a convenience -- it is what makes this a unit test.
     """
     monkeypatch.setattr(
@@ -95,6 +94,10 @@ class _Session:
 FETCHERS: dict[str, Callable[[_Session], Any]] = {
     "fetch_acs": lambda s: sources.fetch_acs(
         year=2023, variables={"B01003_001E": "pop"}, geography="state:*", session=s
+    ),
+    "fetch_acs_pums": lambda s: sources.fetch_acs_pums(
+        year=2023, variables={"AGEP": "Age"}, aggregate_by=["AGEP"],
+        geography="state:51", session=s
     ),
     "fetch_fred": lambda s: sources.fetch_fred(
         series_id="PCE", start="2020-01-01", end="2020-06-01", session=s

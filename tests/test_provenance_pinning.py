@@ -50,6 +50,7 @@ REPO_ROOT: Final = Path(__file__).resolve().parent.parent
 PINNED_FETCHERS: Final[frozenset[str]] = frozenset({
     "fetch_acs",                  # each ACS release is a distinct, permanent product
     "fetch_acs_wide",
+    "fetch_acs_pums",             # a PUMS 1-year file is a separately addressed, immutable release
     "fetch_fred",                 # ALFRED serves any vintage by date
     "fetch_places_county",        # each release is a separately addressed asset
     "fetch_opportunity_atlas",    # static archived research release
@@ -85,7 +86,7 @@ def test_a_credential_parameter_never_survives(param: str) -> None:
 
 def test_redaction_keeps_the_name_and_none_of_the_value() -> None:
     """A replayer must know a key was sent; it must learn nothing about it."""
-    secret = "S3CR3T-material-9999"
+    secret = "S3CR3T-material-9999"  # pragma: allowlist secret -- fake; the subject of this redaction test
     out = redact_params({"key": secret})
     assert "key" in out
     for fragment in (secret, secret[:6], secret[-4:], str(len(secret))):

@@ -12,7 +12,7 @@ take the key as a query parameter and echo the request URL back in their errors.
 
 Usage::
 
-    KRL_SECRETS_PATH=~/.krl/tutorials.env python scripts/verify_credentials.py
+    KRL_SECRETS_PATH=~/.config/telosyn-notebooks/keys.env python scripts/verify_credentials.py
 
 Exit codes: 0 all present and accepted; 1 at least one missing or rejected.
 
@@ -48,7 +48,7 @@ PROBES = {
 
 def main() -> int:
     failures = 0
-    print(f"secrets file: {sources.secrets_path()}")
+    print(f"key file (KRL_SECRETS_PATH): {sources.secrets_path() or 'not set; environment only'}")
     print(f"allowed names: {len(sources.ALLOWED_KEYS)}\n")
 
     for name in sorted(sources.ALLOWED_KEYS):

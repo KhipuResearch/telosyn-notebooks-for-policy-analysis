@@ -11,7 +11,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 ## 1. Title
 
-Public and internal documentation state *"29 interactive Jupyter notebooks"*, while the working tree contains 52 `.ipynb` files under `notebooks/` plus 26 under `khipu-showcase/notebooks/`. This ADR establishes a single source-of-truth count, enumerates the causes of drift, and mandates a CI gate that blocks further divergence.
+Public and internal documentation state *"29 interactive Jupyter notebooks"*, while the working tree contains 52 `.ipynb` files under `notebooks/` plus 26 under `the showcase sub-project/notebooks/`. This ADR establishes a single source-of-truth count, enumerates the causes of drift, and mandates a CI gate that blocks further divergence.
 
 ## 2. Context
 
@@ -22,8 +22,8 @@ Forensic inventory from `SPEC.md` §15 (every notebook enumerated with cell coun
 | Internal operating brief, lines 3-4 | *"29 interactive Jupyter notebooks organized across 8 domains with 33 specialized topics"* | operating brief, lines 3-4 |
 | `README.md:49` (pre-rewrite) | *"8 core domains with 29 interactive notebooks spanning 33 specialized topics"* | Superseded by Tier U rewrite |
 | Outer `notebooks/` tree | **52** `.ipynb` files | `SPEC.md` §2.1, §15 |
-| `khipu-showcase/notebooks/` tree | **26** `.ipynb` files (23 canonical + 1 duplicate + 2 validation + 1 executed-for-PDF) | `SPEC.md` §15.12 |
-| `khipu-showcase/templates/` | **1** `notebook_template.ipynb` | `SPEC.md` §15.12 |
+| `the showcase sub-project/notebooks/` tree | **26** `.ipynb` files (23 canonical + 1 duplicate + 2 validation + 1 executed-for-PDF) | `SPEC.md` §15.12 |
+| `the showcase sub-project/templates/` | **1** `notebook_template.ipynb` | `SPEC.md` §15.12 |
 
 ### 2.1 Breakdown of the outer 52-file count
 
@@ -82,14 +82,14 @@ The most coherent reading: the "29" count is the D01–D29 canonical set that ex
 | `pdf_exports/11-heterogeneous-treatment-effects_executed.ipynb` | 1 |
 | `validation/NB_VALIDATION_DID.ipynb` | 1 |
 | `validation/NB_VALIDATION_SCM.ipynb` | 1 |
-| **Total under `khipu-showcase/notebooks/`** | **26** |
-| `khipu-showcase/templates/notebook_template.ipynb` | 1 (not counted in notebooks/) |
+| **Total under `the showcase sub-project/notebooks/`** | **26** |
+| `the showcase sub-project/templates/notebook_template.ipynb` | 1 (not counted in notebooks/) |
 
 The public catalog gaps at 08, 09, 24 (`SPEC.md` §15.12) are a separate drift — the numbering implies a 25-notebook sequence; only 22 + the duplicate-numbered `17-spatial-causal-fusion.ipynb` exist.
 
 ## 3. Decision
 
-1. **The single source-of-truth notebook count is a machine-generated manifest**, not a hard-coded number in prose. The manifest MUST be produced by a CI step that walks `notebooks/**/*.ipynb` and `khipu-showcase/notebooks/**/*.ipynb`, classifies each entry (canonical / planned / duplicate / validation / executed-for-PDF / empty-kernel), and emits a `docs/notebook_manifest.json` artifact on every `main` push.
+1. **The single source-of-truth notebook count is a machine-generated manifest**, not a hard-coded number in prose. The manifest MUST be produced by a CI step that walks `notebooks/**/*.ipynb` and `the showcase sub-project/notebooks/**/*.ipynb`, classifies each entry (canonical / planned / duplicate / validation / executed-for-PDF / empty-kernel), and emits a `docs/notebook_manifest.json` artifact on every `main` push.
 2. **Prose documentation MUST NOT state a hard-coded notebook count.** `README.md` (post-rewrite) no longer states a count. The operating brief (lines 3-4) and any future revision MUST reference the manifest instead of a literal number.
 3. **Three categorical axes are authoritative going forward:**
    - **`Dnn` domain code** (D01–D34 today; expandable to D99)
@@ -131,7 +131,7 @@ The public catalog gaps at 08, 09, 24 (`SPEC.md` §15.12) are a separate drift �
 - The operating brief's lines 3-4 and 43 (Content Standards) MUST be corrected in a follow-up PR per `CALIBRATION_REQUIRED.md`.
 - `tutorial-quality.yml:78-100` MUST be corrected to use the `Dnn` axis; until then, CI continues to print the `Missing tutorials in tiers: ['D1', 'D2', 'D3', 'D4', 'D5', 'D6']` warning on every run.
 - `policy/ci-authority.yaml` declares the operating brief and `README.md` as `must_never_modify` for automated CI fixes — the manifest update required here must land via a reviewed PR.
-- `khipu-showcase/notebooks/` catalog gaps at 08, 09, 24 are a parallel drift not covered by this ADR. They are documented in `SPEC.md` §15.12 and tracked as a separate `CALIBRATION_REQUIRED.md` item.
+- `the showcase sub-project/notebooks/` catalog gaps at 08, 09, 24 are a parallel drift not covered by this ADR. They are documented in `SPEC.md` §15.12 and tracked as a separate `CALIBRATION_REQUIRED.md` item.
 - Future notebook additions under new domain codes (`D35+`) proceed automatically through the manifest without prose edits.
 
 ## 7. Reversal Conditions
@@ -144,6 +144,6 @@ This ADR is reversed when **all** of the following are true:
 4. The 11 duplicate variants in `10_advanced_nlp/D34/` are either resolved to one canonical plus renamed variants, or deleted.
 5. `tutorial-quality.yml:78-100` tier-axis logic is rewritten around the `Dnn` axis.
 6. `notebooks/test_kernel.ipynb` is moved out of the content path or deleted.
-7. `khipu-showcase/notebooks/` catalog gaps at 08, 09, 24 are either filled, renumbered, or explicitly declared reserved in the manifest.
+7. `the showcase sub-project/notebooks/` catalog gaps at 08, 09, 24 are either filled, renumbered, or explicitly declared reserved in the manifest.
 
 At that point, a follow-up ADR (0004+) records the remediation outcome and this ADR is marked **Superseded**.

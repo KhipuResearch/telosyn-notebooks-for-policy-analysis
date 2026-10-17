@@ -1,0 +1,991 @@
+jurisdiction,year,rate_as_published,status,rate_low,rate_high,rate_form,footnote_markers
+Federal (FLSA),2007,5.15,rate,5.15,5.15,single,
+Federal (FLSA),2008,5.85,rate,5.85,5.85,single,
+Federal (FLSA),2009,6.55,rate,6.55,6.55,single,
+Federal (FLSA),2010,7.25,rate,7.25,7.25,single,
+Federal (FLSA),2011,7.25,rate,7.25,7.25,single,
+Federal (FLSA),2012,7.25,rate,7.25,7.25,single,
+Federal (FLSA),2013,7.25,rate,7.25,7.25,single,
+Alabama,2007,...,not_applicable,,,,
+Alabama,2008,...,not_applicable,,,,
+Alabama,2009,...,not_applicable,,,,
+Alabama,2010,...,not_applicable,,,,
+Alabama,2011,...,not_applicable,,,,
+Alabama,2012,...,not_applicable,,,,
+Alabama,2013,...,not_applicable,,,,
+Alaska,2007,7.15,rate,7.15,7.15,single,
+Alaska,2008,7.15,rate,7.15,7.15,single,
+Alaska,2009,7.15,rate,7.15,7.15,single,
+Alaska,2010,7.75,rate,7.75,7.75,single,
+Alaska,2011,7.75,rate,7.75,7.75,single,
+Alaska,2012,7.75,rate,7.75,7.75,single,
+Alaska,2013,7.75,rate,7.75,7.75,single,
+Arizona,2007,6.75,rate,6.75,6.75,single,
+Arizona,2008,6.90,rate,6.90,6.90,single,
+Arizona,2009,7.25,rate,7.25,7.25,single,
+Arizona,2010,7.25,rate,7.25,7.25,single,
+Arizona,2011,7.35,rate,7.35,7.35,single,
+Arizona,2012,7.65,rate,7.65,7.65,single,
+Arizona,2013,7.80,rate,7.80,7.80,single,
+Arkansas,2007,6.25[c],rate,6.25,6.25,single,c
+Arkansas,2008,6.25[c],rate,6.25,6.25,single,c
+Arkansas,2009,6.25[c],rate,6.25,6.25,single,c
+Arkansas,2010,6.25[c],rate,6.25,6.25,single,c
+Arkansas,2011,6.25[c],rate,6.25,6.25,single,c
+Arkansas,2012,6.25[c],rate,6.25,6.25,single,c
+Arkansas,2013,6.25[c],rate,6.25,6.25,single,c
+California,2007,7.50,rate,7.50,7.50,single,
+California,2008,8.00,rate,8.00,8.00,single,
+California,2009,8.00,rate,8.00,8.00,single,
+California,2010,8.00,rate,8.00,8.00,single,
+California,2011,8.00,rate,8.00,8.00,single,
+California,2012,8.00,rate,8.00,8.00,single,
+California,2013,8.00,rate,8.00,8.00,single,
+Colorado,2007,6.85,rate,6.85,6.85,single,
+Colorado,2008,7.02,rate,7.02,7.02,single,
+Colorado,2009,7.28,rate,7.28,7.28,single,
+Colorado,2010,7.24,rate,7.24,7.24,single,
+Colorado,2011,7.36,rate,7.36,7.36,single,
+Colorado,2012,7.64,rate,7.64,7.64,single,
+Colorado,2013,7.78,rate,7.78,7.78,single,
+Connecticut,2007,7.65,rate,7.65,7.65,single,
+Connecticut,2008,7.65,rate,7.65,7.65,single,
+Connecticut,2009,8.00,rate,8.00,8.00,single,
+Connecticut,2010,8.25,rate,8.25,8.25,single,
+Connecticut,2011,8.25,rate,8.25,8.25,single,
+Connecticut,2012,8.25,rate,8.25,8.25,single,
+Connecticut,2013,8.25,rate,8.25,8.25,single,
+Delaware,2007,6.65,rate,6.65,6.65,single,
+Delaware,2008,7.15,rate,7.15,7.15,single,
+Delaware,2009,7.15,rate,7.15,7.15,single,
+Delaware,2010,7.25,rate,7.25,7.25,single,
+Delaware,2011,7.25,rate,7.25,7.25,single,
+Delaware,2012,7.25,rate,7.25,7.25,single,
+Delaware,2013,7.25,rate,7.25,7.25,single,
+Florida,2007,6.67,rate,6.67,6.67,single,
+Florida,2008,6.79,rate,6.79,6.79,single,
+Florida,2009,7.21,rate,7.21,7.21,single,
+Florida,2010,7.25,rate,7.25,7.25,single,
+Florida,2011,7.25,rate,7.25,7.25,single,
+Florida,2012,7.67,rate,7.67,7.67,single,
+Florida,2013,7.79,rate,7.79,7.79,single,
+Georgia,2007,5.15(d),rate,5.15,5.15,single,d
+Georgia,2008,5.15(d),rate,5.15,5.15,single,d
+Georgia,2009,5.15(d),rate,5.15,5.15,single,d
+Georgia,2010,5.15(d),rate,5.15,5.15,single,d
+Georgia,2011,5.15(d),rate,5.15,5.15,single,d
+Georgia,2012,5.15(d),rate,5.15,5.15,single,d
+Georgia,2013,5.15(d),rate,5.15,5.15,single,d
+Hawaii,2007,7.25,rate,7.25,7.25,single,
+Hawaii,2008,7.25,rate,7.25,7.25,single,
+Hawaii,2009,7.25,rate,7.25,7.25,single,
+Hawaii,2010,7.25,rate,7.25,7.25,single,
+Hawaii,2011,7.25,rate,7.25,7.25,single,
+Hawaii,2012,7.25,rate,7.25,7.25,single,
+Hawaii,2013,7.25,rate,7.25,7.25,single,
+Idaho,2007,5.15,rate,5.15,5.15,single,
+Idaho,2008,5.85,rate,5.85,5.85,single,
+Idaho,2009,6.55,rate,6.55,6.55,single,
+Idaho,2010,7.25,rate,7.25,7.25,single,
+Idaho,2011,7.25,rate,7.25,7.25,single,
+Idaho,2012,7.25,rate,7.25,7.25,single,
+Idaho,2013,7.25,rate,7.25,7.25,single,
+Illinois,2007,7.50[c],rate,7.50,7.50,single,c
+Illinois,2008,7.75[c],rate,7.75,7.75,single,c
+Illinois,2009,8.00[c],rate,8.00,8.00,single,c
+Illinois,2010,8.25[c],rate,8.25,8.25,single,c
+Illinois,2011,8.25[c],rate,8.25,8.25,single,c
+Illinois,2012,8.25[c],rate,8.25,8.25,single,c
+Illinois,2013,8.25[c],rate,8.25,8.25,single,c
+Indiana,2007,5.15(e),rate,5.15,5.15,single,e
+Indiana,2008,5.85(e),rate,5.85,5.85,single,e
+Indiana,2009,6.55(e),rate,6.55,6.55,single,e
+Indiana,2010,7.25(e),rate,7.25,7.25,single,e
+Indiana,2011,7.25(e),rate,7.25,7.25,single,e
+Indiana,2012,7.25(e),rate,7.25,7.25,single,e
+Indiana,2013,7.25(e),rate,7.25,7.25,single,e
+Iowa,2007,5.15,rate,5.15,5.15,single,
+Iowa,2008,7.25,rate,7.25,7.25,single,
+Iowa,2009,7.25,rate,7.25,7.25,single,
+Iowa,2010,7.25,rate,7.25,7.25,single,
+Iowa,2011,7.25,rate,7.25,7.25,single,
+Iowa,2012,7.25,rate,7.25,7.25,single,
+Iowa,2013,7.25,rate,7.25,7.25,single,
+Kansas,2007,2.65,rate,2.65,2.65,single,
+Kansas,2008,2.65,rate,2.65,2.65,single,
+Kansas,2009,2.65,rate,2.65,2.65,single,
+Kansas,2010,7.25,rate,7.25,7.25,single,
+Kansas,2011,7.25,rate,7.25,7.25,single,
+Kansas,2012,7.25,rate,7.25,7.25,single,
+Kansas,2013,7.25,rate,7.25,7.25,single,
+Kentucky,2007,5.15,rate,5.15,5.15,single,
+Kentucky,2008,5.85,rate,5.85,5.85,single,
+Kentucky,2009,6.55,rate,6.55,6.55,single,
+Kentucky,2010,7.25,rate,7.25,7.25,single,
+Kentucky,2011,7.25,rate,7.25,7.25,single,
+Kentucky,2012,7.25,rate,7.25,7.25,single,
+Kentucky,2013,7.25,rate,7.25,7.25,single,
+Louisiana,2007,...,not_applicable,,,,
+Louisiana,2008,...,not_applicable,,,,
+Louisiana,2009,...,not_applicable,,,,
+Louisiana,2010,...,not_applicable,,,,
+Louisiana,2011,...,not_applicable,,,,
+Louisiana,2012,...,not_applicable,,,,
+Louisiana,2013,...,not_applicable,,,,
+Maine,2007,6.75,rate,6.75,6.75,single,
+Maine,2008,7.00,rate,7.00,7.00,single,
+Maine,2009,7.25,rate,7.25,7.25,single,
+Maine,2010,7.50,rate,7.50,7.50,single,
+Maine,2011,7.50,rate,7.50,7.50,single,
+Maine,2012,7.50,rate,7.50,7.50,single,
+Maine,2013,7.50,rate,7.50,7.50,single,
+Maryland,2007,6.15,rate,6.15,6.15,single,
+Maryland,2008,6.15,rate,6.15,6.15,single,
+Maryland,2009,6.55,rate,6.55,6.55,single,
+Maryland,2010,7.25,rate,7.25,7.25,single,
+Maryland,2011,7.25,rate,7.25,7.25,single,
+Maryland,2012,7.25,rate,7.25,7.25,single,
+Maryland,2013,7.25,rate,7.25,7.25,single,
+Massachusetts,2007,7.50,rate,7.50,7.50,single,
+Massachusetts,2008,8.00,rate,8.00,8.00,single,
+Massachusetts,2009,8.00,rate,8.00,8.00,single,
+Massachusetts,2010,8.00,rate,8.00,8.00,single,
+Massachusetts,2011,8.00,rate,8.00,8.00,single,
+Massachusetts,2012,8.00,rate,8.00,8.00,single,
+Massachusetts,2013,8.00,rate,8.00,8.00,single,
+Michigan,2007,6.95(e),rate,6.95,6.95,single,e
+Michigan,2008,7.15(e),rate,7.15,7.15,single,e
+Michigan,2009,7.40(e),rate,7.40,7.40,single,e
+Michigan,2010,7.40(e),rate,7.40,7.40,single,e
+Michigan,2011,7.40(e),rate,7.40,7.40,single,e
+Michigan,2012,7.40(e),rate,7.40,7.40,single,e
+Michigan,2013,7.40(e),rate,7.40,7.40,single,e
+Minnesota,2007,5.25-6.15(g),rate,5.25,6.15,range,g
+Minnesota,2008,5.25-6.15(g),rate,5.25,6.15,range,g
+Minnesota,2009,5.25-6.15(g),rate,5.25,6.15,range,g
+Minnesota,2010,5.25-6.15(g),rate,5.25,6.15,range,g
+Minnesota,2011,5.25-6.15(g),rate,5.25,6.15,range,g
+Minnesota,2012,5.25-6.15(g),rate,5.25,6.15,range,g
+Minnesota,2013,5.25-6.15(g),rate,5.25,6.15,range,g
+Mississippi,2007,...,not_applicable,,,,
+Mississippi,2008,...,not_applicable,,,,
+Mississippi,2009,...,not_applicable,,,,
+Mississippi,2010,...,not_applicable,,,,
+Mississippi,2011,...,not_applicable,,,,
+Mississippi,2012,...,not_applicable,,,,
+Mississippi,2013,...,not_applicable,,,,
+Missouri,2007,6.50,rate,6.50,6.50,single,
+Missouri,2008,6.65,rate,6.65,6.65,single,
+Missouri,2009,7.05,rate,7.05,7.05,single,
+Missouri,2010,7.25,rate,7.25,7.25,single,
+Missouri,2011,7.25,rate,7.25,7.25,single,
+Missouri,2012,7.25,rate,7.25,7.25,single,
+Missouri,2013,7.35,rate,7.35,7.35,single,
+Montana,2007,4.00-6.15(g),rate,4.00,6.15,range,g
+Montana,2008,4.00-6.25(g),rate,4.00,6.25,range,g
+Montana,2009,4.00-6.90(g),rate,4.00,6.90,range,g
+Montana,2010,4.00-7.25(g),rate,4.00,7.25,range,g
+Montana,2011,4.00-7.35(g),rate,4.00,7.35,range,g
+Montana,2012,4.00-7.65(g),rate,4.00,7.65,range,g
+Montana,2013,4.00-7.80(g),rate,4.00,7.80,range,g
+Nebraska,2007,5.15[c],rate,5.15,5.15,single,c
+Nebraska,2008,5.85[c],rate,5.85,5.85,single,c
+Nebraska,2009,6.55[c],rate,6.55,6.55,single,c
+Nebraska,2010,7.25[c],rate,7.25,7.25,single,c
+Nebraska,2011,7.25[c],rate,7.25,7.25,single,c
+Nebraska,2012,7.25[c],rate,7.25,7.25,single,c
+Nebraska,2013,7.25[c],rate,7.25,7.25,single,c
+Nevada,2007,6.15,rate,6.15,6.15,single,
+Nevada,2008,6.33,rate,6.33,6.33,single,
+Nevada,2009,6.55-6.85,rate,6.55,6.85,range,
+Nevada,2010,6.55-7.55,rate,6.55,7.55,range,
+Nevada,2011,7.25-8.25,rate,7.25,8.25,range,
+Nevada,2012,7.25-8.25,rate,7.25,8.25,range,
+Nevada,2013,7.25-8.25,rate,7.25,8.25,range,
+New Hampshire,2007,5.15,rate,5.15,5.15,single,
+New Hampshire,2008,6.50,rate,6.50,6.50,single,
+New Hampshire,2009,7.25,rate,7.25,7.25,single,
+New Hampshire,2010,7.25,rate,7.25,7.25,single,
+New Hampshire,2011,7.25,rate,7.25,7.25,single,
+New Hampshire,2012,7.25,rate,7.25,7.25,single,
+New Hampshire,2013,7.25,rate,7.25,7.25,single,
+New Jersey,2007,7.15,rate,7.15,7.15,single,
+New Jersey,2008,7.15,rate,7.15,7.15,single,
+New Jersey,2009,7.15,rate,7.15,7.15,single,
+New Jersey,2010,7.25,rate,7.25,7.25,single,
+New Jersey,2011,7.25,rate,7.25,7.25,single,
+New Jersey,2012,7.25,rate,7.25,7.25,single,
+New Jersey,2013,7.25,rate,7.25,7.25,single,
+New Mexico,2007,5.15,rate,5.15,5.15,single,
+New Mexico,2008,6.50,rate,6.50,6.50,single,
+New Mexico,2009,7.50,rate,7.50,7.50,single,
+New Mexico,2010,7.50,rate,7.50,7.50,single,
+New Mexico,2011,7.50,rate,7.50,7.50,single,
+New Mexico,2012,7.50,rate,7.50,7.50,single,
+New Mexico,2013,7.50,rate,7.50,7.50,single,
+New York,2007,7.15,rate,7.15,7.15,single,
+New York,2008,7.15,rate,7.15,7.15,single,
+New York,2009,7.15,rate,7.15,7.15,single,
+New York,2010,7.25,rate,7.25,7.25,single,
+New York,2011,7.25,rate,7.25,7.25,single,
+New York,2012,7.25,rate,7.25,7.25,single,
+New York,2013,7.25,rate,7.25,7.25,single,
+North Carolina,2007,6.15,rate,6.15,6.15,single,
+North Carolina,2008,6.15,rate,6.15,6.15,single,
+North Carolina,2009,6.55,rate,6.55,6.55,single,
+North Carolina,2010,7.25,rate,7.25,7.25,single,
+North Carolina,2011,7.25,rate,7.25,7.25,single,
+North Carolina,2012,7.25,rate,7.25,7.25,single,
+North Carolina,2013,7.25,rate,7.25,7.25,single,
+North Dakota,2007,5.15,rate,5.15,5.15,single,
+North Dakota,2008,5.85,rate,5.85,5.85,single,
+North Dakota,2009,6.55,rate,6.55,6.55,single,
+North Dakota,2010,7.25,rate,7.25,7.25,single,
+North Dakota,2011,7.25,rate,7.25,7.25,single,
+North Dakota,2012,7.25,rate,7.25,7.25,single,
+North Dakota,2013,7.25,rate,7.25,7.25,single,
+Ohio,2007,6.85,rate,6.85,6.85,single,
+Ohio,2008,7.00,rate,7.00,7.00,single,
+Ohio,2009,7.30,rate,7.30,7.30,single,
+Ohio,2010,7.30,rate,7.30,7.30,single,
+Ohio,2011,7.40,rate,7.40,7.40,single,
+Ohio,2012,7.70,rate,7.70,7.70,single,
+Ohio,2013,7.85,rate,7.85,7.85,single,
+Oklahoma,2007,2.00-5.15(g),rate,2.00,5.15,range,g
+Oklahoma,2008,2.00-5.85(g),rate,2.00,5.85,range,g
+Oklahoma,2009,2.00-6.55(g),rate,2.00,6.55,range,g
+Oklahoma,2010,2.00-7.25(g),rate,2.00,7.25,range,g
+Oklahoma,2011,2.00-7.25(g),rate,2.00,7.25,range,g
+Oklahoma,2012,2.00-7.25(g),rate,2.00,7.25,range,g
+Oklahoma,2013,2.00-7.25(g),rate,2.00,7.25,range,g
+Oregon,2007,7.80,rate,7.80,7.80,single,
+Oregon,2008,7.95,rate,7.95,7.95,single,
+Oregon,2009,8.40,rate,8.40,8.40,single,
+Oregon,2010,8.40,rate,8.40,8.40,single,
+Oregon,2011,8.50,rate,8.50,8.50,single,
+Oregon,2012,8.80,rate,8.80,8.80,single,
+Oregon,2013,8.95,rate,8.95,8.95,single,
+Pennsylvania,2007,6.25,rate,6.25,6.25,single,
+Pennsylvania,2008,7.15,rate,7.15,7.15,single,
+Pennsylvania,2009,7.15,rate,7.15,7.15,single,
+Pennsylvania,2010,7.25,rate,7.25,7.25,single,
+Pennsylvania,2011,7.25,rate,7.25,7.25,single,
+Pennsylvania,2012,7.25,rate,7.25,7.25,single,
+Pennsylvania,2013,7.25,rate,7.25,7.25,single,
+Rhode Island,2007,7.40,rate,7.40,7.40,single,
+Rhode Island,2008,7.40,rate,7.40,7.40,single,
+Rhode Island,2009,7.40,rate,7.40,7.40,single,
+Rhode Island,2010,7.40,rate,7.40,7.40,single,
+Rhode Island,2011,7.40,rate,7.40,7.40,single,
+Rhode Island,2012,7.40,rate,7.40,7.40,single,
+Rhode Island,2013,7.75,rate,7.75,7.75,single,
+South Carolina,2007,...,not_applicable,,,,
+South Carolina,2008,...,not_applicable,,,,
+South Carolina,2009,...,not_applicable,,,,
+South Carolina,2010,...,not_applicable,,,,
+South Carolina,2011,...,not_applicable,,,,
+South Carolina,2012,...,not_applicable,,,,
+South Carolina,2013,...,not_applicable,,,,
+South Dakota,2007,5.15,rate,5.15,5.15,single,
+South Dakota,2008,5.85,rate,5.85,5.85,single,
+South Dakota,2009,6.55,rate,6.55,6.55,single,
+South Dakota,2010,7.25,rate,7.25,7.25,single,
+South Dakota,2011,7.25,rate,7.25,7.25,single,
+South Dakota,2012,7.25,rate,7.25,7.25,single,
+South Dakota,2013,7.25,rate,7.25,7.25,single,
+Tennessee,2007,...,not_applicable,,,,
+Tennessee,2008,...,not_applicable,,,,
+Tennessee,2009,...,not_applicable,,,,
+Tennessee,2010,...,not_applicable,,,,
+Tennessee,2011,...,not_applicable,,,,
+Tennessee,2012,...,not_applicable,,,,
+Tennessee,2013,...,not_applicable,,,,
+Texas,2007,5.15,rate,5.15,5.15,single,
+Texas,2008,5.85,rate,5.85,5.85,single,
+Texas,2009,6.55,rate,6.55,6.55,single,
+Texas,2010,7.25,rate,7.25,7.25,single,
+Texas,2011,7.25,rate,7.25,7.25,single,
+Texas,2012,7.25,rate,7.25,7.25,single,
+Texas,2013,7.25,rate,7.25,7.25,single,
+Utah,2007,5.15,rate,5.15,5.15,single,
+Utah,2008,5.85,rate,5.85,5.85,single,
+Utah,2009,6.55,rate,6.55,6.55,single,
+Utah,2010,7.25,rate,7.25,7.25,single,
+Utah,2011,7.25,rate,7.25,7.25,single,
+Utah,2012,7.25,rate,7.25,7.25,single,
+Utah,2013,7.25,rate,7.25,7.25,single,
+Vermont,2007,7.53(e),rate,7.53,7.53,single,e
+Vermont,2008,7.68(e),rate,7.68,7.68,single,e
+Vermont,2009,8.06(e),rate,8.06,8.06,single,e
+Vermont,2010,8.06(e),rate,8.06,8.06,single,e
+Vermont,2011,8.15(e),rate,8.15,8.15,single,e
+Vermont,2012,8.46(e),rate,8.46,8.46,single,e
+Vermont,2013,8.60(e),rate,8.60,8.60,single,e
+Virginia,2007,5.15[c],rate,5.15,5.15,single,c
+Virginia,2008,5.85[c],rate,5.85,5.85,single,c
+Virginia,2009,6.55[c],rate,6.55,6.55,single,c
+Virginia,2010,7.25[c],rate,7.25,7.25,single,c
+Virginia,2011,7.25[c],rate,7.25,7.25,single,c
+Virginia,2012,7.25[c],rate,7.25,7.25,single,c
+Virginia,2013,7.25[c],rate,7.25,7.25,single,c
+Washington,2007,7.93,rate,7.93,7.93,single,
+Washington,2008,8.07,rate,8.07,8.07,single,
+Washington,2009,8.55,rate,8.55,8.55,single,
+Washington,2010,8.55,rate,8.55,8.55,single,
+Washington,2011,8.67,rate,8.67,8.67,single,
+Washington,2012,9.04,rate,9.04,9.04,single,
+Washington,2013,9.19,rate,9.19,9.19,single,
+West Virginia,2007,5.85,rate,5.85,5.85,single,
+West Virginia,2008,6.55,rate,6.55,6.55,single,
+West Virginia,2009,7.25,rate,7.25,7.25,single,
+West Virginia,2010,7.25,rate,7.25,7.25,single,
+West Virginia,2011,7.25,rate,7.25,7.25,single,
+West Virginia,2012,7.25,rate,7.25,7.25,single,
+West Virginia,2013,7.25,rate,7.25,7.25,single,
+Wisconsin,2007,6.50,rate,6.50,6.50,single,
+Wisconsin,2008,6.50,rate,6.50,6.50,single,
+Wisconsin,2009,6.50,rate,6.50,6.50,single,
+Wisconsin,2010,7.25,rate,7.25,7.25,single,
+Wisconsin,2011,7.25,rate,7.25,7.25,single,
+Wisconsin,2012,7.25,rate,7.25,7.25,single,
+Wisconsin,2013,7.25,rate,7.25,7.25,single,
+Wyoming,2007,5.15,rate,5.15,5.15,single,
+Wyoming,2008,5.15,rate,5.15,5.15,single,
+Wyoming,2009,5.15,rate,5.15,5.15,single,
+Wyoming,2010,5.15,rate,5.15,5.15,single,
+Wyoming,2011,5.15,rate,5.15,5.15,single,
+Wyoming,2012,5.15,rate,5.15,5.15,single,
+Wyoming,2013,5.15,rate,5.15,5.15,single,
+District of Columbia,2007,7.00,rate,7.00,7.00,single,
+District of Columbia,2008,7.00,rate,7.00,7.00,single,
+District of Columbia,2009,7.55,rate,7.55,7.55,single,
+District of Columbia,2010,8.25,rate,8.25,8.25,single,
+District of Columbia,2011,8.25,rate,8.25,8.25,single,
+District of Columbia,2012,8.25,rate,8.25,8.25,single,
+District of Columbia,2013,8.25,rate,8.25,8.25,single,
+Guam,2007,5.15,rate,5.15,5.15,single,
+Guam,2008,5.85,rate,5.85,5.85,single,
+Guam,2009,5.85,rate,5.85,5.85,single,
+Guam,2010,7.25,rate,7.25,7.25,single,
+Guam,2011,7.25,rate,7.25,7.25,single,
+Guam,2012,7.25,rate,7.25,7.25,single,
+Guam,2013,7.25,rate,7.25,7.25,single,
+Puerto Rico,2007,3.61-5.15(i),rate,3.61,5.15,range,i
+Puerto Rico,2008,3.61-5.15(i),rate,3.61,5.15,range,i
+Puerto Rico,2009,4.10(i),rate,4.10,4.10,single,i
+Puerto Rico,2010,5.08 – 7.25 (i2),rate,5.08,7.25,range,i2
+Puerto Rico,2011,5.08 – 7.25 (i2),rate,5.08,7.25,range,i2
+Puerto Rico,2012,5.08 – 7.25 (i2),rate,5.08,7.25,range,i2
+Puerto Rico,2013,5.08 – 7.25 (i2),rate,5.08,7.25,range,i2
+U.S. Virgin Islands,2007,"4.30-6.15(g,j)",rate,4.30,6.15,range,"g,j"
+U.S. Virgin Islands,2008,4.30-6.15(j),rate,4.30,6.15,range,j
+U.S. Virgin Islands,2009,4.30-6.15(j),rate,4.30,6.15,range,j
+U.S. Virgin Islands,2010,4.30-7.25(j),rate,4.30,7.25,range,j
+U.S. Virgin Islands,2011,4.30-7.25(j),rate,4.30,7.25,range,j
+U.S. Virgin Islands,2012,4.30-7.25(j),rate,4.30,7.25,range,j
+U.S. Virgin Islands,2013,4.30-7.25(j),rate,4.30,7.25,range,j
+Federal (FLSA),2014,7.25,rate,7.25,7.25,single,
+Federal (FLSA),2015,7.25,rate,7.25,7.25,single,
+Federal (FLSA),2016,7.25,rate,7.25,7.25,single,
+Federal (FLSA),2017,7.25,rate,7.25,7.25,single,
+Federal (FLSA),2018,7.25,rate,7.25,7.25,single,
+Federal (FLSA),2019,7.25,rate,7.25,7.25,single,
+Alabama,2014,...,not_applicable,,,,
+Alabama,2015,...,not_applicable,,,,
+Alabama,2016,...,not_applicable,,,,
+Alabama,2017,...,not_applicable,,,,
+Alabama,2018,...,not_applicable,,,,
+Alabama,2019,...,not_applicable,,,,
+Alaska,2014,7.75,rate,7.75,7.75,single,
+Alaska,2015,8.75,rate,8.75,8.75,single,
+Alaska,2016,9.75,rate,9.75,9.75,single,
+Alaska,2017,9.80,rate,9.80,9.80,single,
+Alaska,2018,9.84,rate,9.84,9.84,single,
+Alaska,2019,10.19,rate,10.19,10.19,single,
+Arizona,2014,7.90,rate,7.90,7.90,single,
+Arizona,2015,8.05,rate,8.05,8.05,single,
+Arizona,2016,8.05,rate,8.05,8.05,single,
+Arizona,2017,10.00,rate,10.00,10.00,single,
+Arizona,2018,10.50,rate,10.50,10.50,single,
+Arizona,2019,12.00,rate,12.00,12.00,single,
+Arkansas,2014,6.25[c],rate,6.25,6.25,single,c
+Arkansas,2015,7.50[c],rate,7.50,7.50,single,c
+Arkansas,2016,8.00[c],rate,8.00,8.00,single,c
+Arkansas,2017,8.50[c],rate,8.50,8.50,single,c
+Arkansas,2018,8.50[c],rate,8.50,8.50,single,c
+Arkansas,2019,9.25[c],rate,9.25,9.25,single,c
+California,2014,9.00,rate,9.00,9.00,single,
+California,2015,9.00,rate,9.00,9.00,single,
+California,2016,10.00,rate,10.00,10.00,single,
+California,2017,10.00,rate,10.00,10.00,single,
+California,2018,11.00,rate,11.00,11.00,single,
+California,2019,12.00,rate,12.00,12.00,single,
+Colorado,2014,8.00,rate,8.00,8.00,single,
+Colorado,2015,8.23,rate,8.23,8.23,single,
+Colorado,2016,8.31,rate,8.31,8.31,single,
+Colorado,2017,9.30,rate,9.30,9.30,single,
+Colorado,2018,10.20,rate,10.20,10.20,single,
+Colorado,2019,12.00,rate,12.00,12.00,single,
+Connecticut,2014,8.70,rate,8.70,8.70,single,
+Connecticut,2015,9.15,rate,9.15,9.15,single,
+Connecticut,2016,9.60,rate,9.60,9.60,single,
+Connecticut,2017,10.10,rate,10.10,10.10,single,
+Connecticut,2018,10.10,rate,10.10,10.10,single,
+Connecticut,2019,11.00,rate,11.00,11.00,single,
+Delaware,2014,7.75,rate,7.75,7.75,single,
+Delaware,2015,8.25,rate,8.25,8.25,single,
+Delaware,2016,8.25,rate,8.25,8.25,single,
+Delaware,2017,8.25,rate,8.25,8.25,single,
+Delaware,2018,8.25,rate,8.25,8.25,single,
+Delaware,2019,9.25,rate,9.25,9.25,single,
+Florida,2014,7.93,rate,7.93,7.93,single,
+Florida,2015,8.05,rate,8.05,8.05,single,
+Florida,2016,8.05,rate,8.05,8.05,single,
+Florida,2017,8.10,rate,8.10,8.10,single,
+Florida,2018,8.25,rate,8.25,8.25,single,
+Florida,2019,8.56,rate,8.56,8.56,single,
+Georgia,2014,5.15(d),rate,5.15,5.15,single,d
+Georgia,2015,5.15(d),rate,5.15,5.15,single,d
+Georgia,2016,5.15(d),rate,5.15,5.15,single,d
+Georgia,2017,5.15(d),rate,5.15,5.15,single,d
+Georgia,2018,5.15(d),rate,5.15,5.15,single,d
+Georgia,2019,5.15(d),rate,5.15,5.15,single,d
+Hawaii,2014,7.25,rate,7.25,7.25,single,
+Hawaii,2015,7.75,rate,7.75,7.75,single,
+Hawaii,2016,8.50,rate,8.50,8.50,single,
+Hawaii,2017,9.25,rate,9.25,9.25,single,
+Hawaii,2018,10.10,rate,10.10,10.10,single,
+Hawaii,2019,10.10,rate,10.10,10.10,single,
+Idaho,2014,7.25,rate,7.25,7.25,single,
+Idaho,2015,7.25,rate,7.25,7.25,single,
+Idaho,2016,7.25,rate,7.25,7.25,single,
+Idaho,2017,7.25,rate,7.25,7.25,single,
+Idaho,2018,7.25,rate,7.25,7.25,single,
+Idaho,2019,7.25,rate,7.25,7.25,single,
+Illinois,2014,8.25[c],rate,8.25,8.25,single,c
+Illinois,2015,8.25[c],rate,8.25,8.25,single,c
+Illinois,2016,8.25[c],rate,8.25,8.25,single,c
+Illinois,2017,8.25[c],rate,8.25,8.25,single,c
+Illinois,2018,8.25[c],rate,8.25,8.25,single,c
+Illinois,2019,9.25[c],rate,9.25,9.25,single,c
+Indiana,2014,7.25(e),rate,7.25,7.25,single,e
+Indiana,2015,7.25(e),rate,7.25,7.25,single,e
+Indiana,2016,7.25(e),rate,7.25,7.25,single,e
+Indiana,2017,7.25(e),rate,7.25,7.25,single,e
+Indiana,2018,7.25(e),rate,7.25,7.25,single,e
+Indiana,2019,7.25(e),rate,7.25,7.25,single,e
+Iowa,2014,7.25,rate,7.25,7.25,single,
+Iowa,2015,7.25,rate,7.25,7.25,single,
+Iowa,2016,7.25,rate,7.25,7.25,single,
+Iowa,2017,7.25,rate,7.25,7.25,single,
+Iowa,2018,7.25,rate,7.25,7.25,single,
+Iowa,2019,7.25,rate,7.25,7.25,single,
+Kansas,2014,7.25,rate,7.25,7.25,single,
+Kansas,2015,7.25,rate,7.25,7.25,single,
+Kansas,2016,7.25,rate,7.25,7.25,single,
+Kansas,2017,7.25,rate,7.25,7.25,single,
+Kansas,2018,7.25,rate,7.25,7.25,single,
+Kansas,2019,7.25,rate,7.25,7.25,single,
+Kentucky,2014,7.25,rate,7.25,7.25,single,
+Kentucky,2015,7.25,rate,7.25,7.25,single,
+Kentucky,2016,7.25,rate,7.25,7.25,single,
+Kentucky,2017,7.25,rate,7.25,7.25,single,
+Kentucky,2018,7.25,rate,7.25,7.25,single,
+Kentucky,2019,7.25,rate,7.25,7.25,single,
+Louisiana,2014,...,not_applicable,,,,
+Louisiana,2015,...,not_applicable,,,,
+Louisiana,2016,...,not_applicable,,,,
+Louisiana,2017,...,not_applicable,,,,
+Louisiana,2018,...,not_applicable,,,,
+Louisiana,2019,...,not_applicable,,,,
+Maine,2014,7.50,rate,7.50,7.50,single,
+Maine,2015,7.50,rate,7.50,7.50,single,
+Maine,2016,7.50,rate,7.50,7.50,single,
+Maine,2017,9.00,rate,9.00,9.00,single,
+Maine,2018,10.00,rate,10.00,10.00,single,
+Maine,2019,12.00,rate,12.00,12.00,single,
+Maryland,2014,7.25,rate,7.25,7.25,single,
+Maryland,2015,8.25,rate,8.25,8.25,single,
+Maryland,2016,8.75,rate,8.75,8.75,single,
+Maryland,2017,8.75,rate,8.75,8.75,single,
+Maryland,2018,10.10,rate,10.10,10.10,single,
+Maryland,2019,11.00,rate,11.00,11.00,single,
+Massachusetts,2014,8.00,rate,8.00,8.00,single,
+Massachusetts,2015,9.00,rate,9.00,9.00,single,
+Massachusetts,2016,10.00,rate,10.00,10.00,single,
+Massachusetts,2017,11.00,rate,11.00,11.00,single,
+Massachusetts,2018,11.00,rate,11.00,11.00,single,
+Massachusetts,2019,12.00,rate,12.00,12.00,single,
+Michigan,2014,8.15(e),rate,8.15,8.15,single,e
+Michigan,2015,8.15(e),rate,8.15,8.15,single,e
+Michigan,2016,8.50(e),rate,8.50,8.50,single,e
+Michigan,2017,8.90(e),rate,8.90,8.90,single,e
+Michigan,2018,9.25(e),rate,9.25,9.25,single,e
+Michigan,2019,9.65(e),rate,9.65,9.65,single,e
+Minnesota,2014,6.50-8.00(g),rate,6.50,8.00,range,g
+Minnesota,2015,7.25-9.00(g),rate,7.25,9.00,range,g
+Minnesota,2016,7.25-9.50(g),rate,7.25,9.50,range,g
+Minnesota,2017,7.75-9.50(g),rate,7.75,9.50,range,g
+Minnesota,2018,8.04-9.86(g),rate,8.04,9.86,range,g
+Minnesota,2019,8.15-10.00(g),rate,8.15,10.00,range,g
+Mississippi,2014,...,not_applicable,,,,
+Mississippi,2015,...,not_applicable,,,,
+Mississippi,2016,...,not_applicable,,,,
+Mississippi,2017,...,not_applicable,,,,
+Mississippi,2018,...,not_applicable,,,,
+Mississippi,2019,...,not_applicable,,,,
+Missouri,2014,7.50,rate,7.50,7.50,single,
+Missouri,2015,7.65,rate,7.65,7.65,single,
+Missouri,2016,7.65,rate,7.65,7.65,single,
+Missouri,2017,7.70,rate,7.70,7.70,single,
+Missouri,2018,7.85,rate,7.85,7.85,single,
+Missouri,2019,9.45,rate,9.45,9.45,single,
+Montana,2014,7.90(g),rate,7.90,7.90,single,g
+Montana,2015,8.05(g),rate,8.05,8.05,single,g
+Montana,2016,8.05(g),rate,8.05,8.05,single,g
+Montana,2017,8.15(g),rate,8.15,8.15,single,g
+Montana,2018,8.30(g),rate,8.30,8.30,single,g
+Montana,2019,8.65(g),rate,8.65,8.65,single,g
+Nebraska,2014,7.25[c],rate,7.25,7.25,single,c
+Nebraska,2015,8.00[c],rate,8.00,8.00,single,c
+Nebraska,2016,9.00[c],rate,9.00,9.00,single,c
+Nebraska,2017,9.00[c],rate,9.00,9.00,single,c
+Nebraska,2018,9.00[c],rate,9.00,9.00,single,c
+Nebraska,2019,9.00[c],rate,9.00,9.00,single,c
+Nevada,2014,7.25-8.25,rate,7.25,8.25,range,
+Nevada,2015,7.25-8.25,rate,7.25,8.25,range,
+Nevada,2016,7.25-8.25,rate,7.25,8.25,range,
+Nevada,2017,7.25-8.25,rate,7.25,8.25,range,
+Nevada,2018,7.25-8.25,rate,7.25,8.25,range,
+Nevada,2019,7.25-8.25,rate,7.25,8.25,range,
+New Hampshire,2014,7.25,rate,7.25,7.25,single,
+New Hampshire,2015,7.25,rate,7.25,7.25,single,
+New Hampshire,2016,7.25,rate,7.25,7.25,single,
+New Hampshire,2017,7.25,rate,7.25,7.25,single,
+New Hampshire,2018,7.25,rate,7.25,7.25,single,
+New Hampshire,2019,7.25,rate,7.25,7.25,single,
+New Jersey,2014,8.25,rate,8.25,8.25,single,
+New Jersey,2015,8.38,rate,8.38,8.38,single,
+New Jersey,2016,8.38,rate,8.38,8.38,single,
+New Jersey,2017,8.44,rate,8.44,8.44,single,
+New Jersey,2018,8.60,rate,8.60,8.60,single,
+New Jersey,2019,11.00,rate,11.00,11.00,single,
+New Mexico,2014,7.50,rate,7.50,7.50,single,
+New Mexico,2015,7.50,rate,7.50,7.50,single,
+New Mexico,2016,7.50,rate,7.50,7.50,single,
+New Mexico,2017,7.50,rate,7.50,7.50,single,
+New Mexico,2018,7.50,rate,7.50,7.50,single,
+New Mexico,2019,9.00,rate,9.00,9.00,single,
+New York,2014,8.00,rate,8.00,8.00,single,
+New York,2015,8.75,rate,8.75,8.75,single,
+New York,2016,9.00,rate,9.00,9.00,single,
+New York,2017,9.70,rate,9.70,9.70,single,
+New York,2018,10.40,rate,10.40,10.40,single,
+New York,2019,11.80,rate,11.80,11.80,single,
+North Carolina,2014,7.25,rate,7.25,7.25,single,
+North Carolina,2015,7.25,rate,7.25,7.25,single,
+North Carolina,2016,7.25,rate,7.25,7.25,single,
+North Carolina,2017,7.25,rate,7.25,7.25,single,
+North Carolina,2018,7.25,rate,7.25,7.25,single,
+North Carolina,2019,7.25,rate,7.25,7.25,single,
+North Dakota,2014,7.25,rate,7.25,7.25,single,
+North Dakota,2015,7.25,rate,7.25,7.25,single,
+North Dakota,2016,7.25,rate,7.25,7.25,single,
+North Dakota,2017,7.25,rate,7.25,7.25,single,
+North Dakota,2018,7.25,rate,7.25,7.25,single,
+North Dakota,2019,7.25,rate,7.25,7.25,single,
+Ohio,2014,7.25-7.95,rate,7.25,7.95,range,
+Ohio,2015,7.25-8.10,rate,7.25,8.10,range,
+Ohio,2016,7.25-8.10,rate,7.25,8.10,range,
+Ohio,2017,8.15,rate,8.15,8.15,single,
+Ohio,2018,8.30,rate,8.30,8.30,single,
+Ohio,2019,8.70,rate,8.70,8.70,single,
+Oklahoma,2014,2.00-7.25(g),rate,2.00,7.25,range,g
+Oklahoma,2015,2.00-7.25(g),rate,2.00,7.25,range,g
+Oklahoma,2016,2.00-7.25(g),rate,2.00,7.25,range,g
+Oklahoma,2017,2.00-7.25(g),rate,2.00,7.25,range,g
+Oklahoma,2018,2.00-7.25(g),rate,2.00,7.25,range,g
+Oklahoma,2019,2.00-7.25(g),rate,2.00,7.25,range,g
+Oregon,2014,9.10,rate,9.10,9.10,single,
+Oregon,2015,9.25,rate,9.25,9.25,single,
+Oregon,2016,9.75,rate,9.75,9.75,single,
+Oregon,2017,9.75,rate,9.75,9.75,single,
+Oregon,2018,10.75,rate,10.75,10.75,single,
+Oregon,2019,11.25,rate,11.25,11.25,single,
+Pennsylvania,2014,7.25,rate,7.25,7.25,single,
+Pennsylvania,2015,7.25,rate,7.25,7.25,single,
+Pennsylvania,2016,7.25,rate,7.25,7.25,single,
+Pennsylvania,2017,7.25,rate,7.25,7.25,single,
+Pennsylvania,2018,7.25,rate,7.25,7.25,single,
+Pennsylvania,2019,7.25,rate,7.25,7.25,single,
+Rhode Island,2014,8.00,rate,8.00,8.00,single,
+Rhode Island,2015,9.00,rate,9.00,9.00,single,
+Rhode Island,2016,9.60,rate,9.60,9.60,single,
+Rhode Island,2017,9.60,rate,9.60,9.60,single,
+Rhode Island,2018,10.10,rate,10.10,10.10,single,
+Rhode Island,2019,10.50,rate,10.50,10.50,single,
+South Carolina,2014,...,not_applicable,,,,
+South Carolina,2015,...,not_applicable,,,,
+South Carolina,2016,...,not_applicable,,,,
+South Carolina,2017,...,not_applicable,,,,
+South Carolina,2018,...,not_applicable,,,,
+South Carolina,2019,...,not_applicable,,,,
+South Dakota,2014,7.25,rate,7.25,7.25,single,
+South Dakota,2015,8.50,rate,8.50,8.50,single,
+South Dakota,2016,8.55,rate,8.55,8.55,single,
+South Dakota,2017,8.65,rate,8.65,8.65,single,
+South Dakota,2018,8.85,rate,8.85,8.85,single,
+South Dakota,2019,9.30,rate,9.30,9.30,single,
+Tennessee,2014,...,not_applicable,,,,
+Tennessee,2015,...,not_applicable,,,,
+Tennessee,2016,...,not_applicable,,,,
+Tennessee,2017,...,not_applicable,,,,
+Tennessee,2018,...,not_applicable,,,,
+Tennessee,2019,...,not_applicable,,,,
+Texas,2014,7.25,rate,7.25,7.25,single,
+Texas,2015,7.25,rate,7.25,7.25,single,
+Texas,2016,7.25,rate,7.25,7.25,single,
+Texas,2017,7.25,rate,7.25,7.25,single,
+Texas,2018,7.25,rate,7.25,7.25,single,
+Texas,2019,7.25,rate,7.25,7.25,single,
+Utah,2014,7.25,rate,7.25,7.25,single,
+Utah,2015,7.25,rate,7.25,7.25,single,
+Utah,2016,7.25,rate,7.25,7.25,single,
+Utah,2017,7.25,rate,7.25,7.25,single,
+Utah,2018,7.25,rate,7.25,7.25,single,
+Utah,2019,7.25,rate,7.25,7.25,single,
+Vermont,2014,8.73(e),rate,8.73,8.73,single,e
+Vermont,2015,9.15(e),rate,9.15,9.15,single,e
+Vermont,2016,9.60(e),rate,9.60,9.60,single,e
+Vermont,2017,10.00(e),rate,10.00,10.00,single,e
+Vermont,2018,10.50(e),rate,10.50,10.50,single,e
+Vermont,2019,10.96(e),rate,10.96,10.96,single,e
+Virginia,2014,7.25[c],rate,7.25,7.25,single,c
+Virginia,2015,7.25[c],rate,7.25,7.25,single,c
+Virginia,2016,7.25[c],rate,7.25,7.25,single,c
+Virginia,2017,7.25[c],rate,7.25,7.25,single,c
+Virginia,2018,7.25[c],rate,7.25,7.25,single,c
+Virginia,2019,7.25[c],rate,7.25,7.25,single,c
+Washington,2014,9.32,rate,9.32,9.32,single,
+Washington,2015,9.47,rate,9.47,9.47,single,
+Washington,2016,9.47,rate,9.47,9.47,single,
+Washington,2017,11.00,rate,11.00,11.00,single,
+Washington,2018,11.50,rate,11.50,11.50,single,
+Washington,2019,13.50,rate,13.50,13.50,single,
+West Virginia,2014,7.25,rate,7.25,7.25,single,
+West Virginia,2015,8.00,rate,8.00,8.00,single,
+West Virginia,2016,8.75,rate,8.75,8.75,single,
+West Virginia,2017,8.75,rate,8.75,8.75,single,
+West Virginia,2018,8.75,rate,8.75,8.75,single,
+West Virginia,2019,8.75,rate,8.75,8.75,single,
+Wisconsin,2014,7.25,rate,7.25,7.25,single,
+Wisconsin,2015,7.25,rate,7.25,7.25,single,
+Wisconsin,2016,7.25,rate,7.25,7.25,single,
+Wisconsin,2017,7.25,rate,7.25,7.25,single,
+Wisconsin,2018,7.25,rate,7.25,7.25,single,
+Wisconsin,2019,7.25,rate,7.25,7.25,single,
+Wyoming,2014,5.15,rate,5.15,5.15,single,
+Wyoming,2015,5.15,rate,5.15,5.15,single,
+Wyoming,2016,5.15,rate,5.15,5.15,single,
+Wyoming,2017,5.15,rate,5.15,5.15,single,
+Wyoming,2018,5.15,rate,5.15,5.15,single,
+Wyoming,2019,5.15,rate,5.15,5.15,single,
+District of Columbia,2014,9.50,rate,9.50,9.50,single,
+District of Columbia,2015,10.50,rate,10.50,10.50,single,
+District of Columbia,2016,11.50,rate,11.50,11.50,single,
+District of Columbia,2017,11.50,rate,11.50,11.50,single,
+District of Columbia,2018,13.25,rate,13.25,13.25,single,
+District of Columbia,2019,14.00,rate,14.00,14.00,single,
+Guam,2014,7.25,rate,7.25,7.25,single,
+Guam,2015,8.25,rate,8.25,8.25,single,
+Guam,2016,8.25,rate,8.25,8.25,single,
+Guam,2017,8.25,rate,8.25,8.25,single,
+Guam,2018,8.25,rate,8.25,8.25,single,
+Guam,2019,8.25,rate,8.25,8.25,single,
+Puerto Rico,2014,5.08-7.25(i),rate,5.08,7.25,range,i
+Puerto Rico,2015,5.08-7.25(i),rate,5.08,7.25,range,i
+Puerto Rico,2016,5.08-7.25(i),rate,5.08,7.25,range,i
+Puerto Rico,2017,5.08-7.25(i),rate,5.08,7.25,range,i
+Puerto Rico,2018,5.08-7.25(i),rate,5.08,7.25,range,i
+Puerto Rico,2019,5.08-7.25(i),rate,5.08,7.25,range,i
+U.S. Virgin Islands,2014,4.30-7.25(j),rate,4.30,7.25,range,j
+U.S. Virgin Islands,2015,4.30-7.25(j),rate,4.30,7.25,range,j
+U.S. Virgin Islands,2016,4.30-7.25(j),rate,4.30,7.25,range,j
+U.S. Virgin Islands,2017,4.30-7.25(j),rate,4.30,7.25,range,j
+U.S. Virgin Islands,2018,4.30-7.25(j),rate,4.30,7.25,range,j
+U.S. Virgin Islands,2019,10.50(j),rate,10.50,10.50,single,j
+Federal (FLSA),2020,7.25,rate,7.25,7.25,single,
+Federal (FLSA),2021,7.25,rate,7.25,7.25,single,
+Federal (FLSA),2022,7.25,rate,7.25,7.25,single,
+Federal (FLSA),2023,7.25,rate,7.25,7.25,single,
+Federal (FLSA),2024,7.25,rate,7.25,7.25,single,
+Alabama,2020,...,not_applicable,,,,
+Alabama,2021,...,not_applicable,,,,
+Alabama,2022,...,not_applicable,,,,
+Alabama,2023,...,not_applicable,,,,
+Alabama,2024,...,not_applicable,,,,
+Alaska,2020,10.19,rate,10.19,10.19,single,
+Alaska,2021,10.34,rate,10.34,10.34,single,
+Alaska,2022,10.34,rate,10.34,10.34,single,
+Alaska,2023,10.85,rate,10.85,10.85,single,
+Alaska,2024,11.73,rate,11.73,11.73,single,
+Arizona,2020,12.00,rate,12.00,12.00,single,
+Arizona,2021,12.15,rate,12.15,12.15,single,
+Arizona,2022,12.80,rate,12.80,12.80,single,
+Arizona,2023,13.85,rate,13.85,13.85,single,
+Arizona,2024,14.35,rate,14.35,14.35,single,
+Arkansas,2020,10.00[c],rate,10.00,10.00,single,c
+Arkansas,2021,11.00,rate,11.00,11.00,single,
+Arkansas,2022,11.00,rate,11.00,11.00,single,
+Arkansas,2023,11.00,rate,11.00,11.00,single,
+Arkansas,2024,11.00,rate,11.00,11.00,single,
+California,2020,12.00,rate,12.00,12.00,single,
+California,2021,13.00,rate,13.00,13.00,single,
+California,2022,14.00,rate,14.00,14.00,single,
+California,2023,15.50,rate,15.50,15.50,single,
+California,2024,16.00,rate,16.00,16.00,single,
+Colorado,2020,12.02,rate,12.02,12.02,single,
+Colorado,2021,12.32,rate,12.32,12.32,single,
+Colorado,2022,12.56,rate,12.56,12.56,single,
+Colorado,2023,13.65,rate,13.65,13.65,single,
+Colorado,2024,14.42,rate,14.42,14.42,single,
+Connecticut,2020,12.00,rate,12.00,12.00,single,
+Connecticut,2021,13.00,rate,13.00,13.00,single,
+Connecticut,2022,14.00,rate,14.00,14.00,single,
+Connecticut,2023,15.00,rate,15.00,15.00,single,
+Connecticut,2024,15.69,rate,15.69,15.69,single,
+Delaware,2020,9.25,rate,9.25,9.25,single,
+Delaware,2021,9.25,rate,9.25,9.25,single,
+Delaware,2022,10.50,rate,10.50,10.50,single,
+Delaware,2023,11.75,rate,11.75,11.75,single,
+Delaware,2024,13.25,rate,13.25,13.25,single,
+Florida,2020,8.56,rate,8.56,8.56,single,
+Florida,2021,10.00,rate,10.00,10.00,single,
+Florida,2022,10.00,rate,10.00,10.00,single,
+Florida,2023,12.00,rate,12.00,12.00,single,
+Florida,2024,12.00,rate,12.00,12.00,single,
+Georgia,2020,5.15(d),rate,5.15,5.15,single,d
+Georgia,2021,5.15(d),rate,5.15,5.15,single,d
+Georgia,2022,5.15(d),rate,5.15,5.15,single,d
+Georgia,2023,5.15(d),rate,5.15,5.15,single,d
+Georgia,2024,5.15(d),rate,5.15,5.15,single,d
+Hawaii,2020,10.10,rate,10.10,10.10,single,
+Hawaii,2021,10.10,rate,10.10,10.10,single,
+Hawaii,2022,12.00,rate,12.00,12.00,single,
+Hawaii,2023,12.00,rate,12.00,12.00,single,
+Hawaii,2024,14.00,rate,14.00,14.00,single,
+Idaho,2020,7.25,rate,7.25,7.25,single,
+Idaho,2021,7.25,rate,7.25,7.25,single,
+Idaho,2022,7.25,rate,7.25,7.25,single,
+Idaho,2023,7.25,rate,7.25,7.25,single,
+Idaho,2024,7.25,rate,7.25,7.25,single,
+Illinois,2020,10.00[c],rate,10.00,10.00,single,c
+Illinois,2021,11.00[c],rate,11.00,11.00,single,c
+Illinois,2022,12.00[c],rate,12.00,12.00,single,c
+Illinois,2023,13.00[c],rate,13.00,13.00,single,c
+Illinois,2024,14.00[c],rate,14.00,14.00,single,c
+Indiana,2020,7.25(e),rate,7.25,7.25,single,e
+Indiana,2021,7.25(e),rate,7.25,7.25,single,e
+Indiana,2022,7.25(e),rate,7.25,7.25,single,e
+Indiana,2023,7.25(e),rate,7.25,7.25,single,e
+Indiana,2024,7.25(e),rate,7.25,7.25,single,e
+Iowa,2020,7.25,rate,7.25,7.25,single,
+Iowa,2021,7.25,rate,7.25,7.25,single,
+Iowa,2022,7.25,rate,7.25,7.25,single,
+Iowa,2023,7.25,rate,7.25,7.25,single,
+Iowa,2024,7.25,rate,7.25,7.25,single,
+Kansas,2020,7.25,rate,7.25,7.25,single,
+Kansas,2021,7.25,rate,7.25,7.25,single,
+Kansas,2022,7.25,rate,7.25,7.25,single,
+Kansas,2023,7.25,rate,7.25,7.25,single,
+Kansas,2024,7.25,rate,7.25,7.25,single,
+Kentucky,2020,7.25,rate,7.25,7.25,single,
+Kentucky,2021,7.25,rate,7.25,7.25,single,
+Kentucky,2022,7.25,rate,7.25,7.25,single,
+Kentucky,2023,7.25,rate,7.25,7.25,single,
+Kentucky,2024,7.25,rate,7.25,7.25,single,
+Louisiana,2020,...,not_applicable,,,,
+Louisiana,2021,...,not_applicable,,,,
+Louisiana,2022,...,not_applicable,,,,
+Louisiana,2023,...,not_applicable,,,,
+Louisiana,2024,...,not_applicable,,,,
+Maine,2020,12.00,rate,12.00,12.00,single,
+Maine,2021,12.15,rate,12.15,12.15,single,
+Maine,2022,12.75,rate,12.75,12.75,single,
+Maine,2023,13.80,rate,13.80,13.80,single,
+Maine,2024,14.15,rate,14.15,14.15,single,
+Maryland,2020,11.00,rate,11.00,11.00,single,
+Maryland,2021,11.75,rate,11.75,11.75,single,
+Maryland,2022,12.50,rate,12.50,12.50,single,
+Maryland,2023,13.25,rate,13.25,13.25,single,
+Maryland,2024,15.00,rate,15.00,15.00,single,
+Massachusetts,2020,12.75,rate,12.75,12.75,single,
+Massachusetts,2021,13.50,rate,13.50,13.50,single,
+Massachusetts,2022,14.25,rate,14.25,14.25,single,
+Massachusetts,2023,15.00,rate,15.00,15.00,single,
+Massachusetts,2024,15.00,rate,15.00,15.00,single,
+Michigan,2020,9.65(e),rate,9.65,9.65,single,e
+Michigan,2021,9.65(e),rate,9.65,9.65,single,e
+Michigan,2022,9.87(e),rate,9.87,9.87,single,e
+Michigan,2023,10.10(e),rate,10.10,10.10,single,e
+Michigan,2024,10.33(e),rate,10.33,10.33,single,e
+Minnesota,2020,10.00(g),rate,10.00,10.00,single,g
+Minnesota,2021,10.08(g),rate,10.08,10.08,single,g
+Minnesota,2022,10.33(g),rate,10.33,10.33,single,g
+Minnesota,2023,10.59(g),rate,10.59,10.59,single,g
+Minnesota,2024,10.85(g),rate,10.85,10.85,single,g
+Mississippi,2020,...,not_applicable,,,,
+Mississippi,2021,...,not_applicable,,,,
+Mississippi,2022,...,not_applicable,,,,
+Mississippi,2023,...,not_applicable,,,,
+Mississippi,2024,...,not_applicable,,,,
+Missouri,2020,9.45,rate,9.45,9.45,single,
+Missouri,2021,10.30,rate,10.30,10.30,single,
+Missouri,2022,11.15,rate,11.15,11.15,single,
+Missouri,2023,12.00,rate,12.00,12.00,single,
+Missouri,2024,12.30,rate,12.30,12.30,single,
+Montana,2020,8.65(g),rate,8.65,8.65,single,g
+Montana,2021,8.75(g),rate,8.75,8.75,single,g
+Montana,2022,9.20(g),rate,9.20,9.20,single,g
+Montana,2023,9.95(g),rate,9.95,9.95,single,g
+Montana,2024,10.30(g),rate,10.30,10.30,single,g
+Nebraska,2020,9.00[c],rate,9.00,9.00,single,c
+Nebraska,2021,9.00[c],rate,9.00,9.00,single,c
+Nebraska,2022,9.00[c],rate,9.00,9.00,single,c
+Nebraska,2023,10.50[c],rate,10.50,10.50,single,c
+Nebraska,2024,12.00[c],rate,12.00,12.00,single,c
+Nevada,2020,8.00-9.00,rate,8.00,9.00,range,
+Nevada,2021,8.75-9.75,rate,8.75,9.75,range,
+Nevada,2022,9.50/10.50,rate,9.50,10.50,alternatives,
+Nevada,2023,10.25/11.25,rate,10.25,11.25,alternatives,
+Nevada,2024,12.00,rate,12.00,12.00,single,
+New Hampshire,2020,7.25,rate,7.25,7.25,single,
+New Hampshire,2021,7.25,rate,7.25,7.25,single,
+New Hampshire,2022,7.25,rate,7.25,7.25,single,
+New Hampshire,2023,7.25,rate,7.25,7.25,single,
+New Hampshire,2024,7.25,rate,7.25,7.25,single,
+New Jersey,2020,11.00,rate,11.00,11.00,single,
+New Jersey,2021,12.00,rate,12.00,12.00,single,
+New Jersey,2022,13.00,rate,13.00,13.00,single,
+New Jersey,2023,14.13,rate,14.13,14.13,single,
+New Jersey,2024,15.13,rate,15.13,15.13,single,
+New Mexico,2020,9.00,rate,9.00,9.00,single,
+New Mexico,2021,10.50,rate,10.50,10.50,single,
+New Mexico,2022,11.50,rate,11.50,11.50,single,
+New Mexico,2023,12.00,rate,12.00,12.00,single,
+New Mexico,2024,12.00,rate,12.00,12.00,single,
+New York,2020,11.80,rate,11.80,11.80,single,
+New York,2021,12.50,rate,12.50,12.50,single,
+New York,2022,13.20,rate,13.20,13.20,single,
+New York,2023,14.20,rate,14.20,14.20,single,
+New York,2024,15.00,rate,15.00,15.00,single,
+North Carolina,2020,7.25,rate,7.25,7.25,single,
+North Carolina,2021,7.25,rate,7.25,7.25,single,
+North Carolina,2022,7.25,rate,7.25,7.25,single,
+North Carolina,2023,7.25,rate,7.25,7.25,single,
+North Carolina,2024,7.25,rate,7.25,7.25,single,
+North Dakota,2020,7.25,rate,7.25,7.25,single,
+North Dakota,2021,7.25,rate,7.25,7.25,single,
+North Dakota,2022,7.25,rate,7.25,7.25,single,
+North Dakota,2023,7.25,rate,7.25,7.25,single,
+North Dakota,2024,7.25,rate,7.25,7.25,single,
+Ohio,2020,8.70,rate,8.70,8.70,single,
+Ohio,2021,8.80,rate,8.80,8.80,single,
+Ohio,2022,9.30,rate,9.30,9.30,single,
+Ohio,2023,10.10,rate,10.10,10.10,single,
+Ohio,2024,10.45,rate,10.45,10.45,single,
+Oklahoma,2020,2.00-7.25(g),rate,2.00,7.25,range,g
+Oklahoma,2021,2.00-7.25(g),rate,2.00,7.25,range,g
+Oklahoma,2022,2.00-7.25(g),rate,2.00,7.25,range,g
+Oklahoma,2023,2.00-7.25(g),rate,2.00,7.25,range,g
+Oklahoma,2024,2.00-7.25(g),rate,2.00,7.25,range,g
+Oregon,2020,12.00,rate,12.00,12.00,single,
+Oregon,2021,12.75,rate,12.75,12.75,single,
+Oregon,2022,13.50,rate,13.50,13.50,single,
+Oregon,2023,14.20,rate,14.20,14.20,single,
+Oregon,2024,14.70,rate,14.70,14.70,single,
+Pennsylvania,2020,7.25,rate,7.25,7.25,single,
+Pennsylvania,2021,7.25,rate,7.25,7.25,single,
+Pennsylvania,2022,7.25,rate,7.25,7.25,single,
+Pennsylvania,2023,7.25,rate,7.25,7.25,single,
+Pennsylvania,2024,7.25,rate,7.25,7.25,single,
+Rhode Island,2020,11.50,rate,11.50,11.50,single,
+Rhode Island,2021,11.50,rate,11.50,11.50,single,
+Rhode Island,2022,12.25,rate,12.25,12.25,single,
+Rhode Island,2023,13.00,rate,13.00,13.00,single,
+Rhode Island,2024,14.00,rate,14.00,14.00,single,
+South Carolina,2020,...,not_applicable,,,,
+South Carolina,2021,...,not_applicable,,,,
+South Carolina,2022,...,not_applicable,,,,
+South Carolina,2023,...,not_applicable,,,,
+South Carolina,2024,...,not_applicable,,,,
+South Dakota,2020,9.30,rate,9.30,9.30,single,
+South Dakota,2021,9.45,rate,9.45,9.45,single,
+South Dakota,2022,9.95,rate,9.95,9.95,single,
+South Dakota,2023,10.80,rate,10.80,10.80,single,
+South Dakota,2024,11.20,rate,11.20,11.20,single,
+Tennessee,2020,...,not_applicable,,,,
+Tennessee,2021,...,not_applicable,,,,
+Tennessee,2022,...,not_applicable,,,,
+Tennessee,2023,...,not_applicable,,,,
+Tennessee,2024,...,not_applicable,,,,
+Texas,2020,7.25,rate,7.25,7.25,single,
+Texas,2021,7.25,rate,7.25,7.25,single,
+Texas,2022,7.25,rate,7.25,7.25,single,
+Texas,2023,7.25,rate,7.25,7.25,single,
+Texas,2024,7.25,rate,7.25,7.25,single,
+Utah,2020,7.25,rate,7.25,7.25,single,
+Utah,2021,7.25,rate,7.25,7.25,single,
+Utah,2022,7.25,rate,7.25,7.25,single,
+Utah,2023,7.25,rate,7.25,7.25,single,
+Utah,2024,7.25,rate,7.25,7.25,single,
+Vermont,2020,10.96(e),rate,10.96,10.96,single,e
+Vermont,2021,11.75,rate,11.75,11.75,single,
+Vermont,2022,12.55,rate,12.55,12.55,single,
+Vermont,2023,13.18,rate,13.18,13.18,single,
+Vermont,2024,13.67,rate,13.67,13.67,single,
+Virginia,2020,7.25[c],rate,7.25,7.25,single,c
+Virginia,2021,9.50,rate,9.50,9.50,single,
+Virginia,2022,11.00,rate,11.00,11.00,single,
+Virginia,2023,12.00,rate,12.00,12.00,single,
+Virginia,2024,12.00,rate,12.00,12.00,single,
+Washington,2020,13.50,rate,13.50,13.50,single,
+Washington,2021,13.69,rate,13.69,13.69,single,
+Washington,2022,14.49,rate,14.49,14.49,single,
+Washington,2023,15.74,rate,15.74,15.74,single,
+Washington,2024,16.28,rate,16.28,16.28,single,
+West Virginia,2020,8.75,rate,8.75,8.75,single,
+West Virginia,2021,8.75,rate,8.75,8.75,single,
+West Virginia,2022,8.75,rate,8.75,8.75,single,
+West Virginia,2023,8.75,rate,8.75,8.75,single,
+West Virginia,2024,8.75,rate,8.75,8.75,single,
+Wisconsin,2020,7.25,rate,7.25,7.25,single,
+Wisconsin,2021,7.25,rate,7.25,7.25,single,
+Wisconsin,2022,7.25,rate,7.25,7.25,single,
+Wisconsin,2023,7.25,rate,7.25,7.25,single,
+Wisconsin,2024,7.25,rate,7.25,7.25,single,
+Wyoming,2020,5.15,rate,5.15,5.15,single,
+Wyoming,2021,5.15,rate,5.15,5.15,single,
+Wyoming,2022,5.15,rate,5.15,5.15,single,
+Wyoming,2023,5.15,rate,5.15,5.15,single,
+Wyoming,2024,5.15,rate,5.15,5.15,single,
+District of Columbia,2020,15.00,rate,15.00,15.00,single,
+District of Columbia,2021,15.20,rate,15.20,15.20,single,
+District of Columbia,2022,$16.10,rate,16.10,16.10,single,
+District of Columbia,2023,17.00,rate,17.00,17.00,single,
+District of Columbia,2024,$17.50,rate,17.50,17.50,single,
+Guam,2020,8.25,rate,8.25,8.25,single,
+Guam,2021,8.75,rate,8.75,8.75,single,
+Guam,2022,9.25,rate,9.25,9.25,single,
+Guam,2023,9.25,rate,9.25,9.25,single,
+Guam,2024,9.25,rate,9.25,9.25,single,
+Puerto Rico,2020,5.08-7.25(i),rate,5.08,7.25,range,i
+Puerto Rico,2021,5.08-7.25(i),rate,5.08,7.25,range,i
+Puerto Rico,2022,7.25(i),rate,7.25,7.25,single,i
+Puerto Rico,2023,9.50,rate,9.50,9.50,single,
+Puerto Rico,2024,9.50,rate,9.50,9.50,single,
+U.S. Virgin Islands,2020,10.50(j),rate,10.50,10.50,single,j
+U.S. Virgin Islands,2021,10.50(j),rate,10.50,10.50,single,j
+U.S. Virgin Islands,2022,10.50(j),rate,10.50,10.50,single,j
+U.S. Virgin Islands,2023,10.50(j),rate,10.50,10.50,single,j
+U.S. Virgin Islands,2024,10.50(j),rate,10.50,10.50,single,j

@@ -23,7 +23,7 @@ further is implied or granted.
 `DECISIONS/0001` recorded three-way licence drift and settled that the proprietary
 licence is authoritative. Its remediation, carried out 2026-09-18, aligned the
 `LICENSE*` files, `pyproject.toml`, SPDX banners, `CONTRIBUTING.md` and the
-`khipu-showcase` sub-project.
+the showcase sub-project.
 
 That pass was driven by **SPDX identifiers**, and it therefore missed every
 statement that granted permissions in prose without naming one:
@@ -60,7 +60,7 @@ permission, and the licence said nothing about the distinction.
 4. **Nothing is inferred from infrastructure.** A Binder config, a Dockerfile, a
    PyPI classifier or a docs site does not imply redistribution rights. Where such
    an artifact conflicts with the licence, the licence governs. This is not
-   hypothetical: `khipu-showcase` carried an OSI trove classifier, an Apache badge
+   hypothetical: `the showcase sub-project` carried an OSI trove classifier, an Apache badge
    and Binder/Docker recipes while sitting inside a repository that forbids
    redistribution.
 5. **Public repositories serve three purposes only** — marketing, showcase and
@@ -82,7 +82,7 @@ permission, and the licence said nothing about the distinction.
   quote it as history;
 - `LICENSE` must carry both new clauses;
 - the operating brief must state the posture, so no future contributor inherits the old one;
-- `khipu-showcase` must declare no open licence;
+- `the showcase sub-project` must declare no open licence;
 - the archived corpus must **still** carry its drift, so the exclusion protecting
   evidence cannot quietly become a sweep.
 

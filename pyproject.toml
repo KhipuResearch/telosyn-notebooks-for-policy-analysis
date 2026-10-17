@@ -68,13 +68,25 @@ notebooks = [
 connectors = [
     "krl-data-connectors>=1.0.0",
 ]
+# Optional packages that a single notebook of the expansion needs (DECISIONS/0009
+# section 3.6): pymc, econml, mesa, policyengine-us. Declared EMPTY on purpose.
+# A package is added here only with its notebook, after its existence on PyPI is
+# verified at that time, with a pinned lower bound, a cost-benefit paragraph in the
+# ADR, and an import that tests/test_src_imports_declared.py can see. Nothing is
+# declared that is not imported.
+methods = [
+]
 test = [
     "pytest>=7.4.0",
     # pytest.ini's addopts require coverage; without this the documented test
     # command fails at start-up with "unrecognized arguments: --cov".
     "pytest-cov>=4.1.0",
     "nbval>=0.10.0",
-    "pyyaml>=6.0",        # tests/test_leak_check.py reads the gitleaks config
+    "pyyaml>=6.0",        # test_ci_credentials, test_ci_history_and_surface and test_check_public_surface read the workflow YAML
+    # Property-based tests for the estimators in krl_tutorials_data.methods
+    # (DECISIONS/0009 section 3.5). Lower bound is the oldest release the suite
+    # was run against; checked on PyPI at execution time.
+    "hypothesis>=6.100.0",
 ]
 dev = [
     "black>=23.0.0",
@@ -82,6 +94,10 @@ dev = [
     "flake8>=6.0.0",
     "nbqa>=1.7.0",
 ]
+
+[tool.setuptools.package-data]
+# PEP 561 marker: the package carries inline type hints on its public interface.
+krl_tutorials_data = ["py.typed"]
 
 [tool.setuptools.packages.find]
 # src-layout: the only importable tree under src/ is the package.

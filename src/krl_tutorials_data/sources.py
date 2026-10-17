@@ -73,8 +73,6 @@ class RangeError(DataAccessError):
 # Credentials
 # --------------------------------------------------------------------------- #
 
-_DEFAULT_SECRETS_PATH: Final = Path.home() / ".krl" / "secrets.env"
-
 # Least privilege. The secrets file a reader points us at may hold far more than
 # public-data API keys — database URLs, admin tokens, third-party credentials.
 # This layer may read ONLY the keys the tutorial corpus actually needs, so that a
@@ -90,52 +88,65 @@ ALLOWED_KEYS: Final[frozenset[str]] = frozenset({
 })
 
 
+#: Where a reader registers for each key. Free, and the only way to obtain one: this repository
+#: stores and uses no key of its own, and nothing is read from a default location. The
+#: addresses are the ones listed in ``.env.example``; a test holds the two together.
+KEY_REGISTRATION: Final[dict[str, str]] = {
+    "CENSUS_API_KEY": "https://api.census.gov/data/key_signup.html",  # pragma: allowlist secret
+    "FRED_API_KEY": "https://fred.stlouisfed.org/docs/api/api_key.html",  # pragma: allowlist secret
+    "BLS_API_KEY": "https://data.bls.gov/registrationEngine/",  # pragma: allowlist secret
+    "BEA_API_KEY": "https://apps.bea.gov/API/signup/",  # pragma: allowlist secret
+    "HUD_API_KEY": "https://www.huduser.gov/portal/dataset/fmr-api.html",  # pragma: allowlist secret
+    "DATA_GOV_API_KEY": "https://api.data.gov/signup/",  # pragma: allowlist secret
+}
+
+
 class DisallowedCredentialError(DataAccessError):
     """A key outside :data:`ALLOWED_KEYS` was requested.
 
-    Raised before the secrets file is opened, so a disallowed name is never
+    Raised before any key file is opened, so a disallowed name is never
     matched against its contents.
     """
 
 
-def secrets_path() -> Path:
-    """Where to look for the secrets file.
+def secrets_path() -> Path | None:
+    """The key file the reader named, or ``None``.
 
-    Resolution order, so that no absolute path is baked into a notebook:
-
-    1. ``KRL_SECRETS_PATH`` if set — required when the home directory differs
-       from the one holding the file (containers, CI, sandboxed shells).
-    2. ``~/.krl/secrets.env``.
+    There is **no default location**. A key file is read only when the reader sets
+    ``KRL_SECRETS_PATH`` to a file of their own; otherwise keys come from the
+    environment alone. Nothing under a home directory is ever opened unprompted.
     """
     if (override := os.environ.get("KRL_SECRETS_PATH")):
         return Path(override)
-    return _DEFAULT_SECRETS_PATH
+    return None
 
 
 def load_key(name: str, *, path: Path | None = None) -> str:
-    """Return an API key from the environment or the secrets file.
+    """Return an API key from the environment or from the reader's own key file.
 
-    The key is returned to the caller for use in a request and is never logged.
-    Raises :class:`MissingCredentialError` naming only the *variable*, never a
-    value, so that a traceback in a shared notebook cannot leak material.
+    Order: the environment variable ``name``; then, only if ``KRL_SECRETS_PATH`` is
+    set (or ``path`` is passed), that file. The key is returned to the caller for use
+    in a request and is never logged. Raises :class:`MissingCredentialError` naming
+    the *variable* and where to register for it, never a value, so that a traceback in
+    a shared notebook cannot leak material.
 
     .. note::
-       Prefer a **scoped** secrets file holding only the keys a notebook needs.
-       A file that also carries database URLs or admin tokens gives every
-       tutorial reader's kernel more reach than the tutorial requires.
+       A key file should hold only the six names in :data:`ALLOWED_KEYS`. The
+       allowlist stops this library asking for anything else, but it cannot stop
+       another process in the same kernel from opening a file that holds more.
     """
     if name not in ALLOWED_KEYS:
         raise DisallowedCredentialError(
             f"{name} is not in the tutorial corpus's allowlist "
-            f"({', '.join(sorted(ALLOWED_KEYS))}). The secrets file was not opened. "
+            f"({', '.join(sorted(ALLOWED_KEYS))}). No key file was opened. "
             f"Tutorials read only the public-data keys they need; anything else in "
-            f"that file — database URLs, admin tokens — is out of reach by design."
+            f"a file — database URLs, admin tokens — is out of reach by design."
         )
     if (val := os.environ.get(name)):
         _SEEN_SECRETS.add(val)
         return val
     path = path or secrets_path()
-    if path.exists():
+    if path is not None and path.exists():
         # Stream the file and stop at the first match: no non-matching line is
         # retained, and nothing beyond the requested key is parsed.
         with path.open(encoding="utf-8") as fh:
@@ -148,10 +159,14 @@ def load_key(name: str, *, path: Path | None = None) -> str:
                     _value = v.strip().strip('"').strip("'")
                     _SEEN_SECRETS.add(_value)
                     return _value
+    where = (
+        f"the file KRL_SECRETS_PATH names does not define it"
+        if path is not None else "KRL_SECRETS_PATH is not set"
+    )
     raise MissingCredentialError(
-        f"{name} not found in the environment or in the configured secrets file. "
-        f"Set {name} in the environment, or point KRL_SECRETS_PATH at a file that "
-        f"defines it. "
+        f"{name} is not set ({where}). Set {name} in your environment — register for a "
+        f"free key at {KEY_REGISTRATION[name]} — or set KRL_SECRETS_PATH to a file of your "
+        "own that defines it. No key is read from any other location. "
         "This tutorial uses real data only and has no synthetic fallback, "
         "so it stops here rather than fabricating a result."
     )
@@ -618,6 +633,197 @@ def fetch_acs_wide(
 
 
 # ---------------------------------------------------------------------------
+# Census ACS PUMS -- person records, returned as weighted cell counts only
+# ---------------------------------------------------------------------------
+
+#: The person weight in the ACS PUMS (``PWGTP``, 1 to 9999 per the API's variable
+#: metadata). Replicate weights are not used here.
+PUMS_PERSON_WEIGHT: Final[str] = "PWGTP"
+
+#: The smallest ``min_cell_records`` a caller may ask for. A cell built from fewer
+#: records than this is withheld, because a count of one or two people is a person
+#: row under another name. The floor is this repository's rule, not a Census rule.
+PUMS_CELL_FLOOR: Final[int] = 5
+PUMS_DEFAULT_MIN_CELL: Final[int] = 10
+
+
+def _pums_person_frame(raw: pd.DataFrame, requested: Sequence[str], weight: str) -> pd.DataFrame:
+    """Numeric person frame from the API's rows. Private: it is never returned.
+
+    Nothing is coerced silently: a non-null value that is not a number raises, and a
+    weight that is missing or not positive raises.
+    """
+    person = pd.DataFrame(index=raw.index)
+    for code in requested:
+        column = pd.to_numeric(raw[code], errors="coerce")
+        broken = column.isna() & raw[code].notna()
+        if broken.any():
+            raise SchemaError(
+                f"{code} holds {int(broken.sum())} non-numeric value(s) that are not "
+                f"null, e.g. {str(raw.loc[broken, code].iloc[0])!r}; nothing is coerced."
+            )
+        person[code] = column
+    w = person[weight]
+    if w.isna().any() or (w <= 0).any():
+        raise RangeError(
+            f"the weight {weight} is missing or not positive in "
+            f"{int((w.isna() | (w <= 0)).sum())} record(s); a person weight is at least 1."
+        )
+    return person
+
+
+def _pums_cells(
+    person: pd.DataFrame, aggregate_by: Sequence[str], weight: str, min_cell_records: int
+) -> tuple[pd.DataFrame, list[str]]:
+    """The only reader of the person frame: weighted cell counts, small cells withheld.
+
+    Returns ``(cells, notes)``. ``cells`` has the grouping columns plus ``weighted_n`` and
+    ``n_records``; what was withheld is in ``cells.attrs`` and in ``notes``. Missing values
+    in a grouping column form their own cell. Complexity O(n log n) in the records.
+    """
+    notes = [
+        "PUMS is a sample of person records; weighted cell counts estimate population "
+        "counts with sampling error that is not computed here (no replicate weights).",
+        "Missing values in grouping columns are kept as their own cell; their meaning "
+        "is the variable's universe in the PUMS data dictionary.",
+    ]
+    grouped = person.groupby(list(aggregate_by), dropna=False)
+    cells = grouped.agg(weighted_n=(weight, "sum"), n_records=(weight, "size")).reset_index()
+    small = cells["n_records"] < min_cell_records
+    withheld = cells[small]
+    out = cells[~small].sort_values(list(aggregate_by), na_position="last").reset_index(drop=True)
+    out["weighted_n"] = out["weighted_n"].astype(float)
+    out["n_records"] = out["n_records"].astype(int)
+    out.attrs.update(
+        suppressed_cells=int(small.sum()),
+        suppressed_records=int(withheld["n_records"].sum()),
+        suppressed_weighted_n=float(withheld["weighted_n"].sum()),
+        min_cell_records=int(min_cell_records),
+    )
+    notes.append(
+        f"Aggregated to {len(out)} cell(s) from {len(person)} person record(s); "
+        f"{int(small.sum())} cell(s) with fewer than {min_cell_records} records were "
+        f"withheld ({int(withheld['n_records'].sum())} record(s), weighted "
+        f"{float(withheld['weighted_n'].sum()):,.0f}). No person-level row is returned."
+    )
+    return out, notes
+
+
+def fetch_acs_pums(
+    *,
+    year: int,
+    variables: Mapping[str, str],
+    aggregate_by: Sequence[str],
+    geography: str,
+    weight: str = PUMS_PERSON_WEIGHT,
+    dataset: str = "acs/acs1/pums",
+    min_cell_records: int = PUMS_DEFAULT_MIN_CELL,
+    session: requests.Session | None = None,
+) -> tuple[pd.DataFrame, DataProvenance]:
+    """Fetch ACS PUMS person records and return weighted cell counts, or raise.
+
+    The Census API serves one record per person. This function reads them into
+    memory, groups them by ``aggregate_by`` and returns, per cell, the sum of
+    ``weight`` (``weighted_n``) and the number of records (``n_records``). **No
+    person-level row is returned, printed or stored, and there is no argument
+    that asks for one**: the person frame exists only inside this call and
+    :func:`_pums_cells`, the single place it is read, returns cells.
+
+    Parameters
+    ----------
+    year:
+        Pinned release. A PUMS 1-year file is a separately addressed immutable
+        product, so the retrieval is pinned.
+    variables:
+        Variable code -> verbatim published label (the provenance dictionary).
+        ``aggregate_by`` must be a subset; the weight is requested in addition.
+    geography:
+        One state, e.g. ``"state:51"``. A wildcard is refused: it would pull
+        every person record in the country into memory.
+    min_cell_records:
+        Cells with fewer records are withheld and reported in ``frame.attrs``
+        (``suppressed_cells``, ``suppressed_records``, ``suppressed_weighted_n``)
+        and in the provenance notes. Not below :data:`PUMS_CELL_FLOOR`.
+
+    Notes
+    -----
+    A missing value in a grouping column is kept as its own cell (the variable's
+    "not in universe"); it is never dropped or recoded. A non-numeric, non-null
+    value, a missing requested column, a weight that is missing or not positive,
+    or an unexpected empty response raises. The digest is taken over the
+    canonicalised **rows** the API returned, so it does not depend on row order.
+    """
+    if not variables:
+        raise ValueError("At least one PUMS variable is required.")
+    if not aggregate_by or not set(aggregate_by) <= set(variables):
+        raise ValueError(
+            "aggregate_by must be a non-empty subset of `variables`; "
+            f"got {list(aggregate_by)} against {list(variables)}."
+        )
+    if weight in aggregate_by:
+        raise ValueError(f"the weight {weight!r} cannot also be an aggregation column.")
+    if "*" in geography:
+        raise ValueError(
+            "Request one state per call (e.g. 'state:51'): a wildcard geography pulls "
+            "every person record in the country into memory."
+        )
+    if min_cell_records < PUMS_CELL_FLOOR:
+        raise ValueError(
+            f"min_cell_records must be at least {PUMS_CELL_FLOOR}: a cell of fewer "
+            "people is a person row under another name."
+        )
+    requested = [*variables, *([] if weight in variables else [weight])]
+    if len(requested) + 1 > CENSUS_GET_CEILING:
+        raise ValueError(
+            f"{len(requested)} variables exceeds the Census `get` ceiling of "
+            f"{CENSUS_GET_CEILING}."
+        )
+    endpoint = f"{CENSUS_HOST}/{year}/{dataset}"
+    params = {
+        "get": ",".join(requested),
+        "for": geography,
+        "key": load_key("CENSUS_API_KEY"),
+    }
+    http = session or requests
+    try:
+        resp = http.get(endpoint, params=params, timeout=300)
+    except requests.RequestException as exc:
+        raise UpstreamError(f"Census request to {endpoint} failed: {redact(exc)}") from exc
+    reject_bot_challenge(resp, source="the Census Bureau", endpoint=endpoint)
+    if resp.status_code != 200:
+        raise UpstreamError(f"Census returned HTTP {resp.status_code} for {endpoint}.")
+
+    rows = _assert_json_payload(resp, endpoint)
+    if not isinstance(rows, list) or len(rows) < 2:
+        raise ResponseShapeError(f"{endpoint} returned no data rows.")
+    header, *body = rows
+    raw = pd.DataFrame(body, columns=header)
+    missing = [c for c in requested if c not in raw.columns]
+    if missing:
+        raise SchemaError(
+            f"PUMS response is missing requested variables {missing}. "
+            f"Returned columns: {list(raw.columns)}"
+        )
+    person = _pums_person_frame(raw, requested, weight)
+    out, notes = _pums_cells(person, list(aggregate_by), weight, min_cell_records)
+
+    prov = DataProvenance.build(
+        hash_basis="canonical-rows",
+        request_params=params,
+        source_name="U.S. Census Bureau",
+        dataset=f"American Community Survey Public Use Microdata Sample ({dataset})",
+        vintage=str(year),
+        endpoint=endpoint,
+        variables=dict(variables),
+        payload=canonical_rows(resp.content),
+        row_count=len(person),
+        column_count=len(requested),
+        notes=tuple(notes),
+    )
+    return out, prov
+
+
+# ---------------------------------------------------------------------------
 # FRED (Federal Reserve Bank of St. Louis)
 # ---------------------------------------------------------------------------
 
@@ -948,7 +1154,7 @@ def fetch_qcew(
         raise ValueError("A QCEW area code is required, e.g. '51059' or 'US000'.")
     qtr = str(quarter)
     endpoint = f"{QCEW_HOST}/{year}/{qtr}/area/{area}.csv"
-    agent = f"krl-tutorials research ({contact})" if contact else "krl-tutorials research"
+    agent = f"telosyn-notebooks/1.0 ({contact})" if contact else "telosyn-notebooks/1.0"
 
     http = session or requests
     try:
@@ -3482,7 +3688,7 @@ class GrainError(DataAccessError):
 def _fea_bytes(*, session: requests.Session | None = None) -> bytes:
     http = session or requests
     try:
-        resp = http.get(FEA_URL, timeout=300, headers={"User-Agent": "krl-tutorials/1.0"})
+        resp = http.get(FEA_URL, timeout=300, headers={"User-Agent": "telosyn-notebooks/1.0"})
     except requests.RequestException as exc:
         raise UpstreamError(f"Food Environment Atlas request failed: {redact(exc)}") from exc
     reject_bot_challenge(resp, source="USDA ERS", endpoint=FEA_URL)
@@ -3693,7 +3899,7 @@ def fetch_irs_bmf(
         endpoint = f"{IRS_BMF_HOST}/{region}.csv"
         try:
             resp = http.get(endpoint, timeout=300,
-                            headers={"User-Agent": "krl-tutorials/1.0"})
+                            headers={"User-Agent": "telosyn-notebooks/1.0"})
         except requests.RequestException as exc:
             raise UpstreamError(f"IRS BMF request failed: {redact(exc)}") from exc
         reject_bot_challenge(resp, source="IRS", endpoint=endpoint)
@@ -3840,7 +4046,7 @@ def fetch_cdc_socrata(
     http = session or requests
     try:
         resp = http.get(endpoint, params=params, timeout=180,
-                        headers={"User-Agent": "krl-tutorials/1.0"})
+                        headers={"User-Agent": "telosyn-notebooks/1.0"})
     except requests.RequestException as exc:
         raise UpstreamError(f"CDC Socrata request failed: {redact(exc)}") from exc
     reject_bot_challenge(resp, source="CDC open data", endpoint=endpoint)

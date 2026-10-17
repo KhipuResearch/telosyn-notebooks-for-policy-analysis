@@ -3,7 +3,7 @@
 #
 # What a reader's machine will do: install from pyproject.toml as documented,
 # run the suite, confirm the derived READMEs match the notebooks. No network,
-# no keys. The live-execution gate with credentials is notebook-release-gates.yml.
+# no keys. Nothing in this repository's workflows holds a secret.
 name: test
 
 on:
@@ -23,6 +23,9 @@ jobs:
         python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history: the public-surface check compares the branch with origin/main.
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}

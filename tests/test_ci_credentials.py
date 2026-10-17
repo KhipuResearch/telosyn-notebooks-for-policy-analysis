@@ -1,54 +1,78 @@
-"""Gate 12 — CI must supply every credential the corpus actually needs.
+"""CI exports no secret.
 
-The live-run job in `.github/workflows/notebook-release-gates.yml` executes every
-notebook in `projects/` against real sources. Its `env:` block listed four
-keys — CENSUS, FRED, BLS, HUD — and stayed at four while the corpus grew past it.
+Owner rule (2026-10-16): the repository stores and uses no secrets. The workflows
+therefore reference no ``secrets.`` context, declare no deployment environment, and
+contain no job that re-executes the notebooks against live sources, which would need
+keys. A reader re-executes them with their own keys.
 
-By 2026-09-18 three notebooks needed keys that block did not supply: D11 calls
-`fetch_bea_regional` (BEA), and D13 and D26 call the FBI CDE (DATA_GOV). Every
-client in this library **fails closed**, so those three would have failed the
-release gate for want of two secrets rather than for anything wrong with them —
-and a gate that fails for the wrong reason is a gate people learn to ignore.
+This replaces the earlier gate that compared the keys CI supplied with the keys the
+fetchers load: with nothing supplied, the comparison is "zero". What remains of that
+gate's purpose -- every key a fetcher loads is one the library may read -- stays.
 
-Nothing caught it because the two lists were maintained by different hands at
-different times: the fetchers know which key they need, the workflow does not, and
-no one compared them.
-
-This gate compares them.
-
+© 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
+Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
 SPDX-License-Identifier: LicenseRef-Proprietary
 """
 from __future__ import annotations
 
 import inspect
-import json
 import re
 from pathlib import Path
 from typing import Final
 
 import pytest
+import yaml
 
 from krl_tutorials_data import sources
 
 REPO_ROOT: Final = Path(__file__).resolve().parent.parent
-WORKFLOW: Final = REPO_ROOT / ".github" / "workflows" / "notebook-release-gates.yml"
-NOTEBOOKS: Final = REPO_ROOT / "projects"
+WORKFLOWS: Final = sorted((REPO_ROOT / ".github" / "workflows").glob("*.yml"))
 
-FETCHER_CALL: Final = re.compile(r"\b(fetch_[a-z0-9_]+)\s*\(")
 LOAD_KEY: Final = re.compile(r"load_key\(\s*[\"']([A-Z_]+)[\"']")
+SECRETS_CONTEXT: Final = re.compile(r"\$\{\{[^}]*\bsecrets\b", re.I)
 
 
-def _keys_supplied_by_ci() -> set[str]:
-    """Every name the workflow exports from `secrets.`, whatever it is called.
+def test_there_are_workflows_to_scan() -> None:
+    """There are workflows to scan."""
+    assert len(WORKFLOWS) >= 2, "the scan is reading nothing"
 
-    An earlier version matched only names ending `_API_KEY`, which made the
-    stray-credential test below blind to precisely what it claims to guard: a
-    mutation exporting `PAX_ADMIN_DATABASE_URL` was not caught, because the
-    parser could not see it. A gate that cannot perceive the thing it forbids is
-    worse than none, since it is reported as coverage.
-    """
-    text = WORKFLOW.read_text(encoding="utf-8")
-    return set(re.findall(r"^\s+([A-Z][A-Z0-9_]*):\s*\$\{\{\s*secrets\.", text, re.M))
+
+@pytest.mark.parametrize("workflow", WORKFLOWS, ids=lambda p: p.name)
+def test_a_workflow_exports_zero_secrets(workflow: Path) -> None:
+    """A workflow exports zero secrets."""
+    text = workflow.read_text(encoding="utf-8")
+    assert not SECRETS_CONTEXT.search(text), (
+        f"{workflow.name} reads the `secrets` context; this repository stores and uses none"
+    )
+    assert "secrets." not in re.sub(r"\.secrets\.\w+", "", text), (
+        f"{workflow.name} mentions `secrets.` outside a temporary file name"
+    )
+
+
+@pytest.mark.parametrize("workflow", WORKFLOWS, ids=lambda p: p.name)
+def test_no_job_declares_an_environment_or_exports_a_credential_named_variable(
+    workflow: Path,
+) -> None:
+    """No job declares an environment or exports a credential named variable."""
+    doc = yaml.safe_load(workflow.read_text(encoding="utf-8"))
+    for job_name, job in doc["jobs"].items():
+        assert "environment" not in job, f"{workflow.name}:{job_name} declares an environment"
+        blocks = [job.get("env", {})] + [s.get("env", {}) for s in job.get("steps", [])]
+        for block in blocks:
+            for name in block:
+                assert name not in sources.ALLOWED_KEYS and not name.endswith("_API_KEY"), (
+                    f"{workflow.name}:{job_name} exports {name}"
+                )
+
+
+def test_no_job_re_executes_notebooks_against_live_sources() -> None:
+    """No job re executes notebooks against live sources."""
+    for workflow in WORKFLOWS:
+        text = workflow.read_text(encoding="utf-8")
+        assert "execution-gate" not in text and "Restart & Run All" not in text, (
+            f"{workflow.name} still carries the live-execution lane"
+        )
+        assert "jupyter nbconvert" not in text and "--execute" not in text
 
 
 def _key_for_fetcher() -> dict[str, str]:
@@ -61,65 +85,20 @@ def _key_for_fetcher() -> dict[str, str]:
             body = inspect.getsource(obj)
         except (OSError, TypeError):  # pragma: no cover
             continue
-        found = LOAD_KEY.findall(body)
+        found = LOAD_KEY.search(body)
         if found:
-            mapping[name] = found[0]
+            mapping[name] = found.group(1)
     return mapping
 
 
-def _keys_each_notebook_needs() -> dict[str, set[str]]:
-    by_fetcher = _key_for_fetcher()
-    out: dict[str, set[str]] = {}
-    for path in sorted(NOTEBOOKS.rglob("*.ipynb")):
-        code = "\n".join(
-            "".join(c.get("source", []))
-            for c in json.loads(path.read_text(encoding="utf-8"))["cells"]
-            if c["cell_type"] == "code"
-        )
-        needed = {by_fetcher[f] for f in {m.group(1) for m in FETCHER_CALL.finditer(code)}
-                  if f in by_fetcher}
-        if needed:
-            out[path.name] = needed
-    return out
-
-
-def test_the_workflow_supplies_credentials_at_all() -> None:
-    """Guard the parser: a gate that reads zero keys would pass vacuously."""
-    supplied = _keys_supplied_by_ci()
-    assert len(supplied) >= 4, f"parsed only {supplied} from the workflow env block"
-
-
-def test_every_credential_a_notebook_needs_is_supplied_by_ci() -> None:
-    supplied = _keys_supplied_by_ci()
-    gaps: list[str] = []
-    for notebook, needed in _keys_each_notebook_needs().items():
-        missing = needed - supplied
-        if missing:
-            gaps.append(f"{notebook}: {sorted(missing)}")
-    assert not gaps, (
-        "the live-run workflow does not supply credentials these notebooks need, "
-        "and every client fails closed, so each would fail the release gate for "
-        f"want of a secret:\n  " + "\n  ".join(gaps)
-    )
-
-
-def test_ci_supplies_no_credential_outside_the_allowed_set() -> None:
-    """The workflow may not reach for a key this layer refuses to load.
-
-    `ALLOWED_KEYS` is a closed set precisely so a tutorial kernel cannot reach
-    the rest of an operator's secrets file. A workflow that exported something
-    outside it would be re-opening that door from the other side.
-    """
-    stray = _keys_supplied_by_ci() - set(sources.ALLOWED_KEYS)
-    assert not stray, (
-        f"the workflow exports {sorted(stray)}, which ALLOWED_KEYS does not "
-        "permit this library to read."
-    )
+def test_the_fetcher_scan_reads_something() -> None:
+    """The fetcher scan reads something."""
+    assert len(_key_for_fetcher()) >= 5
 
 
 @pytest.mark.parametrize("fetcher,key", sorted(_key_for_fetcher().items()))
 def test_each_fetchers_key_is_in_the_allowed_set(fetcher: str, key: str) -> None:
+    """Each fetchers key is in the allowed set."""
     assert key in sources.ALLOWED_KEYS, (
-        f"{fetcher} loads {key}, which is not in ALLOWED_KEYS, so it can never "
-        "succeed."
+        f"{fetcher} loads {key}, which is not in ALLOWED_KEYS, so it can never succeed."
     )

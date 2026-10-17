@@ -1,0 +1,77 @@
+{
+ "_note": "One entry per line that legitimately matches a public-surface rule, keyed by rule, file and the SHA-256 of the stripped line (so no matched text is stored here). Every entry needs a reason; an entry whose line no longer exists is a finding. Entries marked pending_owner_ruling are counted in the checker's output on every run.",
+ "entries": [
+  {
+   "rule": "path",
+   "file": "docs/methodology.md",
+   "line_sha256": "664fe27539b92720d4e889cf5305183f1dcdc6b7dd25fca57eb2c945ea2f9358",
+   "reason": "Prose describing the defect that a sandbox path was once recorded in a provenance record; it quotes the shape of such a path, not a path of any machine."
+  },
+  {
+   "rule": "path",
+   "file": "projects/README.md",
+   "line_sha256": "f3547fc1adb11442e49b1e154e6b19042bc60071b8ec1129848deecc5ea0f15f",
+   "reason": "A table row naming a gate and how many hard-coded developer paths it once found; it quotes the shape of the defect, not a path of any machine."
+  },
+  {
+   "rule": "path",
+   "file": "src/krl_tutorials_data/connectors.py",
+   "line_sha256": "3de1521685c20d2b9bd2108de1d042a2d3da46a52c19d1ab229a2b6979cdbc9b",
+   "reason": "A comment recording that a committed record once carried a sandbox path; it quotes the shape of the path, not a real one."
+  },
+  {
+   "rule": "path",
+   "file": "tests/test_gate_security.py",
+   "line_sha256": "23e7991824ce3b18bd2cae0c489cb287d788b98b8b4207790c97a0d52fa3531c",
+   "reason": "The gate's docstring describing what it catches (a hard-coded developer or sandbox path)."
+  },
+  {
+   "rule": "path",
+   "file": "tests/test_gate_security.py",
+   "line_sha256": "733b06c6d4423453f7225dc3016b14f2c880ff8445f40e0b0709dd9b149a22be",
+   "reason": "The regular expression the gate uses to detect machine-specific paths; the line is the detector, not a path."
+  },
+  {
+   "rule": "path",
+   "file": "tests/test_gate_security.py",
+   "line_sha256": "8ab7a4fcc8eecb10e74955d432b42053b7e9afd8dc7d2e3a8f5c944531e74c3e",
+   "reason": "The gate's docstring describing what it catches (a hard-coded developer or sandbox path)."
+  },
+  {
+   "rule": "path",
+   "file": "tests/test_provenance_location.py",
+   "line_sha256": "12c2f357c5298aab133c81d5d8a62f5328572c9c6227a0fb429843cf7c6e7963",
+   "reason": "A regular expression the test uses to reject machine-specific paths in a provenance record; the line is the detector, not a path."
+  },
+  {
+   "rule": "tooling",
+   "file": "docs/audits/KRL_TUTORIALS_NOTEBOOK_AUDIT_2026-09-13.md",
+   "line_sha256": "7202c42409acdaaf9c4f14bf3830a3d0e019b7732bf352853768dc57eb103929",
+   "reason": "A phrase naming a simulation technique, in the audit's note about an undeclared dependency."
+  },
+  {
+   "rule": "tooling",
+   "file": "docs/methodology.md",
+   "line_sha256": "96d07cc121566c6267191008ac0505185aed2eb84c32034d57afea13ec58fc19",
+   "reason": "The word 'agent' in an HTTP client's user-agent string, split across two lines of prose about identifying the client to a publisher."
+  },
+  {
+   "rule": "tooling",
+   "file": "scripts/verify_provenance_reproducibility.py",
+   "line_sha256": "9d9a1af430f0528eb220a4fa52efbba2e12a53b5613ba6701bdc90759c8b7696",
+   "reason": "The word 'agent' in a comment about the HTTP client's default user-agent string, which a publisher's firewall may reject."
+  },
+  {
+   "rule": "tooling",
+   "file": "src/krl_tutorials_data/sources.py",
+   "line_sha256": "2711cb986bf66ba572fe90793dfc2da83f2876005ab8a9c47e13c31218a20c57",
+   "reason": "A local variable named for the HTTP user-agent string the client sends to a publisher; no assistant or product is named."
+  },
+  {
+   "rule": "tooling",
+   "file": "tests/test_hud.py",
+   "line_sha256": "4fda5fd98c5f55754e8b86dea56970cdae55b5da621ca8b5263d977b683c92cc",
+   "reason": "The name of an environment variable that the test asserts is ABSENT from the committed code (a list of forbidden names); it is checked for, not used."
+  }
+ ]
+}

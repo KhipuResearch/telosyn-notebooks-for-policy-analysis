@@ -185,7 +185,7 @@ repository; point the verifier at it.
 
 ```
 KRL_AUDITED_TREE=/path/to/tree python scripts/verify_forensic_corpus.py          # exit 0 = intact
-KRL_AUDITED_TREE=/path/to/tree KRL_AUDIT_NAMEMAP=~/.krl/audit_namemap_2026-09-13.json \
+KRL_AUDITED_TREE=/path/to/tree KRL_AUDIT_NAMEMAP=/path/to/namemap.json \
     python scripts/verify_forensic_corpus.py
 ```
 

@@ -55,8 +55,8 @@ differently-shaped gap than the one claimed, and it changes Tier B sequencing.
 
 ## 5. How the error happened, and the rule it broke
 
-The claim was made from the contents of `krl-tutorials` alone, without reading the sibling
-repository that `krl-tutorials`' own `pyproject.toml` declares as a hard dependency.
+The claim was made from the contents of the private source repository alone, without reading the sibling
+repository that the private source repository's own `pyproject.toml` declares as a hard dependency.
 
 This is the same failure mode the audit exists to catch, committed by the audit's author:
 **absence of evidence in the corpus you happen to be holding is not evidence of absence.**

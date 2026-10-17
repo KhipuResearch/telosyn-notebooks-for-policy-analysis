@@ -58,8 +58,9 @@ Census, FRED, BEA, BLS, HUD, and DATA.gov for the FBI CDE. All six are free to
 register for. Put them in a file of your own:
 
 ```bash
-cp .env.example ~/.krl/tutorials.env       # fill in your keys
-export KRL_SECRETS_PATH=~/.krl/tutorials.env
+mkdir -p ~/.config/telosyn-notebooks
+cp .env.example ~/.config/telosyn-notebooks/keys.env       # fill in your keys
+export KRL_SECRETS_PATH=~/.config/telosyn-notebooks/keys.env
 ```
 
 The names the corpus will read are a closed set of six. A secrets file that also

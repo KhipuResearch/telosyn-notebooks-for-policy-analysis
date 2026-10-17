@@ -6,9 +6,10 @@ time discovered only by a red run:
   * ``responses``/``load_key`` coupling in the fetcher contract tests, which
     passed locally because a credential file happened to exist;
   * ``statsmodels``, imported by one notebook, absent from the execution lane's
-    install list, found when Lane 2 ran for the first time;
-  * ``pyyaml``, imported by ``tests/test_leak_check.py`` -- a file written to
-    close a verification gap, which itself opened one.
+    install list, found when Lane 2 (since removed) ran for the first time;
+  * ``pyyaml``, imported by ``tests/test_leak_check.py`` (since removed with
+    Lane 2) -- a file written to close a verification gap, which itself opened
+    one.
 
 Each was the same mistake: a dependency added without checking what CI installs.
 Each cost a full run to find. The pattern is mechanical, so this turns it into a
@@ -43,7 +44,7 @@ WORKFLOW = ROOT / ".github/workflows/notebook-release-gates.yml"
 #: Distributions whose PyPI name is not their import name. Without an entry here
 #: the gate reports a module as unsatisfiable while the workflow installs it
 #: perfectly well -- a false alarm, which is how a useful gate gets switched off.
-_DISTRIBUTION_ALIASES = {  # pragma: allowlist secret
+_DISTRIBUTION_ALIASES = {
     "pyyaml": "yaml",
     "detect-secrets": "detect_secrets",  # pragma: allowlist secret
     "scikit-learn": "sklearn",

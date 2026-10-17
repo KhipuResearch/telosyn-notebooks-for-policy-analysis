@@ -82,7 +82,7 @@ test = [
     # command fails at start-up with "unrecognized arguments: --cov".
     "pytest-cov>=4.1.0",
     "nbval>=0.10.0",
-    "pyyaml>=6.0",        # tests/test_leak_check.py reads the gitleaks config
+    "pyyaml>=6.0",        # test_ci_credentials, test_ci_history_and_surface and test_check_public_surface read the workflow YAML
     # Property-based tests for the estimators in krl_tutorials_data.methods
     # (DECISIONS/0009 section 3.5). Lower bound is the oldest release the suite
     # was run against; checked on PyPI at execution time.

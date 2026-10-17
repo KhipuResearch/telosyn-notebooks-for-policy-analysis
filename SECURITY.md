@@ -22,8 +22,9 @@ and you will be credited unless you ask not to be.
 a file you keep outside the repository and point to with `KRL_SECRETS_PATH`:
 
 ```bash
-cp .env.example <operator-path>/tutorials.env       # fill in your keys
-export KRL_SECRETS_PATH=<operator-path>/tutorials.env
+mkdir -p ~/.config/telosyn-notebooks
+cp .env.example ~/.config/telosyn-notebooks/keys.env       # fill in your keys
+export KRL_SECRETS_PATH=~/.config/telosyn-notebooks/keys.env
 ```
 
 The six names are a closed set (`ALLOWED_KEYS` in

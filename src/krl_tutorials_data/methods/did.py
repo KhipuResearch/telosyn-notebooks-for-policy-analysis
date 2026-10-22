@@ -378,3 +378,363 @@ def event_study_design(
     for col, k in enumerate(labels):
         matrix[:, col] = (treated & (rel == k)).astype(float)
     return EventStudyDesign(matrix=matrix, labels=tuple(labels))
+
+
+# ---------------------------------------------------------------------------
+# Staggered adoption: decomposition and heterogeneity-robust estimators
+# ---------------------------------------------------------------------------
+
+
+def _balanced_matrix(
+    values: ArrayLike, unit: ArrayLike, time: ArrayLike, name: str
+) -> tuple[Float, NDArray[np.intp], Float]:
+    """Reshape a long panel to ``(units, periods)``; raise unless every cell is present once."""
+    v = np.asarray(values, dtype=float)
+    u_codes, n_units = _codes(unit, "unit")
+    t_codes, n_periods = _codes(time, "time")
+    if v.ndim != 1 or v.shape[0] != u_codes.shape[0] or v.shape[0] != t_codes.shape[0]:
+        raise ValueError(f"{name}, unit and time must be one-dimensional and of equal length")
+    if v.shape[0] != n_units * n_periods or not np.all(
+        np.bincount(u_codes * n_periods + t_codes, minlength=n_units * n_periods) == 1
+    ):
+        raise ValueError("the panel must be balanced: every unit observed once in every period")
+    if not np.all(np.isfinite(v)):
+        raise ValueError(f"{name} contains non-finite values; none are dropped silently")
+    matrix = np.empty((n_units, n_periods))
+    matrix[u_codes, t_codes] = v
+    return matrix, u_codes, np.unique(np.asarray(time, dtype=float))
+
+
+def _unit_cohorts(cohort: ArrayLike, u_codes: NDArray[np.intp], n_units: int) -> Float:
+    """One first-treatment time per unit (``inf`` for never treated); constant within unit."""
+    c = np.asarray(cohort, dtype=float)
+    c = np.where(np.isnan(c), np.inf, c)
+    per_unit = np.full(n_units, np.nan)
+    per_unit[u_codes] = c
+    if not np.all(per_unit[u_codes] == c):
+        raise ValueError("a unit's first treatment time must be the same in every period")
+    return per_unit
+
+
+@dataclass(frozen=True)
+class BaconComparison:
+    """One two-by-two comparison inside a two-way fixed-effects estimate."""
+
+    kind: Literal["treated_vs_never", "earlier_vs_later", "later_vs_earlier"]
+    treated_cohort: float
+    control_cohort: float
+    estimate: float
+    weight: float
+
+
+@dataclass(frozen=True)
+class BaconDecomposition:
+    """The TWFE coefficient and the weighted two-by-two comparisons that make it up."""
+
+    twfe: float
+    comparisons: tuple[BaconComparison, ...]
+
+    def by_kind(self) -> dict[str, tuple[float, float]]:
+        """Total weight and weight-averaged estimate for each kind of comparison."""
+        out: dict[str, tuple[float, float]] = {}
+        for kind in ("treated_vs_never", "earlier_vs_later", "later_vs_earlier"):
+            members = [c for c in self.comparisons if c.kind == kind]
+            total = sum(c.weight for c in members)
+            weighted = sum(c.weight * c.estimate for c in members)
+            mean = weighted / total if total > 0 else float("nan")
+            out[kind] = (float(total), float(mean))
+        return out
+
+
+def _two_by_two(
+    mat: Float, treated: NDArray[np.intp], control: NDArray[np.intp],
+    window: NDArray[np.intp], pre: NDArray[np.intp], post: NDArray[np.intp],
+) -> tuple[float, float]:
+    """The 2x2 estimate and its weight ``N * sum(D~^2)`` over the sub-sample."""
+    units = np.concatenate([treated, control])
+    sub_d = np.zeros((units.size, window.size))
+    sub_d[: treated.size, :] = np.isin(window, post)[None, :]
+    d_tilde = sub_d - sub_d.mean(1, keepdims=True) - sub_d.mean(0, keepdims=True) + sub_d.mean()
+    weight = float(units.size * window.size) * float((d_tilde**2).sum())
+
+    def mean(rows: NDArray[np.intp], cols: NDArray[np.intp]) -> float:
+        return float(mat[np.ix_(rows, cols)].mean())
+
+    estimate = (mean(treated, post) - mean(treated, pre)) - (
+        mean(control, post) - mean(control, pre)
+    )
+    return estimate, weight
+
+
+def bacon_decomposition(
+    y: ArrayLike, unit: ArrayLike, time: ArrayLike, first_treat: ArrayLike
+) -> BaconDecomposition:
+    """Decompose a two-way fixed-effects estimate into its two-by-two comparisons.
+
+    ``first_treat`` is each unit's first treated period in the units of ``time``
+    (``NaN`` for never treated; a value at or before the first period is "treated
+    throughout"). Treatment is absorbing: ``D = time >= first_treat``. The panel
+    must be balanced.
+
+    Every comparison is one of three kinds: a timing group against the never-treated
+    (``treated_vs_never``), an earlier-treated group against a later-treated group
+    that has not yet been treated (``earlier_vs_later``, clean), or a later-treated
+    group against an earlier-treated group that is already treated
+    (``later_vs_earlier``, the comparison that can turn the sign). Each weight is
+    ``N_s * sum(D~_s^2)`` over the comparison's own sub-sample, normalised to sum
+    to one, which is the Frisch-Waugh share of the pooled coefficient (Goodman-Bacon
+    2021, J. Econometrics, as recalled, not verified in this build). The weighted
+    sum is checked against the pooled coefficient and the function raises if they
+    differ. Complexity O(G^2 N T) for G timing groups.
+    """
+    mat, u_codes, times = _balanced_matrix(y, unit, time, "y")
+    n_units, n_periods = mat.shape
+    cohort = _unit_cohorts(first_treat, u_codes, n_units)
+    cohort = np.where(cohort > times[-1], np.inf, cohort)
+    d = (times[None, :] >= cohort[:, None]).astype(float)
+    d_tilde = d - d.mean(1, keepdims=True) - d.mean(0, keepdims=True) + d.mean()
+    denom = float((d_tilde**2).sum())
+    if denom <= 1e-12:
+        raise ValueError(
+            "the treatment has no variation after absorbing the unit and period effects"
+        )
+    pooled = float((d_tilde * mat).sum() / denom)
+
+    cols = np.arange(n_periods)
+    groups = sorted({g for g in cohort if np.isfinite(g)})
+    members = {g: np.flatnonzero(cohort == g) for g in groups}
+    never = np.flatnonzero(~np.isfinite(cohort))
+    found: list[tuple[str, float, float, float, float]] = []
+
+    def add(kind: str, tg: float, cg: float, t_units: NDArray[np.intp], c_units: NDArray[np.intp],
+            window: NDArray[np.intp], pre: NDArray[np.intp], post: NDArray[np.intp]) -> None:
+        if pre.size == 0 or post.size == 0:
+            return
+        estimate, weight = _two_by_two(mat, t_units, c_units, window, pre, post)
+        if weight > 0:
+            found.append((kind, tg, cg, estimate, weight))
+
+    if never.size:
+        for g in groups:
+            before, after = cols[times < g], cols[times >= g]
+            add("treated_vs_never", g, float("inf"), members[g], never, cols, before, after)
+    for i, early in enumerate(groups):
+        for late in groups[i + 1:]:
+            add("earlier_vs_later", early, late, members[early], members[late],
+                cols[times < late], cols[times < early], cols[(times >= early) & (times < late)])
+            add("later_vs_earlier", late, early, members[late], members[early],
+                cols[times >= early], cols[(times >= early) & (times < late)], cols[times >= late])
+
+    total = sum(f[4] for f in found)
+    comparisons = tuple(
+        BaconComparison(kind=k, treated_cohort=tg, control_cohort=cg,  # type: ignore[arg-type]
+                        estimate=e, weight=w / total)
+        for k, tg, cg, e, w in found
+    )
+    rebuilt = sum(c.weight * c.estimate for c in comparisons)
+    if abs(rebuilt - pooled) > 1e-8 * max(1.0, abs(pooled)):
+        raise RuntimeError(
+            f"the weighted comparisons ({rebuilt:.10g}) do not reproduce the pooled "
+            f"estimate ({pooled:.10g}); the decomposition is not returned"
+        )
+    return BaconDecomposition(twfe=pooled, comparisons=comparisons)
+
+
+@dataclass(frozen=True)
+class SunAbrahamFit:
+    """Interaction-weighted event-time effects with cohort-share weights."""
+
+    event_times: tuple[int, ...]
+    att: Float
+    se: Float
+    vcov: Float
+    overall: float
+    overall_se: float
+    cohorts: tuple[float, ...]
+    n_obs: int
+    n_clusters: int
+
+
+def sun_abraham(
+    y: ArrayLike,
+    unit: ArrayLike,
+    time: ArrayLike,
+    cohort: ArrayLike,
+    *,
+    leads: int,
+    lags: int,
+    reference: int = -1,
+    cluster: ArrayLike | None = None,
+) -> SunAbrahamFit:
+    """Interaction-weighted estimator with never-treated units as the control group.
+
+    One dummy for every cohort by event-time cell (the reference event time omitted,
+    end cells binned), a two-way fixed-effects regression with cluster-robust
+    errors, then ``ATT(e) = sum_g share(g | e) * delta(g, e)`` where the shares are
+    each cohort's count of observations at event time ``e``. ``overall`` is the plain
+    mean of ``ATT(e)`` over ``e >= 0``; its variance uses the same coefficients'
+    covariance. Never-treated units are required (the interaction design has no other
+    clean control). Sun and Abraham (2021, J. Econometrics, as recalled, not verified
+    in this build). Event time must be integer-valued.
+    """
+    if leads < 0 or lags < 0 or not -leads <= reference <= lags:
+        raise ValueError("leads and lags must be non-negative and contain the reference")
+    yy = np.asarray(y, dtype=float)
+    t = np.asarray(time, dtype=float)
+    g = np.asarray(cohort, dtype=float)
+    if g.shape != t.shape or yy.shape != t.shape:
+        raise ValueError("y, time and cohort must have the same length")
+    g = np.where(g > t.max(), np.nan, g)  # first treated after the panel ends = never treated
+    if not np.any(~np.isfinite(g)):
+        raise ValueError("the interaction-weighted estimator needs never-treated units")
+    rel = t - g
+    finite = np.isfinite(rel)
+    if not np.all(rel[finite] == np.round(rel[finite])):
+        raise ValueError("event time must be integer-valued")
+    rel = np.where(finite, np.clip(rel, -leads, lags), np.nan)
+    event_times = [e for e in range(-leads, lags + 1) if e != reference]
+    columns, keys = [], []
+    for cg in sorted(set(g[finite])):
+        for e in event_times:
+            col = (g == cg) & finite & (rel == e)
+            if col.any():
+                columns.append(col.astype(float))
+                keys.append((cg, e))
+    if not columns:
+        raise ValueError("no cohort has an observation inside the event window")
+    fit = twfe(yy, np.column_stack(columns), unit, time, cluster=cluster)
+    counts = np.array([c.sum() for c in columns])
+    att = np.zeros(len(event_times))
+    agg = np.zeros((len(event_times), len(keys)))
+    for row, e in enumerate(event_times):
+        picks = [j for j, (_, ke) in enumerate(keys) if ke == e]
+        if not picks:
+            att[row] = np.nan
+            agg[row, :] = np.nan
+            continue
+        w = counts[picks] / counts[picks].sum()
+        agg[row, picks] = w
+        att[row] = float(w @ fit.coef[picks])
+    live = ~np.isnan(att)
+    vcov_att = agg[live] @ fit.vcov @ agg[live].T
+    post_rows = np.array([e >= 0 for e in np.asarray(event_times)[live]])
+    mix = post_rows / post_rows.sum() if post_rows.any() else np.zeros(live.sum())
+    overall = float(mix @ att[live])
+    return SunAbrahamFit(
+        event_times=tuple(e for e, ok in zip(event_times, live) if ok),
+        att=att[live], se=np.sqrt(np.diag(vcov_att)), vcov=vcov_att,
+        overall=overall, overall_se=float(np.sqrt(mix @ vcov_att @ mix)),
+        cohorts=tuple(sorted({k[0] for k in keys})), n_obs=fit.n_obs, n_clusters=fit.n_clusters,
+    )
+
+
+@dataclass(frozen=True)
+class GroupTimeFit:
+    """Group-time effects aggregated to event time, with cluster-bootstrap errors."""
+
+    event_times: tuple[int, ...]
+    att: Float
+    se: Float
+    overall: float
+    overall_se: float
+    overall_ci: tuple[float, float]
+    control: str
+    n_boot: int
+
+
+def _group_time_core(
+    mat: Float, cohort: Float, times: Float, leads: int, lags: int, control: str
+) -> tuple[list[int], Float, float]:
+    """Event-time ATT(e) averaged over cohorts by size, and the mean over e >= 0."""
+    sums: dict[int, list[float]] = {}
+    for g in sorted({c for c in cohort if np.isfinite(c)}):
+        base = np.flatnonzero(times == g - 1)
+        tr = np.flatnonzero(cohort == g)
+        if base.size == 0 or tr.size == 0:
+            continue
+        for e in range(-leads, lags + 1):
+            if e == -1:
+                continue
+            at = np.flatnonzero(times == g + e)
+            if at.size == 0:
+                continue
+            ctrl = np.flatnonzero(~np.isfinite(cohort) if control == "never"
+                                  else (cohort > g + e))
+            if ctrl.size == 0:
+                continue
+            b, a = base[0], at[0]
+            effect = (mat[tr, a].mean() - mat[tr, b].mean()) - (
+                mat[ctrl, a].mean() - mat[ctrl, b].mean()
+            )
+            entry = sums.setdefault(e, [0.0, 0.0])
+            entry[0] += tr.size * effect
+            entry[1] += tr.size
+    events = sorted(sums)
+    att = np.array([sums[e][0] / sums[e][1] for e in events])
+    post = [a for e, a in zip(events, att) if e >= 0]
+    return events, att, float(np.mean(post)) if post else float("nan")
+
+
+def group_time_att(
+    y: ArrayLike,
+    unit: ArrayLike,
+    time: ArrayLike,
+    cohort: ArrayLike,
+    *,
+    leads: int,
+    lags: int,
+    control: Literal["never", "not_yet"] = "never",
+    n_boot: int,
+    seed: int,
+    cluster: ArrayLike | None = None,
+) -> GroupTimeFit:
+    """Group-time ATT with no covariates, aggregated to event time.
+
+    For cohort ``g`` and period ``t = g + e``:
+    ``ATT(g, t) = (mean_g y_t - mean_g y_{g-1}) - (mean_C y_t - mean_C y_{g-1})`` with
+    ``C`` the never-treated units, or the never-treated and the not-yet-treated
+    (``cohort > t``). This is the outcome-regression form of Callaway and Sant'Anna
+    (2021, J. Econometrics, as recalled, not verified in this build) with no
+    covariates. ``ATT(e)`` weights cohorts by their number of units; ``overall`` is
+    the mean over ``e >= 0``. Errors come from ``n_boot`` draws that resample clusters
+    (default: units) with replacement, using a generator seeded by ``seed``.
+    Complexity O(n_boot * G * (leads + lags + 1) * N).
+    """
+    if control not in ("never", "not_yet"):
+        raise ValueError("control must be 'never' or 'not_yet'")
+    if leads < 0 or lags < 0 or n_boot < 2:
+        raise ValueError("leads and lags must be non-negative and n_boot at least 2")
+    mat, u_codes, times = _balanced_matrix(y, unit, time, "y")
+    n_units = mat.shape[0]
+    coh = _unit_cohorts(cohort, u_codes, n_units)
+    coh = np.where(coh > times[-1], np.inf, coh)
+    if cluster is None:
+        cl = np.arange(n_units)
+    else:
+        c_obs = np.asarray(cluster)
+        cl_per_unit = np.empty(n_units, dtype=c_obs.dtype)
+        cl_per_unit[u_codes] = c_obs
+        if not np.all(cl_per_unit[u_codes] == c_obs):
+            raise ValueError("a unit must belong to one cluster")
+        cl = np.unique(cl_per_unit, return_inverse=True)[1]
+    events, att, overall = _group_time_core(mat, coh, times, leads, lags, control)
+    if not events:
+        raise ValueError("no cohort has a pre-period and a post-period inside the window")
+    members = [np.flatnonzero(cl == k) for k in range(int(cl.max()) + 1)]
+    rng = np.random.default_rng(seed)
+    draws_att = np.full((n_boot, len(events)), np.nan)
+    draws_overall = np.full(n_boot, np.nan)
+    for b in range(n_boot):
+        pick = np.concatenate([members[k] for k in rng.integers(0, len(members), len(members))])
+        ev_b, att_b, overall_b = _group_time_core(mat[pick], coh[pick], times, leads, lags, control)
+        for e, a in zip(ev_b, att_b):
+            if e in events:
+                draws_att[b, events.index(e)] = a
+        draws_overall[b] = overall_b
+    ok = ~np.isnan(draws_overall)
+    lo, hi = np.quantile(draws_overall[ok], [0.025, 0.975])
+    return GroupTimeFit(
+        event_times=tuple(events), att=att, se=np.nanstd(draws_att, axis=0, ddof=1),
+        overall=overall, overall_se=float(np.std(draws_overall[ok], ddof=1)),
+        overall_ci=(float(lo), float(hi)), control=control, n_boot=n_boot,
+    )

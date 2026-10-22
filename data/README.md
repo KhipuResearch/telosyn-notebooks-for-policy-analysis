@@ -14,7 +14,7 @@ This repository analyses public socioeconomic data published by U.S. federal age
 
 ## Source datasets
 
-20 datasets from 6 publishers, across 40 committed provenance records.
+21 datasets from 6 publishers, across 53 committed provenance records.
 
 | Publisher | Dataset | Vintages | Records | Hash basis |
 |---|---|---|---|---|
@@ -34,6 +34,7 @@ This repository analyses public socioeconomic data published by U.S. federal age
 | U.S. Bureau of Labor Statistics | QCEW area 51720, 2024 Q1 | 2024Q1 | 1 | response-bytes |
 | U.S. Bureau of Labor Statistics | QCEW area 51750, 2022 Q1 | 2022Q1 | 1 | response-bytes |
 | U.S. Bureau of Labor Statistics | QCEW area 51750, 2024 Q1 | 2024Q1 | 1 | response-bytes |
+| U.S. Census Bureau | American Community Survey (acs/acs1) | 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023 | 13 | canonical-rows |
 | U.S. Census Bureau | American Community Survey (acs/acs5) | 2019, 2023 | 15 | canonical-rows |
 | U.S. Census Bureau | American Community Survey (acs/acs5/profile) | 2023 | 1 | canonical-rows |
 | U.S. Census Bureau | County Business Patterns 2022 | 2022 | 4 | canonical-rows |
@@ -86,6 +87,7 @@ Every record carries `content_sha256`. `scripts/verify_provenance_reproducibilit
 | FRED series CPIAUCSL | 2000-01-01 to 2026-07-01, current revision | 2026-09-18T12:16:51 | `2c46e179bc28c7e3` | [`d27g_fred_cpiaucsl.json`](../projects/08-culture-society/D27_housing_affordability_and_gentrification/provenance/d27g_fred_cpiaucsl.json) |
 | FRED series CUUR0000SA0L2 | 2000-01-01 to 2026-07-01, current revision | 2026-09-18T12:16:52 | `43ce3ee22f0ca15c` | [`d27g_fred_cuur0000sa0l2.json`](../projects/08-culture-society/D27_housing_affordability_and_gentrification/provenance/d27g_fred_cuur0000sa0l2.json) |
 | ZHVI, All Homes (SFR/Condo), smoothed & seasonally adjusted, county (2026-08 release (series through 2026-07)) | 2026-08 release (series through 2026-07) | 2026-09-18T12:16:50 | `01ccc62277cd314e` | [`d27g_zillow_zhvi_county.json`](../projects/08-culture-society/D27_housing_affordability_and_gentrification/provenance/d27g_zillow_zhvi_county.json) |
+| American Community Survey (acs/acs1) | 2010 | 2026-10-22T08:55:18 | `4c00bc91139ac419` | [`c01_acs1_b27010_2010.json`](../projects/09-causal-identification/C01_medicaid_expansion_did/provenance/c01_acs1_b27010_2010.json) |
 
 ## Restrictions and privacy
 

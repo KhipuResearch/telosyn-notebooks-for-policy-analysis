@@ -1,0 +1,29 @@
+{
+  "source_name": "U.S. Census Bureau",
+  "dataset": "American Community Survey Public Use Microdata Sample (acs/acs1/pums)",
+  "vintage": "2023",
+  "endpoint": "https://api.census.gov/data/2023/acs/acs1/pums",
+  "variables": {
+    "AGEP": "Age",
+    "SCHL": "Educational attainment"
+  },
+  "retrieved_utc": "2026-10-22T09:09:41+00:00",
+  "row_count": 11383,
+  "column_count": 3,
+  "content_sha256": "9901d9e7bdfc55cea5dd58378c36e5c65b8b6979130f52b4faf11b3ac6ed1a0a",
+  "mode": "empirical",
+  "notes": [
+    "PUMS is a sample of person records; weighted cell counts estimate population counts with sampling error that is not computed here (no replicate weights).",
+    "Missing values in grouping columns are kept as their own cell; their meaning is the variable's universe in the PUMS data dictionary.",
+    "Aggregated to 381 cell(s) from 11383 person record(s); 623 cell(s) with fewer than 10 records were withheld (1708 record(s), weighted 171,993). No person-level row is returned."
+  ],
+  "pinned": true,
+  "hash_basis": "canonical-rows",
+  "request_params": {
+    "get": "AGEP,SCHL,PWGTP",
+    "for": "state:30",
+    "key": "<redacted>"
+  },
+  "request_method": "GET",
+  "pap_sha256": "10f4182b7b8027d8dfecccd594998618c2964cd782622dd63db883ddb4d89754"
+}

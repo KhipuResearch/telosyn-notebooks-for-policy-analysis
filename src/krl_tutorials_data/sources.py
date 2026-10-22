@@ -1370,11 +1370,16 @@ def fetch_qcew(
     *,
     year: int,
     quarter: int | str,
-    area: str,
+    area: str | None = None,
+    industry: str | None = None,
     contact: str | None = None,
     session: requests.Session | None = None,
 ) -> tuple[pd.DataFrame, DataProvenance]:
-    """Fetch one QCEW area slice, with suppressed cells made explicit.
+    """Fetch one QCEW slice, with suppressed cells made explicit.
+
+    Exactly one of ``area`` (every industry in one area, e.g. ``"51000"``) and
+    ``industry`` (one industry in every area, e.g. ``"722"``) selects the slice.
+    The Bureau serves both from 2014 Q1; earlier quarters return HTTP 404.
 
     QCEW needs no API key, which makes it the one source here with no
     credential to leak and no quota to exhaust. It returns CSV rather than JSON.
@@ -1390,22 +1395,25 @@ def fetch_qcew(
     themselves; the request succeeds without it, and sending one is courtesy
     rather than a requirement.
     """
-    if not str(area).strip():
-        raise ValueError("A QCEW area code is required, e.g. '51059' or 'US000'.")
+    if (area is None) == (industry is None):
+        raise ValueError("Give exactly one of `area` (e.g. '51059') or `industry` (e.g. '722').")
+    kind, key = ("area", area) if area is not None else ("industry", industry)
+    if not str(key).strip():
+        raise ValueError(f"A QCEW {kind} code is required, e.g. '51059' or 'US000'.")
     qtr = str(quarter)
-    endpoint = f"{QCEW_HOST}/{year}/{qtr}/area/{area}.csv"
+    endpoint = f"{QCEW_HOST}/{year}/{qtr}/{kind}/{key}.csv"
     agent = f"telosyn-notebooks/1.0 ({contact})" if contact else "telosyn-notebooks/1.0"
 
     http = session or requests
     try:
         resp = http.get(endpoint, timeout=120, headers={"User-Agent": agent})
     except requests.RequestException as exc:
-        raise UpstreamError(f"QCEW request for area {area} failed: {redact(exc)}") from exc
+        raise UpstreamError(f"QCEW request for {kind} {key} failed: {redact(exc)}") from exc
     reject_bot_challenge(resp, source="BLS QCEW", endpoint=endpoint)
     if resp.status_code != 200:
         raise UpstreamError(
-            f"QCEW returned HTTP {resp.status_code} for area {area}. A 404 here "
-            f"usually means the area code or the quarter does not exist."
+            f"QCEW returned HTTP {resp.status_code} for {kind} {key}. A 404 here "
+            f"usually means the {kind} code or the quarter does not exist."
         )
 
     text = resp.text
@@ -1422,7 +1430,7 @@ def fetch_qcew(
         # would not catch it. Found by sweeping every fetcher against an empty
         # body after the HUD challenge was diagnosed.
         raise ResponseShapeError(
-            f"QCEW returned an empty body for area {area} with HTTP "
+            f"QCEW returned an empty body for {kind} {key} with HTTP "
             f"{resp.status_code}. An empty 200 is not an empty result set."
         )
 
@@ -1431,9 +1439,9 @@ def fetch_qcew(
                 "disclosure_code", "month3_emplvl"}
     missing = sorted(required - set(df.columns))
     if missing:
-        raise SchemaError(f"QCEW response for {area} lacks column(s) {missing}.")
+        raise SchemaError(f"QCEW response for {kind} {key} lacks column(s) {missing}.")
     if df.empty:
-        raise ResponseShapeError(f"QCEW returned no rows for area {area}.")
+        raise ResponseShapeError(f"QCEW returned no rows for {kind} {key}.")
 
     suppressed = df.disclosure_code.fillna("") == QCEW_SUPPRESSED
     zeroed = 0
@@ -1451,7 +1459,7 @@ def fetch_qcew(
     prov = DataProvenance.build(
         pinned=False,
         source_name="U.S. Bureau of Labor Statistics",
-        dataset=f"QCEW area {area}, {year} Q{qtr}",
+        dataset=f"QCEW {kind} {key}, {year} Q{qtr}",
         vintage=f"{year}Q{qtr}",
         endpoint=endpoint,
         variables={f: "QCEW field" for f in QCEW_SUPPRESSED_FIELDS if f in df.columns},

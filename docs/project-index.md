@@ -46,5 +46,6 @@ Every notebook in the corpus, by project. Thesis is the notebook's own title.
 | 33 | [Culture and Society](../projects/08-culture-society/README.md) | [Rent Burden](../projects/08-culture-society/D27_housing_affordability_and_gentrification/D27_rent_burden.ipynb) | Three Ways to Get a Defensible-Looking Number Wrong |
 | 34 | [Causal Identification](../projects/09-causal-identification/README.md) | [Difference-in-Differences](../projects/09-causal-identification/C01_medicaid_expansion_did/C01_medicaid_expansion_did.ipynb) | Medicaid Expansion and the Uninsured Rate |
 | 35 | [Causal Identification](../projects/09-causal-identification/README.md) | [Regression Discontinuity](../projects/09-causal-identification/C02_medicare_age65_rdd/C02_medicare_age65_rdd.ipynb) | Health Insurance Coverage at Age 65 |
+| 36 | [Causal Identification](../projects/09-causal-identification/README.md) | [Staggered Adoption](../projects/09-causal-identification/C03_minimum_wage_staggered/C03_minimum_wage_staggered.ipynb) | State Minimum-Wage Increases and Food-Service Employment |
 
-35 notebooks across 9 projects.
+36 notebooks across 9 projects.

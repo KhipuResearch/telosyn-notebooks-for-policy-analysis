@@ -1,0 +1,33 @@
+{
+  "source_name": "U.S. Bureau of Labor Statistics",
+  "dataset": "QCEW industry 722, 2020 Q3",
+  "vintage": "2020Q3",
+  "endpoint": "https://data.bls.gov/cew/data/api/2020/3/industry/722.csv",
+  "variables": {
+    "qtrly_estabs": "QCEW field",
+    "month1_emplvl": "QCEW field",
+    "month2_emplvl": "QCEW field",
+    "month3_emplvl": "QCEW field",
+    "total_qtrly_wages": "QCEW field",
+    "taxable_qtrly_wages": "QCEW field",
+    "qtrly_contributions": "QCEW field",
+    "avg_wkly_wage": "QCEW field"
+  },
+  "retrieved_utc": "2026-10-22T18:39:57+00:00",
+  "row_count": 4152,
+  "column_count": 43,
+  "content_sha256": "c879ef61b556e3b1405be7f1565e651fb345acdc5fd10397fd80c7b76d1f13c2",
+  "mode": "empirical",
+  "notes": [
+    "905 of 4152 rows carry disclosure_code 'N' (withheld to protect employer identity).",
+    "6335 withheld values were published as 0 and have been set to NaN. Summing them as zeros would treat withheld industries as industries with no employment.",
+    "Establishment counts are disclosed even for suppressed cells and were left unchanged.",
+    "Suppression is NOT missing-at-random: it is applied where few establishments would make a cell identifying, so it correlates with industry concentration.",
+    "No API key is required for QCEW."
+  ],
+  "pinned": false,
+  "hash_basis": "response-bytes",
+  "request_params": {},
+  "request_method": "GET",
+  "pap_sha256": "65be61d3db840e93d8dc6241defe80b10e772d40c2c2c4735e38d6c7d3831f22"
+}

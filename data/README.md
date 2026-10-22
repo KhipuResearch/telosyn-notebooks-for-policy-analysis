@@ -14,7 +14,7 @@ This repository analyses public socioeconomic data published by U.S. federal age
 
 ## Source datasets
 
-22 datasets from 6 publishers, across 207 committed provenance records.
+63 datasets from 6 publishers, across 248 committed provenance records.
 
 | Publisher | Dataset | Vintages | Records | Hash basis |
 |---|---|---|---|---|
@@ -34,11 +34,52 @@ This repository analyses public socioeconomic data published by U.S. federal age
 | U.S. Bureau of Labor Statistics | QCEW area 51720, 2024 Q1 | 2024Q1 | 1 | response-bytes |
 | U.S. Bureau of Labor Statistics | QCEW area 51750, 2022 Q1 | 2022Q1 | 1 | response-bytes |
 | U.S. Bureau of Labor Statistics | QCEW area 51750, 2024 Q1 | 2024Q1 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2014 Q1 | 2014Q1 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2014 Q2 | 2014Q2 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2014 Q3 | 2014Q3 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2014 Q4 | 2014Q4 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2015 Q1 | 2015Q1 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2015 Q2 | 2015Q2 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2015 Q3 | 2015Q3 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2015 Q4 | 2015Q4 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2016 Q1 | 2016Q1 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2016 Q2 | 2016Q2 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2016 Q3 | 2016Q3 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2016 Q4 | 2016Q4 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2017 Q1 | 2017Q1 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2017 Q2 | 2017Q2 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2017 Q3 | 2017Q3 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2017 Q4 | 2017Q4 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2018 Q1 | 2018Q1 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2018 Q2 | 2018Q2 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2018 Q3 | 2018Q3 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2018 Q4 | 2018Q4 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2019 Q1 | 2019Q1 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2019 Q2 | 2019Q2 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2019 Q3 | 2019Q3 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2019 Q4 | 2019Q4 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2020 Q1 | 2020Q1 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2020 Q2 | 2020Q2 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2020 Q3 | 2020Q3 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2020 Q4 | 2020Q4 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2021 Q1 | 2021Q1 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2021 Q2 | 2021Q2 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2021 Q3 | 2021Q3 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2021 Q4 | 2021Q4 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2022 Q1 | 2022Q1 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2022 Q2 | 2022Q2 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2022 Q3 | 2022Q3 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2022 Q4 | 2022Q4 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2023 Q1 | 2023Q1 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2023 Q2 | 2023Q2 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2023 Q3 | 2023Q3 | 1 | response-bytes |
+| U.S. Bureau of Labor Statistics | QCEW industry 722, 2023 Q4 | 2023Q4 | 1 | response-bytes |
 | U.S. Census Bureau | American Community Survey (acs/acs1) | 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023 | 13 | canonical-rows |
 | U.S. Census Bureau | American Community Survey (acs/acs5) | 2019, 2023 | 15 | canonical-rows |
 | U.S. Census Bureau | American Community Survey (acs/acs5/profile) | 2023 | 1 | canonical-rows |
 | U.S. Census Bureau | American Community Survey Public Use Microdata Sample (acs/acs1/pums) | 2023 | 154 | canonical-rows |
 | U.S. Census Bureau | County Business Patterns 2022 | 2022 | 4 | canonical-rows |
+| U.S. Census Bureau | State FIPS codes and names | retrieval | 1 | response-bytes |
 | Zillow Research | ZHVI, All Homes (SFR/Condo), smoothed & seasonally adjusted, county (2026-08 release (series through 2026-07)) | 2026-08 release (series through 2026-07) | 1 | response-bytes |
 
 ## Why `hash_basis` exists
@@ -90,6 +131,47 @@ Every record carries `content_sha256`. `scripts/verify_provenance_reproducibilit
 | ZHVI, All Homes (SFR/Condo), smoothed & seasonally adjusted, county (2026-08 release (series through 2026-07)) | 2026-08 release (series through 2026-07) | 2026-09-18T12:16:50 | `01ccc62277cd314e` | [`d27g_zillow_zhvi_county.json`](../projects/08-culture-society/D27_housing_affordability_and_gentrification/provenance/d27g_zillow_zhvi_county.json) |
 | American Community Survey (acs/acs1) | 2010 | 2026-10-23T19:59:32 | `4c00bc91139ac419` | [`c01_acs1_b27010_2010.json`](../projects/09-causal-identification/C01_medicaid_expansion_did/provenance/c01_acs1_b27010_2010.json) |
 | American Community Survey Public Use Microdata Sample (acs/acs1/pums) | 2023 | 2026-10-23T19:51:51 | `8ec1ff751db2256d` | [`c02_pums2023_coverage_01.json`](../projects/09-causal-identification/C02_medicare_age65_rdd/provenance/c02_pums2023_coverage_01.json) |
+| QCEW industry 722, 2014 Q1 | 2014Q1 | 2026-10-22T18:39:47 | `36e56d65049d7ef4` | [`c03_qcew_722_2014q1.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2014q1.json) |
+| QCEW industry 722, 2014 Q2 | 2014Q2 | 2026-10-22T18:39:47 | `f08de1739f99f445` | [`c03_qcew_722_2014q2.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2014q2.json) |
+| QCEW industry 722, 2014 Q3 | 2014Q3 | 2026-10-22T18:39:48 | `d96c2db2b4f2182f` | [`c03_qcew_722_2014q3.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2014q3.json) |
+| QCEW industry 722, 2014 Q4 | 2014Q4 | 2026-10-22T18:39:48 | `0d965f630349a360` | [`c03_qcew_722_2014q4.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2014q4.json) |
+| QCEW industry 722, 2015 Q1 | 2015Q1 | 2026-10-22T18:39:49 | `ab081509beab7610` | [`c03_qcew_722_2015q1.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2015q1.json) |
+| QCEW industry 722, 2015 Q2 | 2015Q2 | 2026-10-22T18:39:49 | `ab1eced3bb74149d` | [`c03_qcew_722_2015q2.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2015q2.json) |
+| QCEW industry 722, 2015 Q3 | 2015Q3 | 2026-10-22T18:39:50 | `3c74918fd2acdd4b` | [`c03_qcew_722_2015q3.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2015q3.json) |
+| QCEW industry 722, 2015 Q4 | 2015Q4 | 2026-10-22T18:39:50 | `713990a6155115c7` | [`c03_qcew_722_2015q4.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2015q4.json) |
+| QCEW industry 722, 2016 Q1 | 2016Q1 | 2026-10-22T18:39:50 | `89ed88bd49bd5696` | [`c03_qcew_722_2016q1.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2016q1.json) |
+| QCEW industry 722, 2016 Q2 | 2016Q2 | 2026-10-22T18:39:51 | `880c949c8e468bd1` | [`c03_qcew_722_2016q2.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2016q2.json) |
+| QCEW industry 722, 2016 Q3 | 2016Q3 | 2026-10-22T18:39:51 | `7dacb347e887a2bc` | [`c03_qcew_722_2016q3.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2016q3.json) |
+| QCEW industry 722, 2016 Q4 | 2016Q4 | 2026-10-22T18:39:51 | `220b4b3c0eb39a50` | [`c03_qcew_722_2016q4.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2016q4.json) |
+| QCEW industry 722, 2017 Q1 | 2017Q1 | 2026-10-22T18:39:52 | `7cfc5a57c3c5e233` | [`c03_qcew_722_2017q1.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2017q1.json) |
+| QCEW industry 722, 2017 Q2 | 2017Q2 | 2026-10-22T18:39:52 | `07582db040e19ddc` | [`c03_qcew_722_2017q2.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2017q2.json) |
+| QCEW industry 722, 2017 Q3 | 2017Q3 | 2026-10-22T18:39:52 | `b751c90c23413c85` | [`c03_qcew_722_2017q3.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2017q3.json) |
+| QCEW industry 722, 2017 Q4 | 2017Q4 | 2026-10-22T18:39:53 | `6eb66d824d953dbf` | [`c03_qcew_722_2017q4.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2017q4.json) |
+| QCEW industry 722, 2018 Q1 | 2018Q1 | 2026-10-22T18:39:53 | `e645d79b0ed484f4` | [`c03_qcew_722_2018q1.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2018q1.json) |
+| QCEW industry 722, 2018 Q2 | 2018Q2 | 2026-10-22T18:39:53 | `23d978ddbdd15ba9` | [`c03_qcew_722_2018q2.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2018q2.json) |
+| QCEW industry 722, 2018 Q3 | 2018Q3 | 2026-10-22T18:39:54 | `b936f2d62ccf1a0d` | [`c03_qcew_722_2018q3.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2018q3.json) |
+| QCEW industry 722, 2018 Q4 | 2018Q4 | 2026-10-22T18:39:54 | `2d2df9bb88ffe75f` | [`c03_qcew_722_2018q4.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2018q4.json) |
+| QCEW industry 722, 2019 Q1 | 2019Q1 | 2026-10-22T18:39:54 | `50cc97bb78c3ab30` | [`c03_qcew_722_2019q1.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2019q1.json) |
+| QCEW industry 722, 2019 Q2 | 2019Q2 | 2026-10-22T18:39:55 | `d7f0ceff7c2ed8db` | [`c03_qcew_722_2019q2.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2019q2.json) |
+| QCEW industry 722, 2019 Q3 | 2019Q3 | 2026-10-22T18:39:55 | `4993f7af152ec230` | [`c03_qcew_722_2019q3.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2019q3.json) |
+| QCEW industry 722, 2019 Q4 | 2019Q4 | 2026-10-22T18:39:55 | `71aa5fc90e243b59` | [`c03_qcew_722_2019q4.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2019q4.json) |
+| QCEW industry 722, 2020 Q1 | 2020Q1 | 2026-10-22T18:39:56 | `8ece71d0b0c38f32` | [`c03_qcew_722_2020q1.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2020q1.json) |
+| QCEW industry 722, 2020 Q2 | 2020Q2 | 2026-10-22T18:39:56 | `55fb7790ecfebe3a` | [`c03_qcew_722_2020q2.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2020q2.json) |
+| QCEW industry 722, 2020 Q3 | 2020Q3 | 2026-10-22T18:39:57 | `c879ef61b556e3b1` | [`c03_qcew_722_2020q3.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2020q3.json) |
+| QCEW industry 722, 2020 Q4 | 2020Q4 | 2026-10-22T18:39:57 | `188a428444682d7a` | [`c03_qcew_722_2020q4.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2020q4.json) |
+| QCEW industry 722, 2021 Q1 | 2021Q1 | 2026-10-22T18:39:57 | `d6f5664223a869cc` | [`c03_qcew_722_2021q1.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2021q1.json) |
+| QCEW industry 722, 2021 Q2 | 2021Q2 | 2026-10-22T18:40:00 | `1e5a21baa7b99b0f` | [`c03_qcew_722_2021q2.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2021q2.json) |
+| QCEW industry 722, 2021 Q3 | 2021Q3 | 2026-10-22T18:40:00 | `0572562b5df9b975` | [`c03_qcew_722_2021q3.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2021q3.json) |
+| QCEW industry 722, 2021 Q4 | 2021Q4 | 2026-10-22T18:40:00 | `f494983f54e8b3d3` | [`c03_qcew_722_2021q4.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2021q4.json) |
+| QCEW industry 722, 2022 Q1 | 2022Q1 | 2026-10-22T18:40:01 | `6d25c821b2abe74a` | [`c03_qcew_722_2022q1.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2022q1.json) |
+| QCEW industry 722, 2022 Q2 | 2022Q2 | 2026-10-22T18:40:01 | `c171ba41a1d16695` | [`c03_qcew_722_2022q2.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2022q2.json) |
+| QCEW industry 722, 2022 Q3 | 2022Q3 | 2026-10-22T18:40:01 | `0c95761c4490df68` | [`c03_qcew_722_2022q3.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2022q3.json) |
+| QCEW industry 722, 2022 Q4 | 2022Q4 | 2026-10-22T18:40:02 | `99080fd5d6bac0f4` | [`c03_qcew_722_2022q4.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2022q4.json) |
+| QCEW industry 722, 2023 Q1 | 2023Q1 | 2026-10-22T18:40:02 | `799db77d0870d93d` | [`c03_qcew_722_2023q1.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2023q1.json) |
+| QCEW industry 722, 2023 Q2 | 2023Q2 | 2026-10-22T18:40:02 | `abf94321910e827a` | [`c03_qcew_722_2023q2.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2023q2.json) |
+| QCEW industry 722, 2023 Q3 | 2023Q3 | 2026-10-22T18:40:03 | `2019fc1f47d677df` | [`c03_qcew_722_2023q3.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2023q3.json) |
+| QCEW industry 722, 2023 Q4 | 2023Q4 | 2026-10-22T18:40:03 | `8a0c7088195143d3` | [`c03_qcew_722_2023q4.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_qcew_722_2023q4.json) |
+| State FIPS codes and names | retrieval | 2026-10-22T18:40:03 | `bea4e03f71a1fa00` | [`c03_state_fips.json`](../projects/09-causal-identification/C03_minimum_wage_staggered/provenance/c03_state_fips.json) |
 
 ## Restrictions and privacy
 

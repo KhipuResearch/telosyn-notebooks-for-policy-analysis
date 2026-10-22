@@ -192,6 +192,18 @@ def placebo_cutoffs(
     """
     xx = np.asarray(x, dtype=float)
     yy = np.asarray(y, dtype=float)
+    # Per-observation options travel with the observations: restricting x and y to one
+    # side of the cutoff without restricting these would misalign them.
+    per_obs = {
+        name: np.asarray(options.pop(name))
+        for name in ("weights", "cluster")
+        if options.get(name) is not None
+    }
+    for name in ("weights", "cluster"):
+        options.pop(name, None)
+    for name, values in per_obs.items():
+        if values.shape != xx.shape:
+            raise ValueError(f"{name} must have the same length as x")
     out: list[PlaceboFit] = []
     for c in placebo_cutoffs:
         if c == true_cutoff:
@@ -204,6 +216,7 @@ def placebo_cutoffs(
                 cutoff=float(c),
                 fit=local_linear(
                     xx[side], yy[side], cutoff=c, bandwidth=bandwidth,
+                    **{name: values[side] for name, values in per_obs.items()},
                     **options,  # type: ignore[arg-type]
                 ),
             )

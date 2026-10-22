@@ -188,3 +188,30 @@ def test_remaining_input_guards() -> None:
         rdd.placebo_cutoffs(x, x, true_cutoff=0.0, placebo_cutoffs=[0.0], bandwidth=3.0)
     with pytest.raises(ValueError, match="non-finite"):
         rdd.density_test(np.array([1.0, np.nan]), cutoff=0.0, bandwidth=3.0)
+
+
+def test_placebo_weights_and_clusters_follow_their_observations() -> None:
+    """Weights and clusters are restricted to the placebo's side, with x and y.
+
+    Before this was fixed, a weighted placebo raised "weights must have the same length as x"
+    because only x and y were narrowed to the side of the cutoff.
+    """
+    x = np.arange(-10.0, 11.0)
+    y = 0.5 * x + (x >= 0) * 3.0
+    w = np.linspace(1.0, 4.0, x.size)
+    cl = np.arange(x.size)
+    got = rdd.placebo_cutoffs(
+        x, y, true_cutoff=0.0, placebo_cutoffs=[-4.5, 4.5], bandwidth=3.0,
+        kernel="triangular", weights=w, cluster=cl,
+    )
+    for placebo in got:
+        side = x < 0.0 if placebo.cutoff < 0.0 else x >= 0.0
+        expect = rdd.local_linear(
+            x[side], y[side], cutoff=placebo.cutoff, bandwidth=3.0,
+            kernel="triangular", weights=w[side], cluster=cl[side],
+        )
+        assert placebo.fit.estimate == pytest.approx(expect.estimate, abs=1e-12)
+        assert placebo.fit.se == pytest.approx(expect.se, abs=1e-12)
+    with pytest.raises(ValueError, match="weights must have the same length"):
+        rdd.placebo_cutoffs(x, y, true_cutoff=0.0, placebo_cutoffs=[-4.5], bandwidth=3.0,
+                            weights=np.ones(3))

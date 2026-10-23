@@ -571,7 +571,8 @@ def sun_abraham(
     One dummy for every cohort by event-time cell (the reference event time omitted,
     end cells binned), a two-way fixed-effects regression with cluster-robust
     errors, then ``ATT(e) = sum_g share(g | e) * delta(g, e)`` where the shares are
-    each cohort's count of observations at event time ``e``. ``overall`` is the plain
+    each cohort's count of units with a cell at event time ``e`` (a binned end cell counts a unit once,
+    however many periods it pools). ``overall`` is the plain
     mean of ``ATT(e)`` over ``e >= 0``; its variance uses the same coefficients'
     covariance. Never-treated units are required (the interaction design has no other
     clean control). Sun and Abraham (2021, J. Econometrics, as recalled, not verified
@@ -603,7 +604,8 @@ def sun_abraham(
     if not columns:
         raise ValueError("no cohort has an observation inside the event window")
     fit = twfe(yy, np.column_stack(columns), unit, time, cluster=cluster)
-    counts = np.array([c.sum() for c in columns])
+    unit_codes = np.unique(np.asarray(unit), return_inverse=True)[1]
+    counts = np.array([np.unique(unit_codes[c.astype(bool)]).size for c in columns], dtype=float)
     att = np.zeros(len(event_times))
     agg = np.zeros((len(event_times), len(keys)))
     for row, e in enumerate(event_times):
@@ -658,8 +660,11 @@ def _group_time_core(
             at = np.flatnonzero(times == g + e)
             if at.size == 0:
                 continue
+            # A not-yet-treated control must be untreated in both the comparison and the base
+            # period, and cannot be the cohort itself.
             ctrl = np.flatnonzero(~np.isfinite(cohort) if control == "never"
-                                  else (cohort > g + e))
+                                  else (~np.isfinite(cohort) | (cohort > max(g + e, g - 1)))
+                                  & (cohort != g))
             if ctrl.size == 0:
                 continue
             b, a = base[0], at[0]
@@ -692,8 +697,8 @@ def group_time_att(
 
     For cohort ``g`` and period ``t = g + e``:
     ``ATT(g, t) = (mean_g y_t - mean_g y_{g-1}) - (mean_C y_t - mean_C y_{g-1})`` with
-    ``C`` the never-treated units, or the never-treated and the not-yet-treated
-    (``cohort > t``). This is the outcome-regression form of Callaway and Sant'Anna
+    ``C`` the never-treated units, or the never-treated and the units not yet treated
+    in either period (``cohort > max(t, g - 1)``, the cohort itself excluded). This is the outcome-regression form of Callaway and Sant'Anna
     (2021, J. Econometrics, as recalled, not verified in this build) with no
     covariates. ``ATT(e)`` weights cohorts by their number of units; ``overall`` is
     the mean over ``e >= 0``. Errors come from ``n_boot`` draws that resample clusters

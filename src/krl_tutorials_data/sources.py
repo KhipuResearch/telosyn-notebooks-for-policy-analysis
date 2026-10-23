@@ -812,8 +812,8 @@ def _pums_fetch_raw(
 ) -> tuple[pd.DataFrame, bytes]:
     """One state's response as a raw string frame, and its canonical rows for the digest.
 
-    A timeout or an HTTP 503 (the service's way of slowing a burst) is retried after a
-    growing pause, at most ``len(PUMS_RETRY_PAUSES)`` times; every other failure stops at once.
+    A timeout, a dropped connection or an HTTP 503 (the service's way of slowing a burst) is
+    retried after a growing pause, at most ``len(PUMS_RETRY_PAUSES)`` times; every other failure stops at once.
     """
     resp = None
     for attempt, pause in enumerate(PUMS_RETRY_PAUSES):
@@ -821,10 +821,11 @@ def _pums_fetch_raw(
         last = attempt == len(PUMS_RETRY_PAUSES) - 1
         try:
             resp = http.get(endpoint, params=params, timeout=300)
-        except requests.Timeout as exc:
+        except (requests.Timeout, requests.ConnectionError) as exc:
             if last:
                 raise UpstreamError(
-                    f"Census request to {endpoint} timed out: {redact(exc)}"
+                    f"Census request to {endpoint} failed after {len(PUMS_RETRY_PAUSES)} "
+                    f"attempts: {redact(exc)}"
                 ) from exc
             continue
         except requests.RequestException as exc:

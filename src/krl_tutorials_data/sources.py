@@ -801,14 +801,37 @@ def _pums_pool(
     ]
 
 
+#: Pauses before each attempt at a PUMS request: none, then growing (seconds).
+PUMS_RETRY_PAUSES: Final[tuple[float, ...]] = (0.0, 5.0, 15.0, 45.0)
+
+_sleep = time.sleep
+
+
 def _pums_fetch_raw(
     http: Any, endpoint: str, params: dict[str, str], requested: Sequence[str]
 ) -> tuple[pd.DataFrame, bytes]:
-    """One state's response as a raw string frame, and its canonical rows for the digest."""
-    try:
-        resp = http.get(endpoint, params=params, timeout=300)
-    except requests.RequestException as exc:
-        raise UpstreamError(f"Census request to {endpoint} failed: {redact(exc)}") from exc
+    """One state's response as a raw string frame, and its canonical rows for the digest.
+
+    A timeout or an HTTP 503 (the service's way of slowing a burst) is retried after a
+    growing pause, at most ``len(PUMS_RETRY_PAUSES)`` times; every other failure stops at once.
+    """
+    resp = None
+    for attempt, pause in enumerate(PUMS_RETRY_PAUSES):
+        _sleep(pause)
+        last = attempt == len(PUMS_RETRY_PAUSES) - 1
+        try:
+            resp = http.get(endpoint, params=params, timeout=300)
+        except requests.Timeout as exc:
+            if last:
+                raise UpstreamError(
+                    f"Census request to {endpoint} timed out: {redact(exc)}"
+                ) from exc
+            continue
+        except requests.RequestException as exc:
+            raise UpstreamError(f"Census request to {endpoint} failed: {redact(exc)}") from exc
+        if resp.status_code != 503 or last:
+            break
+    assert resp is not None
     reject_bot_challenge(resp, source="the Census Bureau", endpoint=endpoint)
     if resp.status_code != 200:
         raise UpstreamError(f"Census returned HTTP {resp.status_code} for {endpoint}.")

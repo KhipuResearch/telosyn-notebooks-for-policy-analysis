@@ -15,6 +15,7 @@ import json
 from typing import Any
 
 import pytest
+import requests
 
 from krl_tutorials_data import sources
 
@@ -121,3 +122,68 @@ def test_an_empty_duplicated_or_wildcard_list_raises_before_any_request(geograph
     """The list must name at least one state, each once, and no wildcard."""
     with pytest.raises(ValueError):
         _fetch(TWO, geography)
+
+
+class _Flaky:  # pylint: disable=too-few-public-methods
+    """Answers with a failing response a set number of times, then the rows."""
+
+    def __init__(self, failures: list[Any], rows: list[list[Any]]) -> None:
+        """Init."""
+        self.failures, self.rows, self.attempts = list(failures), rows, 0
+
+    def get(self, url: str, **kwargs: Any) -> Any:  # pylint: disable=unused-argument
+        """Fail, then answer."""
+        self.attempts += 1
+        if self.failures:
+            failure = self.failures.pop(0)
+            if isinstance(failure, Exception):
+                raise failure
+            response = _Response([])
+            response.status_code = failure
+            return response
+        return _Response(self.rows)
+
+
+def _flaky_fetch(session: _Flaky):
+    """Fetch one state through the flaky session."""
+    return sources.fetch_acs_pums(
+        year=2023,
+        variables=VARS,
+        aggregate_by=["AGEP"],
+        geography="state:51",
+        min_cell_records=5,
+        session=session,
+    )
+
+
+def test_a_transient_503_or_timeout_is_retried_and_the_pauses_grow(monkeypatch) -> None:
+    """Two failures then success: three attempts, with the documented pauses between them."""
+    pauses: list[float] = []
+    monkeypatch.setattr(sources, "_sleep", pauses.append)
+    session = _Flaky([503, requests.Timeout("slow")], _rows(30, 6, 10))
+    (frame, _) = _flaky_fetch(session)
+    assert session.attempts == 3 and frame["n_records"].sum() == 6
+    assert pauses == [0.0, 5.0, 15.0]
+
+
+def test_persistent_503s_stop_after_the_last_pause_and_other_statuses_stop_at_once(
+    monkeypatch,
+) -> None:
+    """Four 503s end in an UpstreamError; a 400 is not retried."""
+    monkeypatch.setattr(sources, "_sleep", lambda _: None)
+    always = _Flaky([503] * 10, _rows(30, 6, 10))
+    with pytest.raises(sources.UpstreamError, match="503"):
+        _flaky_fetch(always)
+    assert always.attempts == len(sources.PUMS_RETRY_PAUSES)
+    once = _Flaky([400], _rows(30, 6, 10))
+    with pytest.raises(sources.UpstreamError, match="400"):
+        _flaky_fetch(once)
+    assert once.attempts == 1
+    slow = _Flaky([requests.Timeout("slow")] * 10, _rows(30, 6, 10))
+    with pytest.raises(sources.UpstreamError, match="timed out"):
+        _flaky_fetch(slow)
+    assert slow.attempts == len(sources.PUMS_RETRY_PAUSES)
+    broken = _Flaky([requests.ConnectionError("down")], _rows(30, 6, 10))
+    with pytest.raises(sources.UpstreamError, match="failed"):
+        _flaky_fetch(broken)
+    assert broken.attempts == 1

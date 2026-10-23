@@ -1,0 +1,32 @@
+{
+  "source_name": "Federal Reserve Bank of St. Louis",
+  "dataset": "FRED series GANA",
+  "vintage": "2010-01-01 to 2019-12-01, current revision",
+  "endpoint": "https://api.stlouisfed.org/fred/series/observations",
+  "variables": {
+    "GANA": "FRED GANA, frequency=m, units=lin"
+  },
+  "retrieved_utc": "2026-10-23T17:11:24+00:00",
+  "row_count": 120,
+  "column_count": 2,
+  "content_sha256": "740d0e663712e2ef5db8b242fa14d04832ef1f9b71acf3e51e819cdcb3fc1687",
+  "mode": "empirical",
+  "notes": [
+    "Window is pinned at both ends; an open end would change every derived number on re-run.",
+    "0 observation(s) were published as the missing sentinel '.' and became NaN before any arithmetic.",
+    "Current revision: FRED rewrites history at each revision and rebasing, so these values differ from what was published earlier. Pass `vintage` to recover a historical publication."
+  ],
+  "pinned": true,
+  "hash_basis": "response-bytes",
+  "request_params": {
+    "series_id": "GANA",
+    "api_key": "<redacted>",
+    "file_type": "json",
+    "observation_start": "2010-01-01",
+    "observation_end": "2019-12-01",
+    "frequency": "m",
+    "units": "lin"
+  },
+  "request_method": "GET",
+  "pap_sha256": "bbb4b7a90571288f1d6d473c87014596a0cd7f403a36d3b288cd16c67a5e57df"
+}

@@ -47,6 +47,7 @@ Every notebook in the corpus, by project. Thesis is the notebook's own title.
 | 34 | [Causal Identification](../projects/09-causal-identification/README.md) | [Difference-in-Differences](../projects/09-causal-identification/C01_medicaid_expansion_did/C01_medicaid_expansion_did.ipynb) | Medicaid Expansion and the Uninsured Rate |
 | 35 | [Causal Identification](../projects/09-causal-identification/README.md) | [Regression Discontinuity](../projects/09-causal-identification/C02_medicare_age65_rdd/C02_medicare_age65_rdd.ipynb) | Health Insurance Coverage at Age 65 |
 | 36 | [Causal Identification](../projects/09-causal-identification/README.md) | [Staggered Adoption](../projects/09-causal-identification/C03_minimum_wage_staggered/C03_minimum_wage_staggered.ipynb) | First Moves Above the Federal Minimum Wage and Food-Service Employment |
-| 37 | [Causal Identification](../projects/09-causal-identification/README.md) | [Matching and Weighting on Observables](../projects/09-causal-identification/C05_public_coverage_matching/C05_public_coverage_matching.ipynb) | Public Coverage and Employment |
+| 37 | [Causal Identification](../projects/09-causal-identification/README.md) | [Synthetic Control](../projects/09-causal-identification/C04_ca_minimum_wage_synth/C04_ca_minimum_wage_synth.ipynb) | California SB 3 and Leisure-and-Hospitality Employment |
+| 38 | [Causal Identification](../projects/09-causal-identification/README.md) | [Matching and Weighting on Observables](../projects/09-causal-identification/C05_public_coverage_matching/C05_public_coverage_matching.ipynb) | Public Coverage and Employment |
 
-37 notebooks across 9 projects.
+38 notebooks across 9 projects.

@@ -1,0 +1,23 @@
+{
+  "source_name": "U.S. Census Bureau",
+  "dataset": "State FIPS codes, names and postal abbreviations",
+  "vintage": "retrieval",
+  "endpoint": "https://www2.census.gov/geo/docs/reference/state.txt",
+  "variables": {
+    "STUSAB": "postal abbreviation",
+    "STATE_NAME": "name"
+  },
+  "retrieved_utc": "2026-10-23T20:52:04+00:00",
+  "row_count": 57,
+  "column_count": 4,
+  "content_sha256": "bea4e03f71a1fa0045ae732aabad11fa541e5932b071c2369bb0d325e8cba5a0",
+  "mode": "empirical",
+  "notes": [
+    "A reference list used only to map state names in the wage schedule to postal abbreviations for the donor series."
+  ],
+  "pinned": false,
+  "hash_basis": "response-bytes",
+  "request_params": {},
+  "request_method": "GET",
+  "pap_sha256": "bbb4b7a90571288f1d6d473c87014596a0cd7f403a36d3b288cd16c67a5e57df"
+}

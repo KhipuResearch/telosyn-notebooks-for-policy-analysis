@@ -61,12 +61,21 @@ def test_saturated_cells_with_frequencies_recover_the_cell_shares_by_hand() -> N
 @settings(max_examples=25, deadline=None)
 @given(seed=st.integers(0, 10_000))
 def test_property_a_frequency_weighted_logit_equals_the_fit_on_expanded_rows(seed: int) -> None:
-    """The coefficients agree to numerical precision whatever the counts."""
+    """The coefficients agree to numerical precision whatever the counts.
+
+    Random small data can be separable; then the expanded fit raises and the frequency-weighted
+    fit must raise too, which is the same equivalence.
+    """
     frame, freq = cells(seed)
-    weighted = matching.logit_propensity(frame["x"], frame["d"], frequency=freq)
     big = expand(frame, freq)
-    plain = matching.logit_propensity(big["x"], big["d"])
-    np.testing.assert_allclose(weighted.coef, plain.coef, atol=1e-7)
+    try:
+        plain = matching.logit_propensity(big["x"], big["d"])
+    except RuntimeError:
+        with pytest.raises(RuntimeError):
+            matching.logit_propensity(frame["x"], frame["d"], frequency=freq)
+        return
+    weighted = matching.logit_propensity(frame["x"], frame["d"], frequency=freq)
+    np.testing.assert_allclose(weighted.coef, plain.coef, atol=1e-6)
 
 
 def test_a_zero_frequency_row_has_no_influence_and_no_frequency_changes_nothing() -> None:

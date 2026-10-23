@@ -1,0 +1,52 @@
+{
+  "source_name": "U.S. Census Bureau",
+  "dataset": "American Community Survey Public Use Microdata Sample (acs/acs1/pums)",
+  "vintage": "2023",
+  "endpoint": "https://api.census.gov/data/2023/acs/acs1/pums",
+  "variables": {
+    "AGEP": "Age",
+    "SEX": "Sex",
+    "SCHL": "Educational attainment",
+    "DIS": "Disability recode",
+    "NP": "Number of persons in this household",
+    "PUBCOV": "Public health coverage recode",
+    "ESR": "Employment status recode",
+    "NATIVITY": "Nativity",
+    "POVPIP": "Income-to-poverty ratio recode"
+  },
+  "retrieved_utc": "2026-10-23T20:39:06+00:00",
+  "row_count": 127033,
+  "column_count": 10,
+  "content_sha256": "0c2b312957655aac6497f43c8887cc0729ee6b60dd299b3645a9c0ea9b9d763f",
+  "mode": "empirical",
+  "notes": [
+    "PUMS is a sample of person records; weighted cell counts estimate population counts with sampling error that is not computed here (no replicate weights).",
+    "Missing values in grouping columns are kept as their own cell; their meaning is the variable's universe in the PUMS data dictionary.",
+    "Records kept inside AGEP in [19, 64], POVPIP in [0, 199].",
+    "Coarsened ESR into bands labelled by lower edge.",
+    "Pooled 10 state(s): each cell's weight and record count were summed across states before the small-cell floor was applied.",
+    "Aggregated to 15 cell(s) from 127033 person record(s); 1 cell(s) with fewer than 10 records were withheld (3 record(s), weighted 168). No person-level row is returned."
+  ],
+  "pinned": true,
+  "hash_basis": "canonical-rows",
+  "request_params": {
+    "get": "AGEP,SEX,SCHL,DIS,NP,PUBCOV,ESR,NATIVITY,POVPIP,PWGTP",
+    "for": [
+      "state:01",
+      "state:12",
+      "state:13",
+      "state:20",
+      "state:28",
+      "state:45",
+      "state:47",
+      "state:48",
+      "state:55",
+      "state:56"
+    ],
+    "AGEP": "19:64",
+    "POVPIP": "0:199",
+    "key": "<redacted>"
+  },
+  "request_method": "GET",
+  "pap_sha256": "0146e53dc40ef43e70353a5f95e2cac4e739ca1a16f56ea046f20bf2d43cf55a"
+}

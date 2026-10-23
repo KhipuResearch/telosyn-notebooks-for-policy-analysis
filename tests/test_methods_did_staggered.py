@@ -281,3 +281,39 @@ def test_group_time_att_clusters_and_guards() -> None:
         did.group_time_att(
             p["y"], p["unit"], p["time"], never_only, leads=1, lags=1, n_boot=10, seed=1
         )
+
+
+def test_sun_abraham_pooled_lead_bin_weights_cohorts_by_units_not_observations() -> None:
+    """The binned lead cell averages cohorts by their unit counts.
+
+    Cohort 4 has 2 units and a lead shift of 1.0 at every event time <= -2; cohort 8
+    has 6 units and a shift of 5.0. Cohort 8 contributes 7 periods to the e <= -2 bin and
+    cohort 4 contributes 3, so weighting by observations would give (6*1 + 42*5)/48 = 4.5.
+    The units-weighted truth is (2*1 + 6*5)/8 = 4.0.
+    """
+    effects = {4: lambda e: 1.0 + 0.5 * e, 8: lambda e: 2.0}
+    p = make_panel(effects, {np.nan: 6, 4: 2, 8: 6}, 12)
+    shift = {4.0: 1.0, 8.0: 5.0}
+    lead = np.isfinite(p["cohort"]) & (p["time"] - p["cohort"] <= -2)
+    p["y"] = p["y"] + np.where(lead, [shift.get(c, 0.0) for c in p["cohort"]], 0.0)
+    fit = did.sun_abraham(
+        p["y"], p["unit"], p["time"], p["cohort"], leads=2, lags=8, cluster=p["unit"]
+    )
+    assert fit.att[fit.event_times.index(-2)] == pytest.approx(4.0, abs=1e-8)
+
+
+def test_group_time_att_not_yet_controls_exclude_the_cohort_and_the_treated_at_base() -> None:
+    """Pre-period effects are zero under parallel untreated trends, whatever the control set.
+
+    For cohort 9 at e = -5 (period 4, base period 8) cohort 6 is already treated at the
+    base period and cohort 9 is the cohort itself; neither is a valid control, so every
+    pre-period effect is exactly zero. A control set that admits them returns a non-zero value.
+    """
+    effects = {3: lambda e: 4.0, 6: lambda e: 10.0, 9: lambda e: 3.0}
+    p = make_panel(effects, {np.nan: 6, 3: 4, 6: 4, 9: 4}, 12)
+    fit = did.group_time_att(
+        p["y"], p["unit"], p["time"], p["cohort"],
+        leads=5, lags=2, control="not_yet", n_boot=20, seed=3,
+    )
+    pre = [a for e, a in zip(fit.event_times, fit.att) if e < 0]
+    assert pre and np.allclose(pre, 0.0, atol=1e-9)

@@ -820,13 +820,28 @@ PUMS_RETRY_PAUSES: Final[tuple[float, ...]] = (0.0, 5.0, 15.0, 45.0)
 _sleep = time.sleep
 
 
+def _pums_predicates(keep: Mapping[str, tuple[float, float]] | None) -> dict[str, str]:
+    """The ``keep`` ranges as Census range predicates (``AGEP=19:64``), where they are whole.
+
+    The service then returns only the matching records, a fraction of the payload. The same
+    ranges are applied again to what comes back, so a service that ignored a predicate would
+    change the size of the response and nothing else.
+    """
+    return {
+        column: f"{int(low)}:{int(high)}"
+        for column, (low, high) in (keep or {}).items()
+        if low == int(low) and high == int(high)
+    }
+
+
 def _pums_fetch_raw(
     http: Any, endpoint: str, params: dict[str, str], requested: Sequence[str]
 ) -> tuple[pd.DataFrame, bytes]:
     """One state's response as a raw string frame, and its canonical rows for the digest.
 
     A timeout, a dropped connection or an HTTP 503 (the service's way of slowing a burst) is
-    retried after a growing pause, at most ``len(PUMS_RETRY_PAUSES)`` times; every other failure stops at once.
+    retried after a growing pause, at most ``len(PUMS_RETRY_PAUSES)`` times; every other
+    failure stops at once.
     """
     resp = None
     for attempt, pause in enumerate(PUMS_RETRY_PAUSES):
@@ -980,7 +995,12 @@ def fetch_acs_pums(  # pylint: disable=too-many-arguments,too-many-locals
     payloads: list[bytes] = []
     n_person = 0
     for state in states:
-        params = {"get": ",".join(requested), "for": state, "key": api_key}
+        params = {
+            "get": ",".join(requested),
+            "for": state,
+            **_pums_predicates(keep),
+            "key": api_key,
+        }
         raw, payload = _pums_fetch_raw(http, endpoint, params, requested)
         person = _pums_person_frame(raw, requested, weight)
         n_person += len(person)

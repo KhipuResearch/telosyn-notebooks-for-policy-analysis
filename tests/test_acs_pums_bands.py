@@ -167,3 +167,25 @@ def test_property_returned_plus_withheld_weight_is_the_weight_of_the_kept_record
     total = cells["weighted_n"].sum() + cells.attrs["suppressed_weighted_n"]
     assert total == pytest.approx(kept_weight)
     assert set(cells["AGEP"]) <= {19.0, 30.0, 45.0}
+
+
+def test_whole_number_keep_ranges_are_sent_as_predicates_and_still_applied_locally() -> None:
+    """The request carries AGEP=19:64; a service that ignored it changes nothing in the cells."""
+    seen: list[dict] = []
+
+    class _Recording(_Session):  # pylint: disable=too-few-public-methods
+        def get(self, url: str, **kwargs: Any) -> _Response:
+            seen.append(kwargs["params"])
+            return super().get(url, **kwargs)
+
+    session = _Recording(_rows(SPEC))
+    frame, _ = _fetch(SPEC, session=session, keep={"POVPIP": (0, 199), "AGEP": (19, 64)})
+    assert seen[0]["POVPIP"] == "0:199" and seen[0]["AGEP"] == "19:64"
+    assert frame.attrs["records_kept"] == 30  # the stub ignored the predicate; the filter held
+
+
+def test_a_fractional_keep_bound_is_not_sent_as_a_predicate() -> None:
+    """Only whole-number ranges are expressed to the service."""
+    predicates = sources._pums_predicates  # pylint: disable=protected-access
+    assert predicates({"AGEP": (19, 64), "X": (0.5, 3)}) == {"AGEP": "19:64"}
+    assert not predicates(None)

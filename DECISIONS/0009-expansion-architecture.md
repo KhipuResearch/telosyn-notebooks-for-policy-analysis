@@ -10,6 +10,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 - **Deciders:** Telosyn, Inc. (owner)
 - **Date:** 2026-10-15
 - **Amended 2026-10-15:** precedence of a pre-analysis plan over the data is proven by digest equality (notebook declaration = plan file = `pap_sha256` in every provenance record), not by commit time; commit order is a warning, and §3.2 rule 3–4 and the fail-closed clause read accordingly.
+- **Amended 2026-10-23:** C06 does not adopt `linearmodels`: the exactly identified, one-instrument case is short enough to implement and test in `methods/iv.py` (§3.6), against the textbook projection form, so no dependency is added. `fetch_acs_pums` also gains `keep`, `bands` and pooled states, still returning cells only (§3.8).
 - **Amended 2026-10-16:** the PUMS and CPS ASEC clients return cells only and have no row-level path at all (§3.8); the public-surface check reads its name patterns from a private denylist outside the repository (§3.10).
 
 ## 1. Title
@@ -145,7 +146,7 @@ declared that is not imported.
 
 | Package | Used by | Status this release |
 |---|---|---|
-| `linearmodels` | C06 | Conditional on `statsmodels` being insufficient |
+| `linearmodels` | C06 | **Not adopted** (2026-10-23): the C06 design is one endogenous regressor and one instrument, so the estimator is written in `methods/iv.py` (about 100 lines, tested against the projection form) and no dependency is added |
 | `pymc` | Q03 | Could; verified and declared only if Q03 is released |
 | `econml` | Q02 | Could; verified and declared only if Q02 is released |
 | `mesa` | S03 | Deferred with project 12 |

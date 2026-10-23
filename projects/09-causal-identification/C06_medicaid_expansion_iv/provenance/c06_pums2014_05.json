@@ -1,0 +1,36 @@
+{
+  "source_name": "U.S. Census Bureau",
+  "dataset": "American Community Survey Public Use Microdata Sample (acs/acs1/pums)",
+  "vintage": "2014",
+  "endpoint": "https://api.census.gov/data/2014/acs/acs1/pums",
+  "variables": {
+    "AGEP": "Age",
+    "SEX": "Sex",
+    "HINS4": "Medicaid, Medical Assistance, or any kind of government-assistance plan for those with low incomes o",
+    "ESR": "Employment status recode",
+    "POVPIP": "Income-to-poverty ratio recode"
+  },
+  "retrieved_utc": "2026-10-23T20:59:32+00:00",
+  "row_count": 4034,
+  "column_count": 6,
+  "content_sha256": "84afec3fad21cc10f6393434df55aa0b844813f7ef61c452b234030f1012e32f",
+  "mode": "empirical",
+  "notes": [
+    "PUMS is a sample of person records; weighted cell counts estimate population counts with sampling error that is not computed here (no replicate weights).",
+    "Missing values in grouping columns are kept as their own cell; their meaning is the variable's universe in the PUMS data dictionary.",
+    "Kept 4034 of 4034 person record(s) inside AGEP in [19, 64], POVPIP in [0, 137].",
+    "Coarsened AGEP into 3 band(s), labelled by lower edge, ESR into 5 band(s), labelled by lower edge.",
+    "Aggregated to 35 cell(s) from 4034 person record(s); 3 cell(s) with fewer than 10 records were withheld (14 record(s), weighted 1,210). No person-level row is returned."
+  ],
+  "pinned": true,
+  "hash_basis": "canonical-rows",
+  "request_params": {
+    "get": "AGEP,SEX,HINS4,ESR,POVPIP,PWGTP",
+    "for": "state:05",
+    "AGEP": "19:64",
+    "POVPIP": "0:137",
+    "key": "<redacted>"
+  },
+  "request_method": "GET",
+  "pap_sha256": "cd02a3c4d3f02e9d2775d2d9fb5648d0b66c5f89c12842a433b4fa53d85d334f"
+}

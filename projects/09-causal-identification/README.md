@@ -22,7 +22,7 @@ jupyter lab projects/09-causal-identification/
 | [Staggered Adoption](C03_minimum_wage_staggered/C03_minimum_wage_staggered.ipynb) | First Moves Above the Federal Minimum Wage and Food-Service Employment | QCEW industry 722, 2014 Q1, QCEW industry 722, 2014 Q2, QCEW industry 722, 2014 Q3 … |
 | [Synthetic Control](C04_ca_minimum_wage_synth/C04_ca_minimum_wage_synth.ipynb) | California SB 3 and Leisure-and-Hospitality Employment | FRED series ALLEIH, FRED series ALNA, FRED series ALUR … |
 | [Matching and Weighting on Observables](C05_public_coverage_matching/C05_public_coverage_matching.ipynb) | Public Coverage and Employment | American Community Survey Public Use Microdata Sample (acs/acs1/pums) |
-| [Instrumental Variables](C06_medicaid_expansion_iv/C06_medicaid_expansion_iv.ipynb) | Medicaid Expansion as an Instrument for Coverage | American Community Survey Public Use Microdata Sample (acs/acs1/pums) |
+| [Instrumental Variables](C06_medicaid_expansion_iv/C06_medicaid_expansion_iv.ipynb) | Medicaid Expansion as an Instrument for Coverage | American Community Survey Public Use Microdata Sample (acs/acs1/pums), State FIPS codes and names |
 
 ## Difference-in-Differences
 
@@ -144,17 +144,17 @@ jupyter lab projects/09-causal-identification/
 
 - Explain what an instrument must do (move the treatment) and must not do (move the outcome any other way), and which of the two can be checked.
 - Estimate a two-stage least squares effect on grouped cells with population weights and state-clustered errors, and read the first stage, the reduced form and the ratio between them.
-- Say who the estimate is about: the compliers whose coverage changed because their state expanded, and how large that group is.
-- Measure what grouping and weighting do to the estimand, by comparing the weighted and equal-weight estimates.
+- Say who the estimate is about and what it needs: the compliers whose coverage changed because their state expanded, how large that group is, and the assumptions beyond exclusion (parallel trends, no anticipation, monotonicity, stable effects) that a treated-times-post instrument adds to an ordinary one.
+- Measure what weighting does to the estimand, by comparing the weighted and equal-weight estimates, and see why grouping does not.
 
-**Sources** — American Community Survey Public Use Microdata Sample (acs/acs1/pums)  
-280 provenance records committed in `C06_medicaid_expansion_iv/provenance/`.
+**Sources** — American Community Survey Public Use Microdata Sample (acs/acs1/pums); State FIPS codes and names  
+525 provenance records committed in `C06_medicaid_expansion_iv/provenance/`.
 
 **Limitations**
 
-- A complier effect. The estimate belongs to the people whose Medicaid coverage changed because their state expanded, in the treated states and in this window. It says nothing about people whose coverage does not respond to expansion, and the notebook prints how large the responding group is (the first stage).
-- The exclusion restriction is an argument, not a test. Expansion may change employment by routes other than coverage: state labour demand in health care, other state policies adopted alongside expansion, changes in how coverage is reported when people move from other coverage to Medicaid, and, in later years, work requirements in some states. Only the effect of health and of loosened "job lock" through coverage is the effect of interest; the estimate is the most the argument can support.
-- Timing. Only the 2014 cohort and the never-adopters are used, so later adopters are excluded, and some treated states broadened coverage before 2014.
+- A selected sample. The sample is adults below 138% of the poverty level, a line that expansion can move people across by changing work and earnings. The comparison's composition can therefore shift after 2014, and the estimate is about the people who are in the sample, not about everyone with low income. The labelled composition check finds that it did shift: the reduced forms on the female share and on the share aged 50 to 64 have intervals that exclude zero, as printed, so the treated and control samples differ in composition after 2014 in ways the fixed effects do not absorb. The estimate cannot be read as a comparison of the same people.
+- A complier effect, under assumptions the checks do not test. The estimate belongs to the people whose Medicaid coverage changed because their state expanded, in the treated states and in this window. It needs parallel trends in coverage and in employment, no anticipation, monotonicity and stable effects, as the design section says; control-state Medicaid also changed after 2014, and with additive fixed effects the estimate need not be a positively weighted average of complier effects. Compliers' alternative to Medicaid includes employer and marketplace coverage.
+- The exclusion restriction is an argument, not a test. Expansion may change employment by routes other than the coverage of the person: budget-set changes for people who do not enrol (the 138% line against marketplace subsidies that start at 100%, as recalled and not verified in this build), enrolling when sick, which gives coverage an option value that depends on health, spillovers within households, fiscal and general-equilibrium effects on state labour demand (health care in particular), other state policies adopted alongside, and, as recalled and not verified, the work requirement Arkansas ran in 2018-19. A direct effect through any of them enters the IV estimate multiplied by the factor the exclusion cell prints. The first version of this notebook called the estimate the most the argument could support and the plan speaks of a bound; neither is supported, and the language is dropped.
 
 ---
 

@@ -1,0 +1,23 @@
+{
+  "source_name": "U.S. Census Bureau",
+  "dataset": "State FIPS codes and names",
+  "vintage": "retrieval",
+  "endpoint": "https://www2.census.gov/geo/docs/reference/state.txt",
+  "variables": {
+    "STATE": "FIPS code",
+    "STATE_NAME": "name"
+  },
+  "retrieved_utc": "2026-10-23T21:01:54+00:00",
+  "row_count": 57,
+  "column_count": 4,
+  "content_sha256": "bea4e03f71a1fa0045ae732aabad11fa541e5932b071c2369bb0d325e8cba5a0",
+  "mode": "empirical",
+  "notes": [
+    "A reference list used only to attach FIPS codes to the states in the expansion table."
+  ],
+  "pinned": false,
+  "hash_basis": "response-bytes",
+  "request_params": {},
+  "request_method": "GET",
+  "pap_sha256": "cd02a3c4d3f02e9d2775d2d9fb5648d0b66c5f89c12842a433b4fa53d85d334f"
+}

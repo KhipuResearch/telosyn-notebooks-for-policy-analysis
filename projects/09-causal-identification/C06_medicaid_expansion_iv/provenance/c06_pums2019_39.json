@@ -10,7 +10,7 @@
     "ESR": "Employment status recode",
     "POVPIP": "Income-to-poverty ratio recode"
   },
-  "retrieved_utc": "2026-10-23T18:50:00+00:00",
+  "retrieved_utc": "2026-10-23T21:01:06+00:00",
   "row_count": 10522,
   "column_count": 6,
   "content_sha256": "60b8f12bf588a68166d4bbe0788e363b4532e91ae64e7a75586d3d1f8b75ba2c",
@@ -27,6 +27,8 @@
   "request_params": {
     "get": "AGEP,SEX,HINS4,ESR,POVPIP,PWGTP",
     "for": "state:39",
+    "AGEP": "19:64",
+    "POVPIP": "0:137",
     "key": "<redacted>"
   },
   "request_method": "GET",

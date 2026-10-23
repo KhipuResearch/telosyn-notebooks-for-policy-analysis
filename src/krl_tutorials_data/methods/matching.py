@@ -355,17 +355,29 @@ def balance_table(
     ]
 
 
-def overlap_data(score: ArrayLike, d: ArrayLike, *, bins: int = 20) -> OverlapData:
-    """Counts per bin for treated and control scores, and the common-support interval."""
+def overlap_data(
+    score: ArrayLike, d: ArrayLike, *, bins: int = 20, frequency: ArrayLike | None = None
+) -> OverlapData:
+    """Counts per bin for treated and control scores, and the common-support interval.
+
+    ``frequency`` gives each row a whole-number count of identical observations; the bin
+    counts are then counts of observations, and a row with zero frequency does not set the
+    common support.
+    """
     if bins < 1:
         raise ValueError("bins must be at least 1")
     dd = _binary(d)
     s = np.asarray(score, dtype=float)
     if s.shape != dd.shape or not np.all(np.isfinite(s)):
         raise ValueError("score must be finite and the same length as d")
+    freq = _frequency(frequency, dd.shape[0], dd)
+    if np.any(freq != np.round(freq)):
+        raise ValueError("frequency must hold whole counts here")
+    live = freq > 0
+    s, dd, freq = s[live], dd[live], freq[live]
     edges = np.linspace(float(s.min()), float(s.max()), bins + 1)
-    ct, _ = np.histogram(s[dd == 1], bins=edges)
-    cc, _ = np.histogram(s[dd == 0], bins=edges)
+    ct, _ = np.histogram(s[dd == 1], bins=edges, weights=freq[dd == 1])
+    cc, _ = np.histogram(s[dd == 0], bins=edges, weights=freq[dd == 0])
     support = (
         float(max(s[dd == 1].min(), s[dd == 0].min())),
         float(min(s[dd == 1].max(), s[dd == 0].max())),
@@ -388,6 +400,7 @@ class StratifiedResult:
     """ATT from strata that hold both treated and control units."""
 
     estimate: float
+    se: float
     n_strata_used: int
     n_strata_dropped: int
     share_treated_used: float
@@ -406,6 +419,9 @@ def stratified_effect(
     comparison and is dropped, and the share of treated units that survive is reported
     (a result computed on a small share of the treated says so). Counts may be
     frequencies of any kind, but only counts of sampled units support inference.
+    ``se`` is the delta-method standard error with the stratum weights held fixed:
+    ``sqrt(sum_s w_s^2 [p1(1-p1)/n1 + p0(1-p0)/n0])``. It ignores the estimation of the
+    weights and any survey design.
     """
     e1, n1 = np.asarray(treated_events, dtype=float), np.asarray(treated_n, dtype=float)
     e0, n0 = np.asarray(control_events, dtype=float), np.asarray(control_n, dtype=float)
@@ -416,10 +432,13 @@ def stratified_effect(
     both = (n1 > 0) & (n0 > 0)
     if not both.any() or n1[both].sum() <= 0:
         raise ValueError("no stratum holds both treated and control units")
-    diff = e1[both] / n1[both] - e0[both] / n0[both]
-    estimate = float(np.sum(n1[both] * diff) / n1[both].sum())
+    p1, p0 = e1[both] / n1[both], e0[both] / n0[both]
+    w = n1[both] / n1[both].sum()
+    estimate = float(np.sum(w * (p1 - p0)))
+    se = float(np.sqrt(np.sum(w**2 * (p1 * (1 - p1) / n1[both] + p0 * (1 - p0) / n0[both]))))
     return StratifiedResult(
         estimate=estimate,
+        se=se,
         n_strata_used=int(both.sum()),
         n_strata_dropped=int((~both).sum() - ((n1 == 0) & (n0 == 0)).sum()),
         share_treated_used=float(n1[both].sum() / n1.sum()),

@@ -19,7 +19,7 @@ jupyter lab projects/09-causal-identification/
 |---|---|---|
 | [Difference-in-Differences](C01_medicaid_expansion_did/C01_medicaid_expansion_did.ipynb) | Medicaid Expansion and the Uninsured Rate | American Community Survey (acs/acs1) |
 | [Regression Discontinuity](C02_medicare_age65_rdd/C02_medicare_age65_rdd.ipynb) | Health Insurance Coverage at Age 65 | American Community Survey Public Use Microdata Sample (acs/acs1/pums) |
-| [Staggered Adoption](C03_minimum_wage_staggered/C03_minimum_wage_staggered.ipynb) | State Minimum-Wage Increases and Food-Service Employment | QCEW industry 722, 2014 Q1, QCEW industry 722, 2014 Q2, QCEW industry 722, 2014 Q3 … |
+| [Staggered Adoption](C03_minimum_wage_staggered/C03_minimum_wage_staggered.ipynb) | First Moves Above the Federal Minimum Wage and Food-Service Employment | QCEW industry 722, 2014 Q1, QCEW industry 722, 2014 Q2, QCEW industry 722, 2014 Q3 … |
 
 ## Difference-in-Differences
 
@@ -67,7 +67,7 @@ jupyter lab projects/09-causal-identification/
 
 ## Staggered Adoption
 
-**State Minimum-Wage Increases and Food-Service Employment.**
+**First Moves Above the Federal Minimum Wage and Food-Service Employment.**
 
 `C03_minimum_wage_staggered/C03_minimum_wage_staggered.ipynb`
 
@@ -83,9 +83,9 @@ jupyter lab projects/09-causal-identification/
 
 **Limitations**
 
-- Suppressed county cells. The balanced-panel rule drops every county with a withheld or zero cell in any quarter, and withholding is not random: it is applied where few establishments make a cell identifying. The retrieval and panel cells print how many counties and how much employment that costs; the estimates speak to the counties that remain.
+- Suppressed county cells. The balanced-panel rule drops every county with a withheld or zero cell in any quarter, and withholding is not random: it is applied where few establishments make a cell identifying. The panel cell prints how many counties are kept, why the rest were dropped, and the share of first-quarter employment in disclosed counties that the kept counties hold. That is not a share of the state totals, because employment in withheld counties is not observed. Every average here is an unweighted county average, and the small rural counties that are most often withheld are the ones missing; the estimates speak to the counties that remain. The retrieval also returns statewide-unknown codes (ending 999) that are not counties; the panel cell prints how many sit in the balanced panel, and a labelled sensitivity drops them.
 - Window. The BLS slice API starts in 2014 Q1, so no state has a pre-period before 2014 and the states already above the federal minimum in 2014 have none at all. They are in the naive regression and its decomposition and absent from the interaction-weighted estimate, which therefore speaks only to adopters from 2015 to 2023.
-- Dating. The schedule records January-1 values, so an increase made part-way through a year is dated to the next 1 January: up to two quarters of treatment are coded as untreated.
+- Dating. The schedule records January-1 values, so an increase made part-way through a year is dated to the next 1 January, and the file is not a consistent January-1 snapshot: some rows carry a rate that took effect part-way through the year. The errors run in both directions. As recalled and not verified in this build, Virginia's 2021 increase took effect on 1 May 2021 and is coded to 2021 Q1, a quarter early; Delaware's 2014 increase took effect in June 2014 and Delaware is coded as above the federal minimum for the whole of 2014, which makes it a treated-throughout state; and the rows for Maryland (2015, 2016, 2018) and California (2014) may show mid-year rates. The pre-period coefficients are the place where dating error would show.
 
 ---
 

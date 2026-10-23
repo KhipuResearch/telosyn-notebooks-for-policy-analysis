@@ -199,3 +199,22 @@ def test_a_column_the_service_echoes_back_is_collapsed_and_a_differing_echo_is_r
     clashing = [["AGEP", "POVPIP", "PWGTP", "AGEP"]] + [["30", "100", "10", "31"]] * 6
     with pytest.raises(sources.SchemaError, match="differing values"):
         _fetch([], session=_Session(clashing))
+
+
+def test_the_provenance_request_records_the_range_predicates_that_were_sent() -> None:
+    """A replay of the record must send what was sent: the predicates are in request_params."""
+    seen: list[dict] = []
+
+    class _Recording(_Session):  # pylint: disable=too-few-public-methods
+        def get(self, url: str, **kwargs: Any) -> _Response:
+            seen.append(kwargs["params"])
+            return super().get(url, **kwargs)
+
+    _, prov = _fetch(
+        SPEC, session=_Recording(_rows(SPEC)), keep={"POVPIP": (0, 199), "AGEP": (19, 64)}
+    )
+    sent = {k: v for k, v in seen[0].items() if k not in ("key",)}
+    recorded = {k: v for k, v in prov.request_params.items() if k != "key"}
+    assert recorded == sent
+    assert recorded["AGEP"] == "19:64" and recorded["POVPIP"] == "0:199"
+    assert prov.request_params["key"] == "<redacted>"

@@ -254,7 +254,7 @@ def test_the_estimator_weights_reproduce_the_jump_and_satisfy_the_moment_conditi
 
 
 def test_the_worst_case_curvature_attains_the_bias_bound_exactly() -> None:
-    """A baseline of y = sign(w) M/2 d^2 over a straight line has bias M/2 sum |w| d^2, the bound."""
+    """A baseline of sign(w) M/2 d^2 over a straight line has bias M/2 sum |w| d^2: the bound."""
     x, pop = _ages()
     smooth = 0.2
     w, dist = rdd.estimator_weights(x, cutoff=64.5, bandwidth=4.5, weights=pop)

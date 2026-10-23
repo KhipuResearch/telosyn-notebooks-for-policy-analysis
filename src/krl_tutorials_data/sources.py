@@ -1034,6 +1034,7 @@ def fetch_acs_pums(  # pylint: disable=too-many-arguments,too-many-locals
         request_params={
             "get": ",".join(requested),
             "for": states if pooled else states[0],
+            **_pums_predicates(keep),
             "key": api_key,
         },
         source_name="U.S. Census Bureau",

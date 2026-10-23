@@ -14,7 +14,7 @@
     "NATIVITY": "Nativity",
     "POVPIP": "Income-to-poverty ratio recode"
   },
-  "retrieved_utc": "2026-10-23T07:33:54+00:00",
+  "retrieved_utc": "2026-10-23T20:36:52+00:00",
   "row_count": 127033,
   "column_count": 10,
   "content_sha256": "0c2b312957655aac6497f43c8887cc0729ee6b60dd299b3645a9c0ea9b9d763f",
@@ -43,6 +43,8 @@
       "state:55",
       "state:56"
     ],
+    "AGEP": "19:64",
+    "POVPIP": "0:199",
     "key": "<redacted>"
   },
   "request_method": "GET",

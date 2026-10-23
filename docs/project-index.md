@@ -49,5 +49,6 @@ Every notebook in the corpus, by project. Thesis is the notebook's own title.
 | 36 | [Causal Identification](../projects/09-causal-identification/README.md) | [Staggered Adoption](../projects/09-causal-identification/C03_minimum_wage_staggered/C03_minimum_wage_staggered.ipynb) | State Minimum-Wage Increases and Food-Service Employment |
 | 37 | [Causal Identification](../projects/09-causal-identification/README.md) | [Synthetic Control](../projects/09-causal-identification/C04_ca_minimum_wage_synth/C04_ca_minimum_wage_synth.ipynb) | California SB 3 and Leisure-and-Hospitality Employment |
 | 38 | [Causal Identification](../projects/09-causal-identification/README.md) | [Matching and Weighting on Observables](../projects/09-causal-identification/C05_public_coverage_matching/C05_public_coverage_matching.ipynb) | Public Coverage and Employment |
+| 39 | [Causal Identification](../projects/09-causal-identification/README.md) | [Instrumental Variables](../projects/09-causal-identification/C06_medicaid_expansion_iv/C06_medicaid_expansion_iv.ipynb) | Medicaid Expansion as an Instrument for Coverage |
 
-38 notebooks across 9 projects.
+39 notebooks across 9 projects.

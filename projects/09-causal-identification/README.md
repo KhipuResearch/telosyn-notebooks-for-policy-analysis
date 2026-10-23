@@ -38,9 +38,9 @@ jupyter lab projects/09-causal-identification/
 
 **Limitations**
 
-- The 2014 cohort. The design uses only states that expanded on 1 January 2014, against states that never expanded. That makes the timing single and the regression clean, at a cost: sixteen states are not used here (two that expanded part-way through 2014, fourteen later adopters). Later adopters are handled with staggered-timing methods in C03.
-- Age band. The outcome is ages 35–64, not the track's 19–64, because no consistent 19–64 series exists across the 2017 change in ACS age bands. Younger adults, who were also affected by the 2010 dependent-coverage rule, are outside this estimate.
-- Measurement error. ACS 1-year state estimates carry margins of error that enter the outcome as noise; the regression does not model them.
+- The 2014 cohort. The design uses only states that expanded on 1 January 2014, against states that never expanded. That makes the timing single and the regression clean, at a cost: the states that expanded part-way through 2014 and the later adopters are not used here (the sample step prints how many). Later adopters are handled with staggered-timing methods in C03.
+- What is being compared. The contrast is expansion against the ACA as it applied in the states that did not expand, not expansion against nothing: the marketplaces, subsidies and the mandate applied everywhere from 2014, and in non-expansion states people between 100% and 138% of the poverty level became eligible for marketplace subsidies. The control states also start with a higher uninsured rate (printed above), so a 2014 shock that scales with the level would shrink an absolute ATT toward zero, and the lead test cannot detect it. The added log-outcome check shows the proportional version.
+- Contaminated groups. Wisconsin is a control state but covered adults up to the poverty level from April 2014. Delaware, the District of Columbia, Massachusetts, New York and Vermont already had comprehensive adult coverage before 2014, and California, Connecticut, Minnesota, New Jersey and Washington had early expansion options in 2010-2013, all in the treated group. An added leave-out check is above.
 
 ## Regression Discontinuity
 
@@ -56,13 +56,13 @@ jupyter lab projects/09-causal-identification/
 - Run three falsification tests — a balance check on the running variable, placebo cutoffs and covariate continuity — and apply a decision rule written before the data were seen.
 
 **Sources** — American Community Survey Public Use Microdata Sample (acs/acs1/pums)  
-153 provenance records committed in `C02_medicare_age65_rdd/provenance/`.
+154 provenance records committed in `C02_medicare_age65_rdd/provenance/`.
 
 **Limitations**
 
 - Local to 65. The estimate is the jump at one threshold. It says nothing about the effect of coverage at any other age, or about the people far from 65.
-- A discrete running variable. Age is reported in whole years, so the nearest observations are a year apart and the fit rests on a handful of age cells per side. Intervals use the heteroskedasticity-robust variance over those cells; they are not corrected for the discreteness, and there is no bias-corrected estimator here (`rdrobust` is not adopted).
-- The kernel drops the end ages. A triangular kernel gives zero weight at the edge of the window, so a bandwidth of *k* years uses *k* − 1 ages on each side: the headline *k* = 5 fits four ages per side, which is what the `n_left` and `n_right` columns show. That follows from the plan's kernel and bandwidth definitions and is not a departure from them.
+- A discrete running variable. Age is reported in whole years, so the nearest observations are a year apart and the fit rests on a handful of age cells per side. The conventional interval uses the heteroskedasticity-robust variance over those few cells, which understates the uncertainty, and it ignores the curvature a few points cannot rule out. The plan chose that interval and disclosed this; the added bias-aware interval shows how much wider it becomes for stated curvature bounds, and `rdrobust` is not adopted.
+- Survey weights change the estimand. The jump is in the weighted mean, a different object from the unweighted jump, which is also reported.
 
 ---
 

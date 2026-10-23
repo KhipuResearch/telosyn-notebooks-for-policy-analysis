@@ -72,6 +72,12 @@
    "file": "tests/test_hud.py",
    "line_sha256": "4fda5fd98c5f55754e8b86dea56970cdae55b5da621ca8b5263d977b683c92cc",
    "reason": "The name of an environment variable that the test asserts is ABSENT from the committed code (a list of forbidden names); it is checked for, not used."
+  },
+  {
+   "rule": "internal_files",
+   "file": "projects/09-causal-identification/C01_medicaid_expansion_did/pap/C01_pap.md",
+   "line_sha256": "e729b5e416ee4a0e4a0f20bd9e9274e046203a93df9ad37ebfb908ef8342bf12",
+   "reason": "A committed pre-analysis plan. Its SHA-256 is bound into every provenance record of the notebook, so the file cannot be edited to remove this reference to a file outside the repository; the notebook itself does not cite it."
   }
  ]
 }

@@ -156,11 +156,11 @@ def _flaky_fetch(session: _Flaky):
     )
 
 
-def test_a_transient_503_or_timeout_is_retried_and_the_pauses_grow(monkeypatch) -> None:
+def test_a_transient_503_timeout_or_reset_is_retried_and_the_pauses_grow(monkeypatch) -> None:
     """Two failures then success: three attempts, with the documented pauses between them."""
     pauses: list[float] = []
     monkeypatch.setattr(sources, "_sleep", pauses.append)
-    session = _Flaky([503, requests.Timeout("slow")], _rows(30, 6, 10))
+    session = _Flaky([503, requests.ConnectionError("reset")], _rows(30, 6, 10))
     (frame, _) = _flaky_fetch(session)
     assert session.attempts == 3 and frame["n_records"].sum() == 6
     assert pauses == [0.0, 5.0, 15.0]
@@ -180,10 +180,14 @@ def test_persistent_503s_stop_after_the_last_pause_and_other_statuses_stop_at_on
         _flaky_fetch(once)
     assert once.attempts == 1
     slow = _Flaky([requests.Timeout("slow")] * 10, _rows(30, 6, 10))
-    with pytest.raises(sources.UpstreamError, match="timed out"):
+    with pytest.raises(sources.UpstreamError, match="failed after 4 attempts"):
         _flaky_fetch(slow)
     assert slow.attempts == len(sources.PUMS_RETRY_PAUSES)
-    broken = _Flaky([requests.ConnectionError("down")], _rows(30, 6, 10))
+    reset = _Flaky([requests.ConnectionError("reset")] * 10, _rows(30, 6, 10))
+    with pytest.raises(sources.UpstreamError, match="failed after 4 attempts"):
+        _flaky_fetch(reset)
+    assert reset.attempts == len(sources.PUMS_RETRY_PAUSES)
+    broken = _Flaky([requests.exceptions.InvalidURL("bad")], _rows(30, 6, 10))
     with pytest.raises(sources.UpstreamError, match="failed"):
         _flaky_fetch(broken)
     assert broken.attempts == 1

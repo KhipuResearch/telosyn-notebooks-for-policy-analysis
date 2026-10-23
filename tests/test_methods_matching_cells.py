@@ -149,6 +149,9 @@ def test_stratified_effect_by_hand() -> None:
     """
     result = matching.stratified_effect([6, 9, 3], [10, 30, 5], [4, 5, 0], [20, 10, 0])
     assert result.estimate == pytest.approx(-0.05)
+    # weights 10/40 and 30/40; variances 0.6*0.4/10 + 0.2*0.8/20 and 0.3*0.7/30 + 0.5*0.5/10
+    var = (0.25**2) * (0.024 + 0.008) + (0.75**2) * (0.007 + 0.025)
+    assert result.se == pytest.approx(var**0.5)
     assert (result.n_strata_used, result.n_strata_dropped) == (2, 1)
     assert result.share_treated_used == pytest.approx(40 / 45)
 
@@ -271,3 +274,20 @@ def test_critical_gamma_rejects_a_silly_alpha() -> None:
     """Alpha outside (0, 0.5) is refused."""
     with pytest.raises(ValueError, match="alpha"):
         matching.rosenbaum_critical_gamma([1], [2], [1], [2], alpha=0.7)
+
+
+def test_overlap_counts_observations_not_rows_and_ignores_zero_frequency_rows() -> None:
+    """Frequencies become bin counts; a zero-count row cannot widen the common support."""
+    score = np.array([0.1, 0.2, 0.8, 0.9, 0.5, 0.95])
+    d = np.array([1, 1, 1, 0, 0, 0])
+    freq = np.array([4, 6, 0, 3, 7, 0])
+    out = matching.overlap_data(score, d, bins=4, frequency=freq)
+    assert out.counts_treated.sum() == 10 and out.counts_control.sum() == 10
+    # treated scores 0.1-0.2, control 0.5-0.9 once the zero-count rows are set aside: no overlap
+    assert out.common_support == (0.5, 0.2)
+    plain = matching.overlap_data(
+        *(expand({"s": score, "d": d}, np.maximum(freq, 0))[k] for k in ("s", "d")), bins=4
+    )
+    assert out.counts_treated.tolist() == plain.counts_treated.tolist()
+    with pytest.raises(ValueError, match="whole counts"):
+        matching.overlap_data(score, d, frequency=freq + 0.5)

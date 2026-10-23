@@ -672,14 +672,66 @@ def _pums_person_frame(raw: pd.DataFrame, requested: Sequence[str], weight: str)
     return person
 
 
-def _pums_cells(
-    person: pd.DataFrame, aggregate_by: Sequence[str], weight: str, min_cell_records: int
+def _pums_restrict(
+    person: pd.DataFrame,
+    keep: Mapping[str, tuple[float, float]] | None,
+    bands: Mapping[str, Sequence[float]] | None,
+) -> tuple[pd.DataFrame, list[str]]:
+    """Restrict records and coarsen columns, inside the aggregator, before any grouping.
+
+    ``keep`` retains the records whose value lies in the inclusive range (a missing value
+    is not in any range). ``bands`` replaces a column's value with the lower edge of its
+    right-open band ``[edge_i, edge_i+1)``; a value outside the outermost edges raises
+    rather than being dropped or clamped. Missing values stay missing.
+    """
+    notes: list[str] = []
+    if keep:
+        mask = pd.Series(True, index=person.index)
+        for column, (low, high) in keep.items():
+            mask &= person[column].between(low, high)
+        notes.append(
+            f"Kept {int(mask.sum())} of {len(person)} person record(s) inside "
+            + ", ".join(f"{c} in [{lo}, {hi}]" for c, (lo, hi) in keep.items()) + "."
+        )
+        person = person[mask]
+    if bands:
+        person = person.copy()
+        for column, edges in bands.items():
+            values = person[column]
+            outside = values.notna() & ((values < edges[0]) | (values >= edges[-1]))
+            if outside.any():
+                raise RangeError(
+                    f"{column} has {int(outside.sum())} value(s) outside the bands "
+                    f"[{edges[0]}, {edges[-1]}); restrict the records with `keep` first."
+                )
+            index = np.digitize(values.to_numpy(dtype=float), np.asarray(edges, dtype=float)) - 1
+            edge_array = np.asarray(edges, dtype=float)
+            lower = np.where(values.notna(), edge_array[np.clip(index, 0, len(edges) - 2)], np.nan)
+            person[column] = lower
+        notes.append(
+            "Coarsened "
+            + ", ".join(
+                f"{c} into {len(e) - 1} band(s), labelled by lower edge" for c, e in bands.items()
+            )
+            + "."
+        )
+    return person, notes
+
+
+def _pums_cells(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    person: pd.DataFrame,
+    aggregate_by: Sequence[str],
+    weight: str,
+    min_cell_records: int,
+    keep: Mapping[str, tuple[float, float]] | None = None,
+    bands: Mapping[str, Sequence[float]] | None = None,
 ) -> tuple[pd.DataFrame, list[str]]:
     """The only reader of the person frame: weighted cell counts, small cells withheld.
 
     Returns ``(cells, notes)``. ``cells`` has the grouping columns plus ``weighted_n`` and
     ``n_records``; what was withheld is in ``cells.attrs`` and in ``notes``. Missing values
-    in a grouping column form their own cell. Complexity O(n log n) in the records.
+    in a grouping column form their own cell. ``keep`` and ``bands`` restrict and coarsen
+    the records first (see :func:`_pums_restrict`). Complexity O(n log n) in the records.
     """
     notes = [
         "PUMS is a sample of person records; weighted cell counts estimate population "
@@ -687,6 +739,9 @@ def _pums_cells(
         "Missing values in grouping columns are kept as their own cell; their meaning "
         "is the variable's universe in the PUMS data dictionary.",
     ]
+    read = len(person)
+    person, restrict_notes = _pums_restrict(person, keep, bands)
+    notes.extend(restrict_notes)
     grouped = person.groupby(list(aggregate_by), dropna=False)
     cells = grouped.agg(weighted_n=(weight, "sum"), n_records=(weight, "size")).reset_index()
     small = cells["n_records"] < min_cell_records
@@ -699,6 +754,8 @@ def _pums_cells(
         suppressed_records=int(withheld["n_records"].sum()),
         suppressed_weighted_n=float(withheld["weighted_n"].sum()),
         min_cell_records=int(min_cell_records),
+        records_read=int(read),
+        records_kept=int(len(person)),
     )
     notes.append(
         f"Aggregated to {len(out)} cell(s) from {len(person)} person record(s); "
@@ -718,6 +775,8 @@ def fetch_acs_pums(
     weight: str = PUMS_PERSON_WEIGHT,
     dataset: str = "acs/acs1/pums",
     min_cell_records: int = PUMS_DEFAULT_MIN_CELL,
+    keep: Mapping[str, tuple[float, float]] | None = None,
+    bands: Mapping[str, Sequence[float]] | None = None,
     session: requests.Session | None = None,
 ) -> tuple[pd.DataFrame, DataProvenance]:
     """Fetch ACS PUMS person records and return weighted cell counts, or raise.
@@ -744,6 +803,14 @@ def fetch_acs_pums(
         Cells with fewer records are withheld and reported in ``frame.attrs``
         (``suppressed_cells``, ``suppressed_records``, ``suppressed_weighted_n``)
         and in the provenance notes. Not below :data:`PUMS_CELL_FLOOR`.
+    keep:
+        Variable -> inclusive ``(low, high)``. Only records inside every range are
+        aggregated; the counts read and kept are in ``frame.attrs`` and the notes.
+    bands:
+        Variable -> ascending band edges. The variable's value is replaced by the
+        lower edge of its band ``[edge_i, edge_i+1)`` before grouping, so a continuous
+        or fine-grained covariate becomes a coarse one. ``keep`` and ``bands`` take
+        place inside the aggregator: they give no way to see a record.
 
     Notes
     -----
@@ -762,6 +829,18 @@ def fetch_acs_pums(
         )
     if weight in aggregate_by:
         raise ValueError(f"the weight {weight!r} cannot also be an aggregation column.")
+    for name, spec in (("keep", keep), ("bands", bands)):
+        unknown = set(spec or {}) - set(variables)
+        if unknown:
+            raise ValueError(f"{name} names {sorted(unknown)}, which are not in `variables`.")
+    for column, (low, high) in (keep or {}).items():
+        if not low <= high:
+            raise ValueError(f"keep[{column!r}] must be (low, high) with low <= high.")
+    for column, edges in (bands or {}).items():
+        if column not in aggregate_by:
+            raise ValueError(f"bands[{column!r}] must also be in `aggregate_by`.")
+        if len(edges) < 2 or any(b <= a for a, b in zip(edges, edges[1:])):
+            raise ValueError(f"bands[{column!r}] needs at least two strictly ascending edges.")
     if "*" in geography:
         raise ValueError(
             "Request one state per call (e.g. 'state:51'): a wildcard geography pulls "
@@ -805,7 +884,7 @@ def fetch_acs_pums(
             f"Returned columns: {list(raw.columns)}"
         )
     person = _pums_person_frame(raw, requested, weight)
-    out, notes = _pums_cells(person, list(aggregate_by), weight, min_cell_records)
+    out, notes = _pums_cells(person, list(aggregate_by), weight, min_cell_records, keep, bands)
 
     prov = DataProvenance.build(
         hash_basis="canonical-rows",

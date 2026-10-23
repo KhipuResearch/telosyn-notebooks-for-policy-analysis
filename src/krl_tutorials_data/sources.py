@@ -869,6 +869,7 @@ def _pums_fetch_raw(
         raise ResponseShapeError(f"{endpoint} returned no data rows.")
     header, *body = rows
     raw = pd.DataFrame(body, columns=header)
+    raw = _pums_drop_echoed_columns(raw)
     missing = [c for c in requested if c not in raw.columns]
     if missing:
         raise SchemaError(
@@ -876,6 +877,20 @@ def _pums_fetch_raw(
             f"Returned columns: {list(raw.columns)}"
         )
     return raw, canonical_rows(resp.content)
+
+
+def _pums_drop_echoed_columns(raw: pd.DataFrame) -> pd.DataFrame:
+    """Drop the columns a range predicate makes the service repeat.
+
+    A request with ``AGEP=19:64`` returns ``AGEP`` a second time. The copy must equal the
+    first or the response is refused; nothing is silently chosen between two values.
+    """
+    repeated = raw.columns[raw.columns.duplicated()].unique()
+    for name in repeated:
+        same = raw.loc[:, name]
+        if not (same.nunique(axis=1, dropna=False) <= 1).all():
+            raise SchemaError(f"PUMS response repeats {name} with differing values.")
+    return raw.loc[:, ~raw.columns.duplicated()]
 
 
 def _pums_check_request(  # pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-branches

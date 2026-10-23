@@ -189,3 +189,13 @@ def test_a_fractional_keep_bound_is_not_sent_as_a_predicate() -> None:
     predicates = sources._pums_predicates  # pylint: disable=protected-access
     assert predicates({"AGEP": (19, 64), "X": (0.5, 3)}) == {"AGEP": "19:64"}
     assert not predicates(None)
+
+
+def test_a_column_the_service_echoes_back_is_collapsed_and_a_differing_echo_is_refused() -> None:
+    """A range predicate makes the service repeat the variable; equal copies collapse."""
+    rows = [["AGEP", "POVPIP", "PWGTP", "AGEP", "POVPIP"]] + [["30", "100", "10", "30", "100"]] * 6
+    frame, _ = _fetch([], session=_Session(rows), keep={"AGEP": (19, 64)})
+    assert frame["n_records"].sum() == 6
+    clashing = [["AGEP", "POVPIP", "PWGTP", "AGEP"]] + [["30", "100", "10", "31"]] * 6
+    with pytest.raises(sources.SchemaError, match="differing values"):
+        _fetch([], session=_Session(clashing))

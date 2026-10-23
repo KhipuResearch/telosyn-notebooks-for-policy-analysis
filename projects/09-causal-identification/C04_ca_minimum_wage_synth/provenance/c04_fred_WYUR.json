@@ -6,7 +6,7 @@
   "variables": {
     "WYUR": "FRED WYUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:22+00:00",
+  "retrieved_utc": "2026-10-23T20:56:39+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "c51307c3ae1c5f55aaa20b0c58322f7f733633e86b911e96d6a384bada4a65f3",

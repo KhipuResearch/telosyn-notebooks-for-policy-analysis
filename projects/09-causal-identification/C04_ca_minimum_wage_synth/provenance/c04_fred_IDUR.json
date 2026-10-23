@@ -6,7 +6,7 @@
   "variables": {
     "IDUR": "FRED IDUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:16+00:00",
+  "retrieved_utc": "2026-10-23T20:56:34+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "09f0b07bd8e2718366df4e706815694671e1f99d09fb5d69f14bd3a49c91184b",

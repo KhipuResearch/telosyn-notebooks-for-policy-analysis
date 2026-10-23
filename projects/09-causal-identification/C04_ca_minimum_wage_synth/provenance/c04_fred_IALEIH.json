@@ -6,7 +6,7 @@
   "variables": {
     "IALEIH": "FRED IALEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:08+00:00",
+  "retrieved_utc": "2026-10-23T20:56:25+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "2312872dd9113502e511b4e952cb325269425d14f7f87c068942414dc851ede4",

@@ -6,7 +6,7 @@
   "variables": {
     "SCUR": "FRED SCUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:20+00:00",
+  "retrieved_utc": "2026-10-23T20:56:37+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "a91a8979ddf844efd822b6422132b585131d8eeda77300b4457b95998b964b8e",

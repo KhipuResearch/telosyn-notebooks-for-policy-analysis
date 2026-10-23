@@ -6,7 +6,7 @@
   "variables": {
     "UTLEIH": "FRED UTLEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:14+00:00",
+  "retrieved_utc": "2026-10-23T20:56:31+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "29fcf0a06ab0b46169649434f18ec446955fbe2f826a3f8062982a7231388b50",

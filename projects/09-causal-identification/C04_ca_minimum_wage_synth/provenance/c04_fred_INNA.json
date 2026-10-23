@@ -6,7 +6,7 @@
   "variables": {
     "INNA": "FRED INNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:25+00:00",
+  "retrieved_utc": "2026-10-23T20:56:40+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "6a2a2cbb7020a892c3faffd778f398fc4a91d1c61a014e7b0172178b0b657882",

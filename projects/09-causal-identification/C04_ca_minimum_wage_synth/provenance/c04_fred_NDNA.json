@@ -6,7 +6,7 @@
   "variables": {
     "NDNA": "FRED NDNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:27+00:00",
+  "retrieved_utc": "2026-10-23T20:56:42+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "cca45b269f383bbf87c058718a37395fc30cf8ebc1f233ecb071f4fa423417b2",

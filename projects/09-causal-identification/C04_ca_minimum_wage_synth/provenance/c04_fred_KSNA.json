@@ -6,7 +6,7 @@
   "variables": {
     "KSNA": "FRED KSNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:25+00:00",
+  "retrieved_utc": "2026-10-23T20:56:41+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "0abd82d7eb3bf4b562e6a56b138499c8c8c90c4dea973d6a2e74c7e0d4c18eb2",

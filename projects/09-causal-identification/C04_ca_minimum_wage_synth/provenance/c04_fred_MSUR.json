@@ -6,7 +6,7 @@
   "variables": {
     "MSUR": "FRED MSUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:18+00:00",
+  "retrieved_utc": "2026-10-23T20:56:35+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "3f7e7b8f9d6fb84610a2cdaef2f74e2df214a81f2a6ebb517860ac8f43bb8595",

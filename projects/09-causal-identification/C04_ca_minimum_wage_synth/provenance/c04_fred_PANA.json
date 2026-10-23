@@ -6,7 +6,7 @@
   "variables": {
     "PANA": "FRED PANA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:28+00:00",
+  "retrieved_utc": "2026-10-23T20:56:43+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "968b946bee92befcd59134bb9a52e21ac1930d178dc1418e0715d492a1de8419",

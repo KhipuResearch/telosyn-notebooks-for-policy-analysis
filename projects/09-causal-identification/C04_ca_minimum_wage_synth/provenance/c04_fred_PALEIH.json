@@ -6,7 +6,7 @@
   "variables": {
     "PALEIH": "FRED PALEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:12+00:00",
+  "retrieved_utc": "2026-10-23T20:56:29+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "4be04a0e04209ceabb3746b12f0d35b33d3fa182d9c1fc99ea25f71886985c5a",

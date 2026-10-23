@@ -6,7 +6,7 @@
   "variables": {
     "WYLEIH": "FRED WYLEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:15+00:00",
+  "retrieved_utc": "2026-10-23T20:56:32+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "496b3d0ca06d9b62262a72479ffdf08bfbbc1206daec628e3f4fd39e0b8c2d6f",

@@ -6,7 +6,7 @@
   "variables": {
     "LANA": "FRED LANA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:26+00:00",
+  "retrieved_utc": "2026-10-23T20:56:41+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "0ec4c856616d0fee7dc3eaad8fab2b5c39fde169d6423331f0778a4c56c4d3ca",

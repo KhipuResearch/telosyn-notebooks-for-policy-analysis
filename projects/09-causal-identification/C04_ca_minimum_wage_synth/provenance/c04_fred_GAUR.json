@@ -6,7 +6,7 @@
   "variables": {
     "GAUR": "FRED GAUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:16+00:00",
+  "retrieved_utc": "2026-10-23T20:56:33+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "b5350a3b8ba57f03998ef094875527bbd83b26d6702248469d2a483ddbfda8b9",

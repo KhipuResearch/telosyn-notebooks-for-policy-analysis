@@ -6,7 +6,7 @@
   "variables": {
     "PAUR": "FRED PAUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:20+00:00",
+  "retrieved_utc": "2026-10-23T20:56:37+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "511fc783db5cf8fb1882163def85f19e7f879ecf4e0d6a2ba99ba497c9c42451",

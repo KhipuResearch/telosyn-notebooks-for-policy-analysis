@@ -6,7 +6,7 @@
   "variables": {
     "GALEIH": "FRED GALEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:07+00:00",
+  "retrieved_utc": "2026-10-23T20:56:23+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "286d2780aba8954f055220a2e2e396f5f450e03ca72fea78fc48c7b930b7fc16",

@@ -6,7 +6,7 @@
   "variables": {
     "TNNA": "FRED TNNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:28+00:00",
+  "retrieved_utc": "2026-10-23T20:56:44+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "aaa38c5836143092240b38cf5acc11979644469bf451687fb03b1712ee5bda3a",

@@ -6,7 +6,7 @@
   "variables": {
     "INUR": "FRED INUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:17+00:00",
+  "retrieved_utc": "2026-10-23T20:56:34+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "c747640ef6dfc584933aa45b929fbe3e1eb4cab499f9397d0c1333ab3cc4cd3a",

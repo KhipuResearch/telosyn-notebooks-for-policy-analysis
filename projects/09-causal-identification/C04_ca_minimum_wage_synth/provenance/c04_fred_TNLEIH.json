@@ -6,7 +6,7 @@
   "variables": {
     "TNLEIH": "FRED TNLEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:13+00:00",
+  "retrieved_utc": "2026-10-23T20:56:30+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "4a6fd514f6aa758ffa753d4549358a94db87a697f08376b783a4a1313fabea86",

@@ -6,7 +6,7 @@
   "variables": {
     "ALNA": "FRED ALNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:23+00:00",
+  "retrieved_utc": "2026-10-23T20:56:39+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "19c9a8e0313c57e561741ed8e4a4fb6ea80c435b090cce494ce5ce048879e69d",

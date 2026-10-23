@@ -6,7 +6,7 @@
   "variables": {
     "CANA": "FRED CANA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:23+00:00",
+  "retrieved_utc": "2026-10-23T20:56:39+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "928a085b768d221e1966170add088f3b3846f5d85765fb4ac3bf595818ef4c57",

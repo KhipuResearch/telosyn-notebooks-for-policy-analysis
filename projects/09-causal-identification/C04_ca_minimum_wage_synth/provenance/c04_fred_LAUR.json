@@ -6,7 +6,7 @@
   "variables": {
     "LAUR": "FRED LAUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:18+00:00",
+  "retrieved_utc": "2026-10-23T20:56:35+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "ed935150d167544a8eb502278b92f716fd7ba2b5db3eb071e72b2e674fcd6d3d",

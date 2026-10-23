@@ -6,7 +6,7 @@
   "variables": {
     "ALLEIH": "FRED ALLEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:06+00:00",
+  "retrieved_utc": "2026-10-23T20:56:23+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "32157cec2e2b4ccdc2c04056b4df0cf0d0e5b2be37e5a06d2445ed534b16c1a0",

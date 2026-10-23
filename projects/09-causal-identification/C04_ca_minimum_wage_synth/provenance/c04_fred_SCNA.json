@@ -6,7 +6,7 @@
   "variables": {
     "SCNA": "FRED SCNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:28+00:00",
+  "retrieved_utc": "2026-10-23T20:56:43+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "7833d6bec4cc8d6588ac9e28035c112cd774c74da35b83353ab8d17db25e6490",

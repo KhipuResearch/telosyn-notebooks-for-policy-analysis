@@ -6,7 +6,7 @@
   "variables": {
     "ALUR": "FRED ALUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:15+00:00",
+  "retrieved_utc": "2026-10-23T20:56:33+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "dd5b488ad191f829de7450bb966bf81881fee937e012cd2bf79869feb18d8135",

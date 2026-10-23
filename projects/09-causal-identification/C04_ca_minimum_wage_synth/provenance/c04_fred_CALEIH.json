@@ -6,7 +6,7 @@
   "variables": {
     "CALEIH": "FRED CALEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:06+00:00",
+  "retrieved_utc": "2026-10-23T20:56:23+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "34a83f8bad10a57947dfc9c628749e3a084b0c9971349ca5559a031cef3ba228",

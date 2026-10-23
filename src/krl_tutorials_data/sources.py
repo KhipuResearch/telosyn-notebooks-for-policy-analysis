@@ -28,7 +28,7 @@ import re
 import os
 from pathlib import Path
 from urllib.parse import urlencode
-from typing import Final, Iterable, Mapping, Sequence
+from typing import Any, Final, Iterable, Mapping, Sequence
 
 import numpy as np
 import pandas as pd
@@ -718,6 +718,32 @@ def _pums_restrict(
     return person, notes
 
 
+def _pums_apply_floor(
+    cells: pd.DataFrame, aggregate_by: Sequence[str], min_cell_records: int, read: int, kept: int
+) -> tuple[pd.DataFrame, str]:
+    """Withhold cells under the floor and account for them. Operates on cells, never records."""
+    small = cells["n_records"] < min_cell_records
+    withheld = cells[small]
+    out = cells[~small].sort_values(list(aggregate_by), na_position="last").reset_index(drop=True)
+    out["weighted_n"] = out["weighted_n"].astype(float)
+    out["n_records"] = out["n_records"].astype(int)
+    out.attrs.update(
+        suppressed_cells=int(small.sum()),
+        suppressed_records=int(withheld["n_records"].sum()),
+        suppressed_weighted_n=float(withheld["weighted_n"].sum()),
+        min_cell_records=int(min_cell_records),
+        records_read=int(read),
+        records_kept=int(kept),
+    )
+    note = (
+        f"Aggregated to {len(out)} cell(s) from {kept} person record(s); "
+        f"{int(small.sum())} cell(s) with fewer than {min_cell_records} records were "
+        f"withheld ({int(withheld['n_records'].sum())} record(s), weighted "
+        f"{float(withheld['weighted_n'].sum()):,.0f}). No person-level row is returned."
+    )
+    return out, note
+
+
 def _pums_cells(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     person: pd.DataFrame,
     aggregate_by: Sequence[str],
@@ -725,13 +751,16 @@ def _pums_cells(  # pylint: disable=too-many-arguments,too-many-positional-argum
     min_cell_records: int,
     keep: Mapping[str, tuple[float, float]] | None = None,
     bands: Mapping[str, Sequence[float]] | None = None,
+    apply_floor: bool = True,
 ) -> tuple[pd.DataFrame, list[str]]:
     """The only reader of the person frame: weighted cell counts, small cells withheld.
 
     Returns ``(cells, notes)``. ``cells`` has the grouping columns plus ``weighted_n`` and
     ``n_records``; what was withheld is in ``cells.attrs`` and in ``notes``. Missing values
     in a grouping column form their own cell. ``keep`` and ``bands`` restrict and coarsen
-    the records first (see :func:`_pums_restrict`). Complexity O(n log n) in the records.
+    the records first (see :func:`_pums_restrict`). With ``apply_floor=False`` the cells
+    are returned whole, for :func:`_pums_pool` to sum across states before the floor is
+    applied; they stay inside ``fetch_acs_pums``. Complexity O(n log n) in the records.
     """
     notes = [
         "PUMS is a sample of person records; weighted cell counts estimate population "
@@ -744,34 +773,110 @@ def _pums_cells(  # pylint: disable=too-many-arguments,too-many-positional-argum
     notes.extend(restrict_notes)
     grouped = person.groupby(list(aggregate_by), dropna=False)
     cells = grouped.agg(weighted_n=(weight, "sum"), n_records=(weight, "size")).reset_index()
-    small = cells["n_records"] < min_cell_records
-    withheld = cells[small]
-    out = cells[~small].sort_values(list(aggregate_by), na_position="last").reset_index(drop=True)
-    out["weighted_n"] = out["weighted_n"].astype(float)
-    out["n_records"] = out["n_records"].astype(int)
-    out.attrs.update(
-        suppressed_cells=int(small.sum()),
-        suppressed_records=int(withheld["n_records"].sum()),
-        suppressed_weighted_n=float(withheld["weighted_n"].sum()),
-        min_cell_records=int(min_cell_records),
-        records_read=int(read),
-        records_kept=int(len(person)),
-    )
-    notes.append(
-        f"Aggregated to {len(out)} cell(s) from {len(person)} person record(s); "
-        f"{int(small.sum())} cell(s) with fewer than {min_cell_records} records were "
-        f"withheld ({int(withheld['n_records'].sum())} record(s), weighted "
-        f"{float(withheld['weighted_n'].sum()):,.0f}). No person-level row is returned."
-    )
+    if not apply_floor:
+        cells.attrs.update(records_read=int(read), records_kept=int(len(person)))
+        return cells, notes
+    out, floor_note = _pums_apply_floor(cells, aggregate_by, min_cell_records, read, len(person))
+    notes.append(floor_note)
     return out, notes
 
 
-def fetch_acs_pums(
+def _pums_pool(
+    partials: Sequence[pd.DataFrame], aggregate_by: Sequence[str], min_cell_records: int
+) -> tuple[pd.DataFrame, list[str]]:
+    """Sum whole cells across states, then apply the floor to the pooled counts."""
+    stacked = pd.concat(partials, ignore_index=True)
+    pooled = (
+        stacked.groupby(list(aggregate_by), dropna=False)[["weighted_n", "n_records"]]
+        .sum()
+        .reset_index()
+    )
+    read = sum(int(p.attrs["records_read"]) for p in partials)
+    kept = sum(int(p.attrs["records_kept"]) for p in partials)
+    out, note = _pums_apply_floor(pooled, aggregate_by, min_cell_records, read, kept)
+    return out, [
+        f"Pooled {len(partials)} state(s): each cell's weight and record count were summed "
+        "across states before the small-cell floor was applied.",
+        note,
+    ]
+
+
+def _pums_fetch_raw(
+    http: Any, endpoint: str, params: dict[str, str], requested: Sequence[str]
+) -> tuple[pd.DataFrame, bytes]:
+    """One state's response as a raw string frame, and its canonical rows for the digest."""
+    try:
+        resp = http.get(endpoint, params=params, timeout=300)
+    except requests.RequestException as exc:
+        raise UpstreamError(f"Census request to {endpoint} failed: {redact(exc)}") from exc
+    reject_bot_challenge(resp, source="the Census Bureau", endpoint=endpoint)
+    if resp.status_code != 200:
+        raise UpstreamError(f"Census returned HTTP {resp.status_code} for {endpoint}.")
+    rows = _assert_json_payload(resp, endpoint)
+    if not isinstance(rows, list) or len(rows) < 2:
+        raise ResponseShapeError(f"{endpoint} returned no data rows.")
+    header, *body = rows
+    raw = pd.DataFrame(body, columns=header)
+    missing = [c for c in requested if c not in raw.columns]
+    if missing:
+        raise SchemaError(
+            f"PUMS response is missing requested variables {missing}. "
+            f"Returned columns: {list(raw.columns)}"
+        )
+    return raw, canonical_rows(resp.content)
+
+
+def _pums_check_request(  # pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-branches
+    variables: Mapping[str, str],
+    aggregate_by: Sequence[str],
+    weight: str,
+    states: Sequence[str],
+    min_cell_records: int,
+    keep: Mapping[str, tuple[float, float]] | None,
+    bands: Mapping[str, Sequence[float]] | None,
+) -> None:
+    """Refuse a specification that could not be honoured before any request is made."""
+    if not variables:
+        raise ValueError("At least one PUMS variable is required.")
+    if not aggregate_by or not set(aggregate_by) <= set(variables):
+        raise ValueError(
+            "aggregate_by must be a non-empty subset of `variables`; "
+            f"got {list(aggregate_by)} against {list(variables)}."
+        )
+    if weight in aggregate_by:
+        raise ValueError(f"the weight {weight!r} cannot also be an aggregation column.")
+    for name, spec in (("keep", keep), ("bands", bands)):
+        unknown = set(spec or {}) - set(variables)
+        if unknown:
+            raise ValueError(f"{name} names {sorted(unknown)}, which are not in `variables`.")
+    for column, (low, high) in (keep or {}).items():
+        if not low <= high:
+            raise ValueError(f"keep[{column!r}] must be (low, high) with low <= high.")
+    for column, edges in (bands or {}).items():
+        if column not in aggregate_by:
+            raise ValueError(f"bands[{column!r}] must also be in `aggregate_by`.")
+        if len(edges) < 2 or any(b <= a for a, b in zip(edges, edges[1:])):
+            raise ValueError(f"bands[{column!r}] needs at least two strictly ascending edges.")
+    if not states or len(set(states)) != len(states):
+        raise ValueError("geography must name at least one state, each once.")
+    if any("*" in g for g in states):
+        raise ValueError(
+            "Request one state per call (e.g. 'state:51') or a list of named states: a "
+            "wildcard geography pulls every person record in the country into memory."
+        )
+    if min_cell_records < PUMS_CELL_FLOOR:
+        raise ValueError(
+            f"min_cell_records must be at least {PUMS_CELL_FLOOR}: a cell of fewer "
+            "people is a person row under another name."
+        )
+
+
+def fetch_acs_pums(  # pylint: disable=too-many-arguments,too-many-locals
     *,
     year: int,
     variables: Mapping[str, str],
     aggregate_by: Sequence[str],
-    geography: str,
+    geography: str | Sequence[str],
     weight: str = PUMS_PERSON_WEIGHT,
     dataset: str = "acs/acs1/pums",
     min_cell_records: int = PUMS_DEFAULT_MIN_CELL,
@@ -797,8 +902,10 @@ def fetch_acs_pums(
         Variable code -> verbatim published label (the provenance dictionary).
         ``aggregate_by`` must be a subset; the weight is requested in addition.
     geography:
-        One state, e.g. ``"state:51"``. A wildcard is refused: it would pull
-        every person record in the country into memory.
+        One state, e.g. ``"state:51"``, or a list of states to pool. A wildcard is refused:
+        it would pull every person record in the country into memory at once. With a list,
+        each state is read in turn, aggregated to whole cells and released, the cells are
+        summed across states, and the small-cell floor is applied to the pooled counts.
     min_cell_records:
         Cells with fewer records are withheld and reported in ``frame.attrs``
         (``suppressed_cells``, ``suppressed_records``, ``suppressed_weighted_n``)
@@ -820,37 +927,8 @@ def fetch_acs_pums(
     or an unexpected empty response raises. The digest is taken over the
     canonicalised **rows** the API returned, so it does not depend on row order.
     """
-    if not variables:
-        raise ValueError("At least one PUMS variable is required.")
-    if not aggregate_by or not set(aggregate_by) <= set(variables):
-        raise ValueError(
-            "aggregate_by must be a non-empty subset of `variables`; "
-            f"got {list(aggregate_by)} against {list(variables)}."
-        )
-    if weight in aggregate_by:
-        raise ValueError(f"the weight {weight!r} cannot also be an aggregation column.")
-    for name, spec in (("keep", keep), ("bands", bands)):
-        unknown = set(spec or {}) - set(variables)
-        if unknown:
-            raise ValueError(f"{name} names {sorted(unknown)}, which are not in `variables`.")
-    for column, (low, high) in (keep or {}).items():
-        if not low <= high:
-            raise ValueError(f"keep[{column!r}] must be (low, high) with low <= high.")
-    for column, edges in (bands or {}).items():
-        if column not in aggregate_by:
-            raise ValueError(f"bands[{column!r}] must also be in `aggregate_by`.")
-        if len(edges) < 2 or any(b <= a for a, b in zip(edges, edges[1:])):
-            raise ValueError(f"bands[{column!r}] needs at least two strictly ascending edges.")
-    if "*" in geography:
-        raise ValueError(
-            "Request one state per call (e.g. 'state:51'): a wildcard geography pulls "
-            "every person record in the country into memory."
-        )
-    if min_cell_records < PUMS_CELL_FLOOR:
-        raise ValueError(
-            f"min_cell_records must be at least {PUMS_CELL_FLOOR}: a cell of fewer "
-            "people is a person row under another name."
-        )
+    states = [geography] if isinstance(geography, str) else list(geography)
+    _pums_check_request(variables, aggregate_by, weight, states, min_cell_records, keep, bands)
     requested = [*variables, *([] if weight in variables else [weight])]
     if len(requested) + 1 > CENSUS_GET_CEILING:
         raise ValueError(
@@ -858,48 +936,58 @@ def fetch_acs_pums(
             f"{CENSUS_GET_CEILING}."
         )
     endpoint = f"{CENSUS_HOST}/{year}/{dataset}"
-    params = {
-        "get": ",".join(requested),
-        "for": geography,
-        "key": load_key("CENSUS_API_KEY"),
-    }
+    api_key = load_key("CENSUS_API_KEY")
     http = session or requests
-    try:
-        resp = http.get(endpoint, params=params, timeout=300)
-    except requests.RequestException as exc:
-        raise UpstreamError(f"Census request to {endpoint} failed: {redact(exc)}") from exc
-    reject_bot_challenge(resp, source="the Census Bureau", endpoint=endpoint)
-    if resp.status_code != 200:
-        raise UpstreamError(f"Census returned HTTP {resp.status_code} for {endpoint}.")
-
-    rows = _assert_json_payload(resp, endpoint)
-    if not isinstance(rows, list) or len(rows) < 2:
-        raise ResponseShapeError(f"{endpoint} returned no data rows.")
-    header, *body = rows
-    raw = pd.DataFrame(body, columns=header)
-    missing = [c for c in requested if c not in raw.columns]
-    if missing:
-        raise SchemaError(
-            f"PUMS response is missing requested variables {missing}. "
-            f"Returned columns: {list(raw.columns)}"
+    pooled = len(states) > 1
+    partials: list[pd.DataFrame] = []
+    payloads: list[bytes] = []
+    n_person = 0
+    for state in states:
+        params = {"get": ",".join(requested), "for": state, "key": api_key}
+        raw, payload = _pums_fetch_raw(http, endpoint, params, requested)
+        person = _pums_person_frame(raw, requested, weight)
+        n_person += len(person)
+        payloads.append(payload)
+        out, notes = _pums_cells(
+            person, list(aggregate_by), weight, min_cell_records, keep, bands,
+            apply_floor=not pooled,
         )
-    person = _pums_person_frame(raw, requested, weight)
-    out, notes = _pums_cells(person, list(aggregate_by), weight, min_cell_records, keep, bands)
+        partials.append(out)
+    if pooled:
+        out, pool_notes = _pums_pool(partials, list(aggregate_by), min_cell_records)
+        notes = [*notes[:2], *_pums_restriction_notes(keep, bands), *pool_notes]
 
     prov = DataProvenance.build(
         hash_basis="canonical-rows",
-        request_params=params,
+        request_params={
+            "get": ",".join(requested),
+            "for": states if pooled else states[0],
+            "key": api_key,
+        },
         source_name="U.S. Census Bureau",
         dataset=f"American Community Survey Public Use Microdata Sample ({dataset})",
         vintage=str(year),
         endpoint=endpoint,
         variables=dict(variables),
-        payload=canonical_rows(resp.content),
-        row_count=len(person),
+        payload=b"\n".join(payloads),
+        row_count=n_person,
         column_count=len(requested),
         notes=tuple(notes),
     )
     return out, prov
+
+
+def _pums_restriction_notes(
+    keep: Mapping[str, tuple[float, float]] | None, bands: Mapping[str, Sequence[float]] | None
+) -> list[str]:
+    """Describe the restriction applied to every state, without per-state counts."""
+    notes = []
+    if keep:
+        ranges = ", ".join(f"{c} in [{lo}, {hi}]" for c, (lo, hi) in keep.items())
+        notes.append(f"Records kept inside {ranges}.")
+    if bands:
+        notes.append(f"Coarsened {', '.join(bands)} into bands labelled by lower edge.")
+    return notes
 
 
 # ---------------------------------------------------------------------------

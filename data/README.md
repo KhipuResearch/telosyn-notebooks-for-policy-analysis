@@ -166,7 +166,7 @@ A digest only identifies content if the publisher serialises stably. Four of the
 |---|---|---|
 | `data/hud/chas/` (2 files) | [`data/hud/chas/SOURCES.md`](data/hud/chas/SOURCES.md) | published schedule; the API does not serve it |
 | `data/hud/fmr/` (4 files) | [`data/hud/fmr/SOURCES.md`](data/hud/fmr/SOURCES.md) | published schedule; the API does not serve it |
-| `data/policy/medicaid/` (2 files) | [`data/policy/medicaid/SOURCES.md`](data/policy/medicaid/SOURCES.md) | policy table built by a committed script from the publisher's page; the original's digest is in SOURCES.md |
+| `data/policy/medicaid/` (4 files) | [`data/policy/medicaid/SOURCES.md`](data/policy/medicaid/SOURCES.md) | policy table built by a committed script from the publisher's page; the original's digest is in SOURCES.md |
 | `data/policy/minimum_wage/` (2 files) | [`data/policy/minimum_wage/SOURCES.md`](data/policy/minimum_wage/SOURCES.md) | policy table built by a committed script from the publisher's page; the original's digest is in SOURCES.md |
 | `data/zillow/2026-08/` (0 files) | [`data/zillow/2026-08/SOURCES.md`](data/zillow/2026-08/SOURCES.md) | bulk download; files are not committed, see Restrictions |
 

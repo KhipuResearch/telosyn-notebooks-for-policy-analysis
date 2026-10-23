@@ -172,3 +172,11 @@ from gate_support import parametrize_notebooks as _parametrize_notebooks
 
 def pytest_generate_tests(metafunc):
     _parametrize_notebooks(metafunc)
+
+
+@pytest.fixture(autouse=True)
+def _no_real_pauses(monkeypatch):
+    """Retry back-off in the PUMS client sleeps in production and never in a test."""
+    from krl_tutorials_data import sources
+
+    monkeypatch.setattr(sources, "_sleep", lambda seconds: None)

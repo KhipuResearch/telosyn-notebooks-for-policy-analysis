@@ -1,0 +1,33 @@
+{
+  "source_name": "U.S. Census Bureau",
+  "dataset": "American Community Survey Public Use Microdata Sample (acs/acs1/pums)",
+  "vintage": "2023",
+  "endpoint": "https://api.census.gov/data/2023/acs/acs1/pums",
+  "variables": {
+    "AGEP": "Age",
+    "HICOV": "Health insurance coverage recode",
+    "PRIVCOV": "Private health insurance coverage recode",
+    "PUBCOV": "Public health coverage recode"
+  },
+  "retrieved_utc": "2026-10-23T19:52:03+00:00",
+  "row_count": 19487,
+  "column_count": 5,
+  "content_sha256": "5fc2470d6324ba665b93ef330fed801708ddf4e645f716f7644e215afdf1fc3f",
+  "mode": "empirical",
+  "notes": [
+    "PUMS is a sample of person records; weighted cell counts estimate population counts with sampling error that is not computed here (no replicate weights).",
+    "Missing values in grouping columns are kept as their own cell; their meaning is the variable's universe in the PUMS data dictionary.",
+    "Kept 19487 of 19487 person record(s) inside AGEP in [55, 75].",
+    "Aggregated to 69 cell(s) from 19487 person record(s); 15 cell(s) with fewer than 10 records were withheld (78 record(s), weighted 6,543). No person-level row is returned."
+  ],
+  "pinned": true,
+  "hash_basis": "canonical-rows",
+  "request_params": {
+    "get": "AGEP,HICOV,PRIVCOV,PUBCOV,PWGTP",
+    "for": "state:18",
+    "AGEP": "55:75",
+    "key": "<redacted>"
+  },
+  "request_method": "GET",
+  "pap_sha256": "10f4182b7b8027d8dfecccd594998618c2964cd782622dd63db883ddb4d89754"
+}

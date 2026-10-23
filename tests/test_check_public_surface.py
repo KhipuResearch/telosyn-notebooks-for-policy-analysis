@@ -626,7 +626,7 @@ def test_every_allowlist_entry_has_a_reason_and_matches_a_line_in_its_file() -> 
             f"{entry.file}: no line hashes to this entry; it is stale"
         )
     kinds = {e.rule for e in allow.entries.values()}
-    assert kinds <= {"path", "tooling", "unpublished"}
+    assert kinds <= {"path", "tooling", "unpublished", "internal_files"}
 
 
 def test_make_check_and_pre_commit_run_the_checker_and_ci_runs_only_the_public_rules() -> None:

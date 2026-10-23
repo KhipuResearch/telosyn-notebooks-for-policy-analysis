@@ -1,0 +1,31 @@
+{
+  "source_name": "U.S. Census Bureau",
+  "dataset": "American Community Survey Public Use Microdata Sample (acs/acs1/pums)",
+  "vintage": "2023",
+  "endpoint": "https://api.census.gov/data/2023/acs/acs1/pums",
+  "variables": {
+    "AGEP": "Age",
+    "SEX": "Sex"
+  },
+  "retrieved_utc": "2026-10-23T19:52:48+00:00",
+  "row_count": 26498,
+  "column_count": 3,
+  "content_sha256": "48731a916bf0ed15fe5d9aa6db8e6ccd37ac30f53c8f4246243997c19040e7dc",
+  "mode": "empirical",
+  "notes": [
+    "PUMS is a sample of person records; weighted cell counts estimate population counts with sampling error that is not computed here (no replicate weights).",
+    "Missing values in grouping columns are kept as their own cell; their meaning is the variable's universe in the PUMS data dictionary.",
+    "Kept 26498 of 26498 person record(s) inside AGEP in [55, 75].",
+    "Aggregated to 42 cell(s) from 26498 person record(s); 0 cell(s) with fewer than 10 records were withheld (0 record(s), weighted 0). No person-level row is returned."
+  ],
+  "pinned": true,
+  "hash_basis": "canonical-rows",
+  "request_params": {
+    "get": "AGEP,SEX,PWGTP",
+    "for": "state:34",
+    "AGEP": "55:75",
+    "key": "<redacted>"
+  },
+  "request_method": "GET",
+  "pap_sha256": "10f4182b7b8027d8dfecccd594998618c2964cd782622dd63db883ddb4d89754"
+}

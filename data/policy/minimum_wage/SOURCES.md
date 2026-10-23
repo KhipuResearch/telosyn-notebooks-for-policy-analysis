@@ -74,10 +74,18 @@ and typographical errors (e.g. `4..65(g,,j)`) that this CSV has no use for.
   change up to eleven months late. Timing from this table is the timing of a January-1 snapshot.
 - **A "basic" rate.** The title says so. Where a state sets different rates by employer size, the
   table carries one figure and a footnote marker, not the schedule. For California, the January-1
-  figures read **10.00 (2016), 10.00 (2017), 11.00 (2018), 12.00 (2019)**. TRACKS §3 C04 describes
-  the first step of the 2017 schedule as "to $10.50 for employers with 26 or more employees"; the
-  table's 2017 figure is 10.00. Any analysis that defines treatment or donors from this table must
-  say which employer-size definition the figure follows. Recorded in `QUESTIONS.md`.
+  figures read **10.00 (2016), 10.00 (2017), 11.00 (2018), 12.00 (2019)**. The first step of the 2017
+  schedule is described elsewhere as $10.50 for employers with 26 or more employees; the table's
+  2017 figure is 10.00. Any analysis that defines treatment or donors from this table must say which
+  employer-size definition the figure follows.
+- **Ranges are tiers, and a low end can sit at or below the federal rate while the high end is above
+  it.** From 2014 the table prints ranges for Minnesota (`6.50-8.00` in 2014 to `8.15-10.00` in
+  2019), Nevada (`7.25-8.25` from 2014 to 2019, then `8.00-9.00` and later two alternatives) and Ohio
+  (`7.25-7.95` in 2014, `7.25-8.10` in 2015 and 2016, then a single figure). A rule that dates a first
+  move above the federal minimum from the low end (`rate_low`) treats these states as untreated while
+  their larger employers already pay more; a rule that uses the high end treats them as treated
+  throughout. Oklahoma (`2.00-7.25`) and the territories show ranges whose high end is the federal
+  rate. The two readings give different adoption years, and a notebook that uses either must say so.
 - **A state rate below the federal rate is not the binding rate.** Several states show a statutory
   figure under the federal one (the raw table shows Georgia at 5.15 and Wyoming at 5.15 against a
   federal 7.25). The effective minimum is the greater of the two; this file does not compute it.

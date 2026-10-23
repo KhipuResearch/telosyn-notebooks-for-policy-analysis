@@ -78,6 +78,12 @@
    "file": "projects/09-causal-identification/C01_medicaid_expansion_did/pap/C01_pap.md",
    "line_sha256": "e729b5e416ee4a0e4a0f20bd9e9274e046203a93df9ad37ebfb908ef8342bf12",
    "reason": "A committed pre-analysis plan. Its SHA-256 is bound into every provenance record of the notebook, so the file cannot be edited to remove this reference to a file outside the repository; the notebook itself does not cite it."
+  },
+  {
+   "rule": "internal_files",
+   "file": "projects/09-causal-identification/C03_minimum_wage_staggered/pap/C03_pap.md",
+   "line_sha256": "b2e0314241b4cf809e7d150bbc4817799cc45f579f1efa41cf0bfba5c42f27bc",
+   "reason": "A committed pre-analysis plan. Its SHA-256 is bound into every provenance record of the notebook, so the file cannot be edited to remove this reference to a file outside the repository; the notebook itself does not cite it."
   }
  ]
 }

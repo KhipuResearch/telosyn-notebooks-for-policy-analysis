@@ -565,6 +565,7 @@ def sun_abraham(
     lags: int,
     reference: int = -1,
     cluster: ArrayLike | None = None,
+    bin_weights: Literal["units", "observations"] = "units",
 ) -> SunAbrahamFit:
     """Interaction-weighted estimator with never-treated units as the control group.
 
@@ -572,7 +573,9 @@ def sun_abraham(
     end cells binned), a two-way fixed-effects regression with cluster-robust
     errors, then ``ATT(e) = sum_g share(g | e) * delta(g, e)`` where the shares are
     each cohort's count of units with a cell at event time ``e`` (a binned end cell counts a unit once,
-    however many periods it pools). ``overall`` is the plain
+    however many periods it pools). ``bin_weights="observations"`` weights by observations
+    instead, which lets a cohort with a long pre-period dominate the binned lead cell; it exists
+    to reproduce an earlier run. ``overall`` is the plain
     mean of ``ATT(e)`` over ``e >= 0``; its variance uses the same coefficients'
     covariance. Never-treated units are required (the interaction design has no other
     clean control). Sun and Abraham (2021, J. Econometrics, as recalled, not verified
@@ -605,7 +608,13 @@ def sun_abraham(
         raise ValueError("no cohort has an observation inside the event window")
     fit = twfe(yy, np.column_stack(columns), unit, time, cluster=cluster)
     unit_codes = np.unique(np.asarray(unit), return_inverse=True)[1]
-    counts = np.array([np.unique(unit_codes[c.astype(bool)]).size for c in columns], dtype=float)
+    if bin_weights not in ("units", "observations"):
+        raise ValueError("bin_weights must be 'units' or 'observations'")
+    counts = np.array(
+        [np.unique(unit_codes[c.astype(bool)]).size if bin_weights == "units" else c.sum()
+         for c in columns],
+        dtype=float,
+    )
     att = np.zeros(len(event_times))
     agg = np.zeros((len(event_times), len(keys)))
     for row, e in enumerate(event_times):

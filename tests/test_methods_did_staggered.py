@@ -14,7 +14,7 @@ from typing import Callable
 
 import numpy as np
 import pytest
-from hypothesis import given, settings
+from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
 from krl_tutorials_data.methods import did
@@ -113,7 +113,11 @@ def test_property_the_decomposition_always_rebuilds_the_pooled_estimate(seed: in
         noise=0.5,
         seed=seed,
     )
-    out = did.bacon_decomposition(p["y"], p["unit"], p["time"], p["cohort"])
+    try:
+        out = did.bacon_decomposition(p["y"], p["unit"], p["time"], p["cohort"])
+    except ValueError as exc:  # a drawn panel with a single timing has nothing to decompose
+        assume("no variation" not in str(exc))
+        raise
     fit = did.twfe(p["y"], treated_indicator(p), p["unit"], p["time"])
     assert out.twfe == pytest.approx(float(fit.coef[0]), abs=1e-8)
     assert sum(c.weight for c in out.comparisons) == pytest.approx(1.0)
@@ -317,3 +321,17 @@ def test_group_time_att_not_yet_controls_exclude_the_cohort_and_the_treated_at_b
     )
     pre = [a for e, a in zip(fit.event_times, fit.att) if e < 0]
     assert pre and np.allclose(pre, 0.0, atol=1e-9)
+
+
+def test_sun_abraham_observation_weights_remain_available_to_reproduce_an_earlier_run() -> None:
+    """With ``bin_weights="observations"`` the same panel gives (6*1 + 42*5)/48 = 4.5."""
+    effects = {4: lambda e: 1.0 + 0.5 * e, 8: lambda e: 2.0}
+    p = make_panel(effects, {np.nan: 6, 4: 2, 8: 6}, 12)
+    shift = {4.0: 1.0, 8.0: 5.0}
+    lead = np.isfinite(p["cohort"]) & (p["time"] - p["cohort"] <= -2)
+    p["y"] = p["y"] + np.where(lead, [shift.get(c, 0.0) for c in p["cohort"]], 0.0)
+    kw = dict(leads=2, lags=8, cluster=p["unit"])
+    fit = did.sun_abraham(p["y"], p["unit"], p["time"], p["cohort"], bin_weights="observations", **kw)
+    assert fit.att[fit.event_times.index(-2)] == pytest.approx(4.5, abs=1e-8)
+    with pytest.raises(ValueError, match="bin_weights"):
+        did.sun_abraham(p["y"], p["unit"], p["time"], p["cohort"], bin_weights="x", **kw)  # type: ignore[arg-type]

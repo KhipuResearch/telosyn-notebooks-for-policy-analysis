@@ -100,3 +100,30 @@ in the last months of the pre-period is possible and the pre-period fit does not
 the first of several scheduled increases; the series are revised and seasonally adjusted; donors may have
 had other policy changes (local minimum wages) that the state-level schedule does not show. If the analysis
 departs from this plan, the Limitations section says how and why.
+
+## Amendment of 2026-10-23 — fit on indexed series (made before any gap or effect was computed)
+
+**What went wrong.** Section 4 fits the pre-period monthly outcomes in levels. A check of the pre-period
+months alone, run when the first execution of the notebook stopped, showed that California's
+leisure-and-hospitality employment is larger than that of **every** donor in **all 84** pre-period months
+(California's pre-period mean is about 1,685 thousand; the largest donor's is about 1,142 thousand). A weighted
+average with non-negative weights summing to one can never exceed its largest component, so no synthetic control
+in levels can match California, and the placebo fits for small donors were degenerate with covariates scaled to
+California's level. The 84 pre-period months of the 22 outcome series had been read for that check and for
+debugging; no post-period value had been used, and no gap, effect or placebo ratio had been computed or seen.
+
+**What changes.** In every fit, the real one and each placebo:
+- each outcome series is expressed as an index, 100 × value ÷ the unit's own mean over 2010-01 to 2016-12;
+- each covariate is standardised across California and the donors and then multiplied by **5 index points**
+  (the same one-standard-deviation-counts-like-a-5%-gap rule, now in the units of the index), with weight 10
+  per covariate row against 1 per monthly row;
+- California's gap is reported in index points and converted to thousands of jobs with California's
+  pre-period mean; the percentage gap is the gap over the synthetic index.
+
+For the in-time placebo, the index base is the mean over 2010-01 to 2013-12 (the months used in that fit), so
+that no later month enters the weights.
+
+**What does not change.** The outcome, the donor pool, the windows, the covariates, the estimators, the
+placebo designs, the checks, the thresholds (pre-period fit as a percentage of the pre-period mean is the
+RMSPE in index points; the limit stays 3.0) and the decision rule. The notebook states this amendment in its
+Limitations.

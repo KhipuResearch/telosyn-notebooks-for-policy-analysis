@@ -1,0 +1,32 @@
+{
+  "source_name": "Federal Reserve Bank of St. Louis",
+  "dataset": "FRED series OKUR",
+  "vintage": "2010-01-01 to 2019-12-01, current revision",
+  "endpoint": "https://api.stlouisfed.org/fred/series/observations",
+  "variables": {
+    "OKUR": "FRED OKUR, frequency=m, units=lin"
+  },
+  "retrieved_utc": "2026-10-23T17:11:19+00:00",
+  "row_count": 120,
+  "column_count": 2,
+  "content_sha256": "1352384ebc06d1a7551e23b666f7571f4db30a3c893dbf11e2ebf346b27dd4b8",
+  "mode": "empirical",
+  "notes": [
+    "Window is pinned at both ends; an open end would change every derived number on re-run.",
+    "0 observation(s) were published as the missing sentinel '.' and became NaN before any arithmetic.",
+    "Current revision: FRED rewrites history at each revision and rebasing, so these values differ from what was published earlier. Pass `vintage` to recover a historical publication."
+  ],
+  "pinned": true,
+  "hash_basis": "response-bytes",
+  "request_params": {
+    "series_id": "OKUR",
+    "api_key": "<redacted>",
+    "file_type": "json",
+    "observation_start": "2010-01-01",
+    "observation_end": "2019-12-01",
+    "frequency": "m",
+    "units": "lin"
+  },
+  "request_method": "GET",
+  "pap_sha256": "bbb4b7a90571288f1d6d473c87014596a0cd7f403a36d3b288cd16c67a5e57df"
+}

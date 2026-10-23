@@ -9,21 +9,23 @@
     "PRIVCOV": "Private health insurance coverage recode",
     "PUBCOV": "Public health coverage recode"
   },
-  "retrieved_utc": "2026-10-22T09:07:16+00:00",
-  "row_count": 127485,
+  "retrieved_utc": "2026-10-23T19:52:02+00:00",
+  "row_count": 35993,
   "column_count": 5,
-  "content_sha256": "94ccd00dd16bc62df5463340e8f68dce7d92a42ccd9373098e597bd931bb53ca",
+  "content_sha256": "932c144b3712e64c7cfe75a3669ec238ec97f73038f22a2f63beed6379b55b52",
   "mode": "empirical",
   "notes": [
     "PUMS is a sample of person records; weighted cell counts estimate population counts with sampling error that is not computed here (no replicate weights).",
     "Missing values in grouping columns are kept as their own cell; their meaning is the variable's universe in the PUMS data dictionary.",
-    "Aggregated to 336 cell(s) from 127485 person record(s); 32 cell(s) with fewer than 10 records were withheld (145 record(s), weighted 14,046). No person-level row is returned."
+    "Kept 35993 of 35993 person record(s) inside AGEP in [55, 75].",
+    "Aggregated to 77 cell(s) from 35993 person record(s); 7 cell(s) with fewer than 10 records were withheld (51 record(s), weighted 6,396). No person-level row is returned."
   ],
   "pinned": true,
   "hash_basis": "canonical-rows",
   "request_params": {
     "get": "AGEP,HICOV,PRIVCOV,PUBCOV,PWGTP",
     "for": "state:17",
+    "AGEP": "55:75",
     "key": "<redacted>"
   },
   "request_method": "GET",

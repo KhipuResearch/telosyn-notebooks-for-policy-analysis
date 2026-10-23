@@ -7,21 +7,23 @@
     "AGEP": "Age",
     "SEX": "Sex"
   },
-  "retrieved_utc": "2026-10-22T09:08:18+00:00",
-  "row_count": 6735,
+  "retrieved_utc": "2026-10-23T19:52:33+00:00",
+  "row_count": 1340,
   "column_count": 3,
-  "content_sha256": "62653d2eced9c9180adc1b6b3fb05ae7b2c6caeb1b37fba05e360b17aa9a7081",
+  "content_sha256": "e2c3a450dcaa5b0bee188c1e5d11515b3ca6819d1bdaf35ddda506a1f3c306df",
   "mode": "empirical",
   "notes": [
     "PUMS is a sample of person records; weighted cell counts estimate population counts with sampling error that is not computed here (no replicate weights).",
     "Missing values in grouping columns are kept as their own cell; their meaning is the variable's universe in the PUMS data dictionary.",
-    "Aggregated to 172 cell(s) from 6735 person record(s); 10 cell(s) with fewer than 10 records were withheld (54 record(s), weighted 4,571). No person-level row is returned."
+    "Kept 1340 of 1340 person record(s) inside AGEP in [55, 75].",
+    "Aggregated to 42 cell(s) from 1340 person record(s); 0 cell(s) with fewer than 10 records were withheld (0 record(s), weighted 0). No person-level row is returned."
   ],
   "pinned": true,
   "hash_basis": "canonical-rows",
   "request_params": {
     "get": "AGEP,SEX,PWGTP",
     "for": "state:11",
+    "AGEP": "55:75",
     "key": "<redacted>"
   },
   "request_method": "GET",

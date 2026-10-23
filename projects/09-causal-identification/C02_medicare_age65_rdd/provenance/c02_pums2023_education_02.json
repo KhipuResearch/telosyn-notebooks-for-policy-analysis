@@ -7,21 +7,23 @@
     "AGEP": "Age",
     "SCHL": "Educational attainment"
   },
-  "retrieved_utc": "2026-10-22T09:09:09+00:00",
-  "row_count": 6868,
+  "retrieved_utc": "2026-10-23T19:53:03+00:00",
+  "row_count": 1717,
   "column_count": 3,
-  "content_sha256": "872296dd81dbb09e7f9e2cd6dbc88f17c5319a0147224df864154b3ecdeed22f",
+  "content_sha256": "fe5f4dbdebc9232b4181c676b12d15a5241dbbdd0dfefa115c938f740cd761c1",
   "mode": "empirical",
   "notes": [
     "PUMS is a sample of person records; weighted cell counts estimate population counts with sampling error that is not computed here (no replicate weights).",
     "Missing values in grouping columns are kept as their own cell; their meaning is the variable's universe in the PUMS data dictionary.",
-    "Aggregated to 216 cell(s) from 6868 person record(s); 670 cell(s) with fewer than 10 records were withheld (2110 record(s), weighted 233,649). No person-level row is returned."
+    "Kept 1717 of 1717 person record(s) inside AGEP in [55, 75].",
+    "Aggregated to 65 cell(s) from 1717 person record(s); 197 cell(s) with fewer than 10 records were withheld (622 record(s), weighted 58,298). No person-level row is returned."
   ],
   "pinned": true,
   "hash_basis": "canonical-rows",
   "request_params": {
     "get": "AGEP,SCHL,PWGTP",
     "for": "state:02",
+    "AGEP": "55:75",
     "key": "<redacted>"
   },
   "request_method": "GET",

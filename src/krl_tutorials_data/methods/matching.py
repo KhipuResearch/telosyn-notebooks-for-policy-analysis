@@ -447,7 +447,11 @@ def stratified_effect(
 
 @dataclass(frozen=True)
 class RosenbaumBounds:  # pylint: disable=too-many-instance-attributes
-    """Bounds on the one-sided p-value of a stratified binary-outcome test at one Gamma."""
+    """Bounds on the one-sided p-values of a stratified binary-outcome test at one Gamma.
+
+    ``p_upper`` and ``p_lower`` bound ``P(T >= t)``; ``p_below_upper`` and ``p_below_lower`` bound
+    ``P(T <= t)``, the tail that matters when the treated event count is below its expectation.
+    """
 
     gamma: float
     statistic: float
@@ -457,6 +461,8 @@ class RosenbaumBounds:  # pylint: disable=too-many-instance-attributes
     variance_lower: float
     p_upper: float
     p_lower: float
+    p_below_upper: float
+    p_below_lower: float
 
 
 def _noncentral_moments(n1: Float, n0: Float, events: Float, odds: float) -> tuple[Float, Float]:
@@ -500,9 +506,10 @@ def rosenbaum_bounds(
     can multiply the odds of treatment by at most ``gamma`` between two units in the same
     stratum, the odds ratio of the noncentral hypergeometric lies in ``[1/gamma, gamma]``.
     The upper bound of the one-sided p-value for ``T >= t`` uses ``gamma``; the lower
-    uses ``1/gamma``. Each stratum's mean and variance are exact; the sum over strata is
-    referred to a normal distribution with continuity correction, which needs many strata
-    or large ones. ``gamma = 1`` is the test with no hidden bias.
+    uses ``1/gamma``. For ``T <= t`` (a count below its expectation) the larger bound uses
+    ``1/gamma`` and the smaller ``gamma``, with the continuity correction ``+0.5``. Each
+    stratum's mean and variance are exact; the sum over strata is referred to a normal
+    distribution with continuity correction, which needs many strata or large ones. ``gamma = 1`` is the test with no hidden bias.
     Rosenbaum (2002), *Observational Studies*, as recalled, not verified in this build.
     Counts must be counts of **sampled units**: weighted counts overstate the evidence.
     """
@@ -534,6 +541,9 @@ def rosenbaum_bounds(
         raise ValueError("the strata carry no variation in the treated-event count")
     p_upper = float(stats.norm.sf((statistic - 0.5 - mean_hi.sum()) / sd_hi))
     p_lower = float(stats.norm.sf((statistic - 0.5 - mean_lo.sum()) / sd_lo))
+    # P(T <= t): the larger bound uses the smaller odds, the same continuity correction on the other side.
+    p_below_upper = float(stats.norm.cdf((statistic + 0.5 - mean_lo.sum()) / sd_lo))
+    p_below_lower = float(stats.norm.cdf((statistic + 0.5 - mean_hi.sum()) / sd_hi))
     return RosenbaumBounds(
         gamma=float(gamma),
         statistic=statistic,
@@ -543,6 +553,8 @@ def rosenbaum_bounds(
         variance_lower=float(var_lo.sum()),
         p_upper=p_upper,
         p_lower=p_lower,
+        p_below_upper=p_below_upper,
+        p_below_lower=p_below_lower,
     )
 
 
@@ -572,9 +584,7 @@ def rosenbaum_critical_gamma(
 
     def worst(g: float) -> float:
         bounds = rosenbaum_bounds(*args, gamma=g)
-        if positive:
-            return bounds.p_upper
-        return float(1.0 - bounds.p_lower)
+        return bounds.p_upper if positive else bounds.p_below_upper
 
     if worst(1.0) > alpha:
         return 1.0

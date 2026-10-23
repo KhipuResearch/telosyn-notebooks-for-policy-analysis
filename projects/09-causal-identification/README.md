@@ -99,16 +99,16 @@ jupyter lab projects/09-causal-identification/
 - Compare people only with others who share the same measured characteristics, by stratifying on covariate cells and by weighting with a propensity score, and say what each estimate assumes.
 - Check that the adjustment worked, with standardised mean differences before and after weighting and a picture of the overlap between the groups.
 - Fit a propensity model to cells of counts, using frequency weights, and see why that equals fitting it to the people the cells stand for.
-- Measure how much hidden bias an estimate could survive with Rosenbaum bounds, and read the number Gamma.
+- Measure how large a further hidden factor would have to be, with Rosenbaum bounds, and read the number Gamma next to the negative control instead of by itself.
 
 **Sources** — American Community Survey Public Use Microdata Sample (acs/acs1/pums)  
-2 provenance records committed in `C05_public_coverage_matching/provenance/`.
+12 provenance records committed in `C05_public_coverage_matching/provenance/`.
 
 **Limitations**
 
-- The assumption cannot be tested. No unmeasured confounding is the whole claim, and public coverage is plausibly conferred on grounds that bear on work: disability, caregiving, health, state rules. The negative control and the Rosenbaum Gamma say something about it; neither proves it.
-- State. State is not in the cells; the state's Medicaid expansion status stands in for it. Other state differences are omitted and are exactly the kind of hidden bias Gamma describes.
-- What `PUBCOV` is. It mixes programmes with different rules, and includes Medicare and military coverage. The treated group is not one intervention.
+- The negative control failed. After adjustment, the share foreign born differs between the groups, and public coverage cannot change where a person was born. The covariate cells therefore leave confounding in place; the cell above this section prints the size. Nativity bears on eligibility (some recent immigrants are barred from some programmes) and on employment, which is what this failure points to. By the plan's own rule the estimates are descriptive associations. Adding nativity to the cells is a labelled sensitivity and does not replace the plan's result.
+- The assumption cannot be tested. No unmeasured confounding is the whole claim, and public coverage is plausibly conferred on grounds that bear on work: disability, caregiving, health, state rules. The negative control and the Rosenbaum Gamma say something about it; neither proves it. Gamma is computed on record counts that ignore the survey design and household clustering, which overstates it; the labelled context cell shows how it falls with assumed design effects, and sets it against the measured covariates.
+- A selected sample. The income restriction selects on a quantity the outcome moves, as the design section says.
 
 ---
 

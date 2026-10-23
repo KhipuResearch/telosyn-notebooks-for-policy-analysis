@@ -372,6 +372,19 @@ def verify_digest(
     return frame, prov
 
 
+def acs_period_note(dataset: str) -> str:
+    """What the estimates of this ACS product measure, for the provenance record.
+
+    The 5-year product pools five years of responses; the 1-year product describes one calendar
+    year. Saying the first of the second would mislabel a record.
+    """
+    if dataset.endswith("acs5"):
+        return "5-year estimates are period estimates, not point-in-time measures."
+    if dataset.endswith("acs1"):
+        return "1-year estimates describe a single calendar year of data collection."
+    return f"The estimation period of {dataset} is defined by the product, not by this record."
+
+
 def fetch_acs(
     *,
     year: int,
@@ -487,7 +500,7 @@ def fetch_acs(
             "statistically distinguishable.",
             "Jam values (suppressed / unavailable estimates) were converted to "
             f"missing. Sentinels recognised: {sorted(ACS_SENTINELS)}.",
-            "5-year estimates are period estimates, not point-in-time measures.",
+            acs_period_note(dataset),
         ),
     )
     return df, prov
@@ -626,7 +639,7 @@ def fetch_acs_wide(
             "statistically distinguishable.",
             "Jam values (suppressed / unavailable estimates) were converted to "
             f"missing. Sentinels recognised: {sorted(ACS_SENTINELS)}.",
-            "5-year estimates are period estimates, not point-in-time measures.",
+            acs_period_note(dataset),
         ),
     )
     return joined, prov

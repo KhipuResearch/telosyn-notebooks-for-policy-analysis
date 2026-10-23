@@ -19,10 +19,12 @@ Estimator
     ``|x - c| <= h``, with triangular (``1 - |x-c|/h``) or uniform kernel
     weights, optionally multiplied by survey weights. The coefficient on ``D``
     is the estimate. Variance is the HC1 sandwich, or cluster-robust (CR1) when
-    ``cluster`` is given -- the convention for a *discrete* running variable is
-    to cluster on its values (Lee & Card 2008, recalled, not verified in this
-    build). No bias correction and no data-driven bandwidth: the notebook shows
-    a grid and says so.
+    ``cluster`` is given. With a *discrete* running variable that takes few values
+    inside the window, neither is reliable and clustering on the values of the
+    running variable is not a remedy: with a handful of clusters and as many
+    parameters, the variance is close to zero by construction. :func:`honest_interval`
+    adds a bound on the bias from curvature, which is the other half of the problem.
+    No data-driven bandwidth: the notebook shows a grid and says so.
 
 Limits
     The density test is a binomial test of window counts. It is **not** the
@@ -34,6 +36,7 @@ Limits
 Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
 SPDX-License-Identifier: LicenseRef-Proprietary
 """
+
 from __future__ import annotations
 
 # Estimator signatures carry the data, the cutoff and the options explicitly.
@@ -79,9 +82,7 @@ class DensityTest:
     bandwidth: float
 
 
-def _arrays(
-    x: ArrayLike, y: ArrayLike, weights: ArrayLike | None
-) -> tuple[Float, Float, Float]:
+def _arrays(x: ArrayLike, y: ArrayLike, weights: ArrayLike | None) -> tuple[Float, Float, Float]:
     xx = np.asarray(x, dtype=float)
     yy = np.asarray(y, dtype=float)
     if xx.ndim != 1 or xx.shape != yy.shape:
@@ -132,9 +133,7 @@ def local_linear(
             f"at least {_MIN_PER_SIDE} weighted observations are needed on each side of the "
             f"cutoff within the bandwidth; found {n_left} left and {n_right} right"
         )
-    design = np.column_stack(
-        [np.ones_like(dist), right.astype(float), dist, right * dist]
-    )[live]
+    design = np.column_stack([np.ones_like(dist), right.astype(float), dist, right * dist])[live]
     wl, yl = w[live], yy[live]
     gram = design.T @ (design * wl[:, None])
     bread = np.linalg.inv(gram)
@@ -154,8 +153,12 @@ def local_linear(
         factor = (g / (g - 1)) * ((n - 1) / (n - p)) if g > 1 and n > p else 1.0
     var = factor * bread @ meat @ bread
     return RddFit(
-        estimate=float(beta[1]), se=float(np.sqrt(max(var[1, 1], 0.0))),
-        bandwidth=float(bandwidth), n_left=n_left, n_right=n_right, cutoff=float(cutoff),
+        estimate=float(beta[1]),
+        se=float(np.sqrt(max(var[1, 1], 0.0))),
+        bandwidth=float(bandwidth),
+        n_left=n_left,
+        n_right=n_right,
+        cutoff=float(cutoff),
     )
 
 
@@ -215,7 +218,10 @@ def placebo_cutoffs(
             PlaceboFit(
                 cutoff=float(c),
                 fit=local_linear(
-                    xx[side], yy[side], cutoff=c, bandwidth=bandwidth,
+                    xx[side],
+                    yy[side],
+                    cutoff=c,
+                    bandwidth=bandwidth,
                     **{name: values[side] for name, values in per_obs.items()},
                     **options,  # type: ignore[arg-type]
                 ),
@@ -236,3 +242,90 @@ def density_test(x: ArrayLike, *, cutoff: float, bandwidth: float) -> DensityTes
     left = int(window.size - right)
     p = float(stats.binomtest(right, window.size, 0.5).pvalue)
     return DensityTest(n_left=left, n_right=right, p_value=p, bandwidth=float(bandwidth))
+
+
+@dataclass(frozen=True)
+class HonestInterval:
+    """A confidence interval that allows for curvature of bounded size."""
+
+    estimate: float
+    se: float
+    smoothness: float
+    bias_bound: float
+    critical_value: float
+    lower: float
+    upper: float
+
+
+def estimator_weights(
+    x: ArrayLike,
+    *,
+    cutoff: float,
+    bandwidth: float,
+    kernel: Literal["triangular", "uniform"] = "triangular",
+    weights: ArrayLike | None = None,
+) -> tuple[Float, Float]:
+    """The weights ``w_i`` with which :func:`local_linear`'s jump is ``sum_i w_i y_i``.
+
+    Returns ``(w, distance)`` over all observations (zero outside the window). The jump is a
+    linear estimator, so its weights depend on ``x`` only: ``e' (X'WX)^-1 X'W`` for the
+    coefficient on the treatment indicator. On each side they sum to plus or minus one and are
+    orthogonal to the distance from the cutoff.
+    """
+    xx = np.asarray(x, dtype=float)
+    ww = np.ones_like(xx) if weights is None else np.asarray(weights, dtype=float)
+    dist = xx - cutoff
+    k = 1.0 - np.abs(dist) / bandwidth if kernel == "triangular" else np.ones_like(dist)
+    w = np.where(np.abs(dist) <= bandwidth, k * ww, 0.0)
+    live = w > 0
+    right = dist >= 0
+    design = np.column_stack([np.ones_like(dist), right.astype(float), dist, right * dist])[live]
+    wl = w[live]
+    bread = np.linalg.inv(design.T @ (design * wl[:, None]))
+    out = np.zeros_like(xx)
+    out[live] = wl * (design @ bread[:, 1])
+    return out, dist
+
+
+def honest_interval(
+    x: ArrayLike,
+    y: ArrayLike,
+    *,
+    cutoff: float,
+    bandwidth: float,
+    smoothness: float,
+    kernel: Literal["triangular", "uniform"] = "triangular",
+    weights: ArrayLike | None = None,
+    alpha: float = 0.05,
+) -> HonestInterval:
+    """Bias-aware confidence interval for the jump, for a bound ``smoothness`` on curvature.
+
+    The regression function on each side is allowed to depart from its straight line at the
+    cutoff by at most ``smoothness / 2 * distance**2`` (the Taylor class of Armstrong and
+    Kolesar, 2018, as recalled, not verified in this build). A linear estimator ``sum w_i y_i``
+    that is exact for straight lines then has worst-case bias ``smoothness / 2 * sum |w_i|
+    d_i**2``; the interval is the estimate plus or minus the ``1 - alpha`` quantile of
+    ``|N(b/se, 1)|`` times ``se``, with ``b`` the bias bound and ``se`` the HC1 standard error
+    of :func:`local_linear`. With ``smoothness = 0`` it is the conventional interval. The
+    choice of ``smoothness`` is the analyst's, and it should be reported for several values.
+    """
+    if not smoothness >= 0:
+        raise ValueError("smoothness must be non-negative")
+    if not 0.0 < alpha < 1.0:
+        raise ValueError("alpha must lie in (0, 1)")
+    fit = local_linear(x, y, cutoff=cutoff, bandwidth=bandwidth, kernel=kernel, weights=weights)
+    w, dist = estimator_weights(
+        x, cutoff=cutoff, bandwidth=bandwidth, kernel=kernel, weights=weights
+    )
+    bias = 0.5 * smoothness * float(np.sum(np.abs(w) * dist**2))
+    ratio = bias / fit.se if fit.se > 0 else float("inf")
+    cv = float(np.sqrt(stats.ncx2.ppf(1.0 - alpha, 1, ratio**2)))
+    return HonestInterval(
+        estimate=fit.estimate,
+        se=fit.se,
+        smoothness=float(smoothness),
+        bias_bound=bias,
+        critical_value=cv,
+        lower=fit.estimate - cv * fit.se,
+        upper=fit.estimate + cv * fit.se,
+    )

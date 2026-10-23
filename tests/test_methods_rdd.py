@@ -8,12 +8,14 @@ case. Test fixtures may use seeded randomness; the gates do not scan ``tests/``.
 Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
 SPDX-License-Identifier: LicenseRef-Proprietary
 """
+
 from __future__ import annotations
 
 import numpy as np
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
+from scipy import stats
 
 from krl_tutorials_data.methods import rdd
 
@@ -127,9 +129,7 @@ def test_placebo_cutoffs_use_only_one_side_of_the_true_cutoff() -> None:
     """A real step at 0 must not leak into a placebo at -4 or +4."""
     x = np.arange(-12.0, 13.0)
     y = 1.0 + 0.3 * x + 5.0 * (x >= 0)
-    results = rdd.placebo_cutoffs(
-        x, y, true_cutoff=0.0, placebo_cutoffs=[-4.0, 4.0], bandwidth=3.0
-    )
+    results = rdd.placebo_cutoffs(x, y, true_cutoff=0.0, placebo_cutoffs=[-4.0, 4.0], bandwidth=3.0)
     assert [r.cutoff for r in results] == [-4.0, 4.0]
     for r in results:
         assert r.fit.estimate == pytest.approx(0.0, abs=1e-9)
@@ -201,17 +201,95 @@ def test_placebo_weights_and_clusters_follow_their_observations() -> None:
     w = np.linspace(1.0, 4.0, x.size)
     cl = np.arange(x.size)
     got = rdd.placebo_cutoffs(
-        x, y, true_cutoff=0.0, placebo_cutoffs=[-4.5, 4.5], bandwidth=3.0,
-        kernel="triangular", weights=w, cluster=cl,
+        x,
+        y,
+        true_cutoff=0.0,
+        placebo_cutoffs=[-4.5, 4.5],
+        bandwidth=3.0,
+        kernel="triangular",
+        weights=w,
+        cluster=cl,
     )
     for placebo in got:
         side = x < 0.0 if placebo.cutoff < 0.0 else x >= 0.0
         expect = rdd.local_linear(
-            x[side], y[side], cutoff=placebo.cutoff, bandwidth=3.0,
-            kernel="triangular", weights=w[side], cluster=cl[side],
+            x[side],
+            y[side],
+            cutoff=placebo.cutoff,
+            bandwidth=3.0,
+            kernel="triangular",
+            weights=w[side],
+            cluster=cl[side],
         )
         assert placebo.fit.estimate == pytest.approx(expect.estimate, abs=1e-12)
         assert placebo.fit.se == pytest.approx(expect.se, abs=1e-12)
     with pytest.raises(ValueError, match="weights must have the same length"):
-        rdd.placebo_cutoffs(x, y, true_cutoff=0.0, placebo_cutoffs=[-4.5], bandwidth=3.0,
-                            weights=np.ones(3))
+        rdd.placebo_cutoffs(
+            x, y, true_cutoff=0.0, placebo_cutoffs=[-4.5], bandwidth=3.0, weights=np.ones(3)
+        )
+
+
+def _ages() -> tuple[np.ndarray, np.ndarray]:
+    """Whole-year running variable around 64.5 with a weight per cell."""
+    x = np.arange(60.0, 70.0)
+    return x, np.linspace(1.0, 2.0, x.size)
+
+
+def test_the_estimator_weights_reproduce_the_jump_and_satisfy_the_moment_conditions() -> None:
+    """Sum of w y equals the fit; each side sums to -1 and +1 and is orthogonal to distance."""
+    x, pop = _ages()
+    y = (
+        3.0
+        + 0.2 * (x - 64.5)
+        + 5.0 * (x >= 65)
+        + np.array([0.3, -0.2, 0.1, 0.4, -0.3, 0.2, 0.0, -0.1, 0.3, -0.4])
+    )
+    w, dist = rdd.estimator_weights(x, cutoff=64.5, bandwidth=4.5, weights=pop)
+    fit = rdd.local_linear(x, y, cutoff=64.5, bandwidth=4.5, weights=pop)
+    assert float(w @ y) == pytest.approx(fit.estimate, abs=1e-10)
+    right = dist > 0
+    assert w[right].sum() == pytest.approx(1.0) and w[~right].sum() == pytest.approx(-1.0)
+    assert float(w[right] @ dist[right]) == pytest.approx(0.0, abs=1e-10)
+    assert float(w[~right] @ dist[~right]) == pytest.approx(0.0, abs=1e-10)
+
+
+def test_the_worst_case_curvature_attains_the_bias_bound_exactly() -> None:
+    """A baseline of y = sign(w) M/2 d^2 over a straight line has bias M/2 sum |w| d^2, the bound."""
+    x, pop = _ages()
+    smooth = 0.2
+    w, dist = rdd.estimator_weights(x, cutoff=64.5, bandwidth=4.5, weights=pop)
+    y = 7.0 - 0.4 * dist + 0.5 * smooth * np.sign(w) * dist**2
+    jump = float(w @ y)
+    out = rdd.honest_interval(
+        x, y + 5.0 * (x >= 65), cutoff=64.5, bandwidth=4.5, smoothness=smooth, weights=pop
+    )
+    assert out.bias_bound == pytest.approx(0.5 * smooth * np.sum(np.abs(w) * dist**2))
+    assert jump == pytest.approx(
+        out.bias_bound
+    )  # the jump of the curved baseline alone, no true jump
+
+
+def test_the_honest_interval_widens_with_smoothness_and_reduces_to_the_usual_one_at_zero() -> None:
+    """M = 0 gives estimate +- 1.96 se; larger M gives a wider interval."""
+    x, pop = _ages()
+    y = 3.0 + 5.0 * (x >= 65) + np.array([0.3, -0.2, 0.1, 0.4, -0.3, 0.2, 0.0, -0.1, 0.3, -0.4])
+    base = rdd.honest_interval(x, y, cutoff=64.5, bandwidth=4.5, smoothness=0.0, weights=pop)
+    assert base.critical_value == pytest.approx(1.959964, abs=1e-5)
+    assert base.upper - base.lower == pytest.approx(2 * 1.959964 * base.se, rel=1e-5)
+    wide = [
+        rdd.honest_interval(x, y, cutoff=64.5, bandwidth=4.5, smoothness=m, weights=pop)
+        for m in (0.05, 0.2, 1.0)
+    ]
+    assert all(a.upper - a.lower < b.upper - b.lower for a, b in zip([base, *wide], wide))
+    direct = np.sqrt(stats.ncx2.ppf(0.95, 1, (wide[1].bias_bound / wide[1].se) ** 2))
+    assert wide[1].critical_value == pytest.approx(direct)
+
+
+def test_the_honest_interval_input_guards() -> None:
+    """Negative smoothness and an alpha outside (0, 1) raise."""
+    x, _ = _ages()
+    y = np.arange(10.0)
+    with pytest.raises(ValueError, match="smoothness"):
+        rdd.honest_interval(x, y, cutoff=64.5, bandwidth=4.5, smoothness=-1.0)
+    with pytest.raises(ValueError, match="alpha"):
+        rdd.honest_interval(x, y, cutoff=64.5, bandwidth=4.5, smoothness=0.1, alpha=1.5)

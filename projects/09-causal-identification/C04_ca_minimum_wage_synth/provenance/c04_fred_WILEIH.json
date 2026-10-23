@@ -6,7 +6,7 @@
   "variables": {
     "WILEIH": "FRED WILEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:14+00:00",
+  "retrieved_utc": "2026-10-23T20:56:31+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "9c5f92b861a14c35ccc84f96312dfeff5fee33e649dfe54d82a91730ce068d3f",

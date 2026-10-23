@@ -6,7 +6,7 @@
   "variables": {
     "WYNA": "FRED WYNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:31+00:00",
+  "retrieved_utc": "2026-10-23T20:56:45+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "ebfa93be0a0585582ea000353e1c76213fbf988516205282a2bcfc2b3d1d2f8f",

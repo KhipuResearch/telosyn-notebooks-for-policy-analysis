@@ -6,7 +6,7 @@
   "variables": {
     "SCLEIH": "FRED SCLEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:12+00:00",
+  "retrieved_utc": "2026-10-23T20:56:29+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "5a068dc549810ce2d918c9adfb13a73bc5e8cbb9b54230b50f3a97c257287e18",

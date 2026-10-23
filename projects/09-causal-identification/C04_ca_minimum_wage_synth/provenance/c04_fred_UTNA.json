@@ -6,7 +6,7 @@
   "variables": {
     "UTNA": "FRED UTNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:30+00:00",
+  "retrieved_utc": "2026-10-23T20:56:44+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "3d166a8cc1f0cf2d34d7f2d2baa7074d735968f7f66585da9e4c0700b9a777fc",

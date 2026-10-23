@@ -6,7 +6,7 @@
   "variables": {
     "TXUR": "FRED TXUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:21+00:00",
+  "retrieved_utc": "2026-10-23T20:56:38+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "472007822fd52b3b311699854a89519b166857606550c877ed0e862c93b60a15",

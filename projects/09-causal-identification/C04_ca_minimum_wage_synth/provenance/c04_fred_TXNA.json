@@ -6,7 +6,7 @@
   "variables": {
     "TXNA": "FRED TXNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:29+00:00",
+  "retrieved_utc": "2026-10-23T20:56:44+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "4f974f1a1b7551485a6372dc434f6b9bf8258e9bfd17a2b8101b0fb6ecad5fbf",

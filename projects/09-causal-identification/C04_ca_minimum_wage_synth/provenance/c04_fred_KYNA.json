@@ -6,7 +6,7 @@
   "variables": {
     "KYNA": "FRED KYNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:26+00:00",
+  "retrieved_utc": "2026-10-23T20:56:41+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "4fda35ae29bdad86518b08f42b6829f0e595379c83efee50ef502d12b7782e65",

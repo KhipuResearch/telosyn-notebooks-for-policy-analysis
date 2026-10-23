@@ -6,7 +6,7 @@
   "variables": {
     "VAUR": "FRED VAUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:21+00:00",
+  "retrieved_utc": "2026-10-23T20:56:38+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "f66e2dede1ea8f503d0115653f562cc856077937d8c17a556aefc2e3d8d38f15",

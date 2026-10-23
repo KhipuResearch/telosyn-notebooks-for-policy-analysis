@@ -6,7 +6,7 @@
   "variables": {
     "IDNA": "FRED IDNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:24+00:00",
+  "retrieved_utc": "2026-10-23T20:56:40+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "1fb2cf71dcb5ab81606cdae5e3a5c9acf638aa11ecacb9197f2ce74908d9a711",

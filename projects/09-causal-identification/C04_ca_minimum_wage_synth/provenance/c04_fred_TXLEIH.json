@@ -6,7 +6,7 @@
   "variables": {
     "TXLEIH": "FRED TXLEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:13+00:00",
+  "retrieved_utc": "2026-10-23T20:56:30+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "1a212ffe413adbb74485b19da1a164d3f35c8e3f32278bf80e82cfb986236002",

@@ -6,7 +6,7 @@
   "variables": {
     "NDUR": "FRED NDUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:19+00:00",
+  "retrieved_utc": "2026-10-23T20:56:36+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "3f95be08cbf4b66a2f143e52a430a36c4fcb95d66e1d11bb8ef479ee197c0a40",

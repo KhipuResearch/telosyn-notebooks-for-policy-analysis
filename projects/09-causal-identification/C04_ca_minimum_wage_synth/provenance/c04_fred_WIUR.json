@@ -6,7 +6,7 @@
   "variables": {
     "WIUR": "FRED WIUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:22+00:00",
+  "retrieved_utc": "2026-10-23T20:56:38+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "24f713d84508af4450c8c396a78f186669d24ba7de12adf10fa41b7ced95f35a",

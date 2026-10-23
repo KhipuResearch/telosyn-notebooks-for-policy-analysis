@@ -6,7 +6,7 @@
   "variables": {
     "NCUR": "FRED NCUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:18+00:00",
+  "retrieved_utc": "2026-10-23T20:56:36+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "c0cb71af8071bdb352142335cf2a09614f5f300e6ef513c56c3a3dc0e71a5e7d",

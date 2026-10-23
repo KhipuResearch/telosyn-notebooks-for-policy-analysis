@@ -6,7 +6,7 @@
   "variables": {
     "LALEIH": "FRED LALEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:09+00:00",
+  "retrieved_utc": "2026-10-23T20:56:27+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "1542018f8d5afeab7423c378d7d7d7ec13ece34fa35356a1238bf7910fe8c238",

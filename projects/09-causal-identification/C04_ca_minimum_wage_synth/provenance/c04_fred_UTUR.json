@@ -6,7 +6,7 @@
   "variables": {
     "UTUR": "FRED UTUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:21+00:00",
+  "retrieved_utc": "2026-10-23T20:56:38+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "024eb647319e36611dfa309de3b8077e2f3933d9d26520165b5592b1064b9501",

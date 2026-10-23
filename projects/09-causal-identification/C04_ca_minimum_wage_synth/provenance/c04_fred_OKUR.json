@@ -6,7 +6,7 @@
   "variables": {
     "OKUR": "FRED OKUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:19+00:00",
+  "retrieved_utc": "2026-10-23T20:56:36+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "1352384ebc06d1a7551e23b666f7571f4db30a3c893dbf11e2ebf346b27dd4b8",

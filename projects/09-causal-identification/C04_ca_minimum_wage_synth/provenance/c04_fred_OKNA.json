@@ -6,7 +6,7 @@
   "variables": {
     "OKNA": "FRED OKNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:28+00:00",
+  "retrieved_utc": "2026-10-23T20:56:42+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "e295d4238b4d8fb3c255f22e5fed8344d586a11dcf869f059faf7d198aaf48ea",

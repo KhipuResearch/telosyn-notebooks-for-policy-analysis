@@ -6,7 +6,7 @@
   "variables": {
     "NHNA": "FRED NHNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:27+00:00",
+  "retrieved_utc": "2026-10-23T20:56:42+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "89c71b7291e9111a3cd08bbf3447a37a4ad11b67c5f1fdfef7d5bf9b75357bbd",

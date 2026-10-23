@@ -6,7 +6,7 @@
   "variables": {
     "MSNA": "FRED MSNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:26+00:00",
+  "retrieved_utc": "2026-10-23T20:56:41+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "8e9798b5e7ddddd0e13027cb87573e923c1126553b091b60d4f8f71c4e08765f",

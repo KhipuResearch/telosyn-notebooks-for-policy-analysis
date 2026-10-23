@@ -6,7 +6,7 @@
   "variables": {
     "KSUR": "FRED KSUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:17+00:00",
+  "retrieved_utc": "2026-10-23T20:56:34+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "f1beb19d40e9a2821935a904dfb2036290c777139fc2f3406a53948769992314",

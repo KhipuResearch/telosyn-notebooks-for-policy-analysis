@@ -6,7 +6,7 @@
   "variables": {
     "NHLEIH": "FRED NHLEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:11+00:00",
+  "retrieved_utc": "2026-10-23T20:56:28+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "0ea03efcd55b26f11ae35d4757f683d704c68cd95c47dcc5f06d741aebc31270",

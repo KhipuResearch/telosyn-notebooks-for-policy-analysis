@@ -6,7 +6,7 @@
   "variables": {
     "IAUR": "FRED IAUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:16+00:00",
+  "retrieved_utc": "2026-10-23T20:56:34+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "dff3fefb7a4fe8708e22de6f69a67edabd41e8f78d837a1a5b0fdd9496a9f529",

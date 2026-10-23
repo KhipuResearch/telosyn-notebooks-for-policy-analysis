@@ -6,7 +6,7 @@
   "variables": {
     "KYUR": "FRED KYUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:17+00:00",
+  "retrieved_utc": "2026-10-23T20:56:35+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "87191c4bda324a473299ab6547ba0e0d35d192d2a14ca92640ed776457c56fe4",

@@ -6,7 +6,7 @@
   "variables": {
     "IDLEIH": "FRED IDLEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:08+00:00",
+  "retrieved_utc": "2026-10-23T20:56:25+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "69aca61e2c011675b04a23b73d74f2504c970ab960fa7a474a8da60544c37c0d",

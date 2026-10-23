@@ -6,7 +6,7 @@
   "variables": {
     "IANA": "FRED IANA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:24+00:00",
+  "retrieved_utc": "2026-10-23T20:56:40+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "1bfb0ae403e482a578cfb3b248d4072820d757c5a7bbd0876e1ee4a5cb592872",

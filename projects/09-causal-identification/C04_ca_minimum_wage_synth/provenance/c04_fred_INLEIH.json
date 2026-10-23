@@ -6,7 +6,7 @@
   "variables": {
     "INLEIH": "FRED INLEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:08+00:00",
+  "retrieved_utc": "2026-10-23T20:56:27+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "c607562325c08f29d3442d20d321c312520d6e500539168e3bb4ba8c1a5e6b01",

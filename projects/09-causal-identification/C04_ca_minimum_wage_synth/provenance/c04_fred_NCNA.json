@@ -6,7 +6,7 @@
   "variables": {
     "NCNA": "FRED NCNA, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:27+00:00",
+  "retrieved_utc": "2026-10-23T20:56:42+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "1872fe55de038b12c805c134c289222a363f44f229fcbbe864d0c2d7d6c2c8b7",

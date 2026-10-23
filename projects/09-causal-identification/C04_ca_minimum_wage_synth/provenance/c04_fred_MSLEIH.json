@@ -6,7 +6,7 @@
   "variables": {
     "MSLEIH": "FRED MSLEIH, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:10+00:00",
+  "retrieved_utc": "2026-10-23T20:56:28+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "f33cb3d6c16c6c60c2ab8eb3a1350898df186009381f0fa30b1e7fae22725585",

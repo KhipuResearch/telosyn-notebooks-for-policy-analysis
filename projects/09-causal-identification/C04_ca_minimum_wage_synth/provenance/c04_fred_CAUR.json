@@ -6,7 +6,7 @@
   "variables": {
     "CAUR": "FRED CAUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:15+00:00",
+  "retrieved_utc": "2026-10-23T20:56:33+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "06b796f7b7fb0d3b4c896bc08b8412a86993fed0f4cf8f476e8ad10b2114a3c4",

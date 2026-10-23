@@ -6,7 +6,7 @@
   "variables": {
     "TNUR": "FRED TNUR, frequency=m, units=lin"
   },
-  "retrieved_utc": "2026-10-23T17:11:20+00:00",
+  "retrieved_utc": "2026-10-23T20:56:37+00:00",
   "row_count": 120,
   "column_count": 2,
   "content_sha256": "f385df6ca3b8deb84ba63746ff290d9a2c357534b8cb19fae32e7d78806496d6",

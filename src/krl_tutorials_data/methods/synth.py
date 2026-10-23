@@ -214,6 +214,9 @@ def placebo_in_space(
     *,
     n_pre: int,
     max_pre_ratio: float | None = None,
+    covariates_treated: ArrayLike | None = None,
+    covariates_donors: ArrayLike | None = None,
+    covariate_weight: float = 1.0,
 ) -> SpacePlacebo:
     """Re-estimate the effect with each donor in the treated role.
 
@@ -223,17 +226,38 @@ def placebo_in_space(
     treated unit's good fit with placebos that never fitted. ``rank`` is 1 for
     the largest ratio; ``p_value = rank / (n_placebos + 1)`` in the sense of
     ``(1 + #placebos with ratio >= treated) / (1 + n_placebos)``.
+
+    If covariates are given, **every** fit, the real one and each placebo, uses them
+    with the same ``covariate_weight``: a placebo distribution from a different
+    specification than the estimate would not be a distribution for that estimate.
+    A placebo donor's covariates are its own column of ``covariates_donors``.
     """
     y1 = _series(treated, "treated", 1)
     y0 = _series(donors, "donors", 2)
     _check_split(y1, y0, n_pre)
     if y0.shape[1] < 2:
         raise ValueError("an in-space placebo needs at least two donors")
-    actual = synthetic_control(y1, y0, n_pre=n_pre)
+    if (covariates_treated is None) != (covariates_donors is None):
+        raise ValueError("covariates_treated and covariates_donors must be given together")
+    c1 = c0 = None
+    if covariates_treated is not None and covariates_donors is not None:
+        c1 = _series(covariates_treated, "covariates_treated", 1)
+        c0 = _series(covariates_donors, "covariates_donors", 2)
+        if c0.shape != (c1.shape[0], y0.shape[1]):
+            raise ValueError("covariates_donors must be (K, J) matching the donors")
+    actual = synthetic_control(
+        y1, y0, n_pre=n_pre, covariates_treated=c1, covariates_donors=c0,
+        covariate_weight=covariate_weight,
+    )
     ratios: list[float] = []
     for j in range(y0.shape[1]):
         rest = np.delete(y0, j, axis=1)
-        fit = synthetic_control(y0[:, j], rest, n_pre=n_pre)
+        fit = synthetic_control(
+            y0[:, j], rest, n_pre=n_pre,
+            covariates_treated=None if c0 is None else c0[:, j],
+            covariates_donors=None if c0 is None else np.delete(c0, j, axis=1),
+            covariate_weight=covariate_weight,
+        )
         limit = None if max_pre_ratio is None else max_pre_ratio * max(actual.pre_rmspe, 1e-12)
         if limit is not None and fit.pre_rmspe > limit:
             continue
@@ -247,17 +271,29 @@ def placebo_in_space(
 
 
 def placebo_in_time(
-    treated: ArrayLike, donors: ArrayLike, *, n_pre: int, placebo_pre: int
+    treated: ArrayLike,
+    donors: ArrayLike,
+    *,
+    n_pre: int,
+    placebo_pre: int,
+    covariates_treated: ArrayLike | None = None,
+    covariates_donors: ArrayLike | None = None,
+    covariate_weight: float = 1.0,
 ) -> SynthFit:
     """Fit on the first ``placebo_pre`` periods and score the rest of the pre-period.
 
     The real post-period is discarded, so a gap here is a gap that appears
     where no intervention occurred. ``post_rmspe`` of the returned fit is the
-    placebo effect size over ``[placebo_pre, n_pre)``.
+    placebo effect size over ``[placebo_pre, n_pre)``. Covariates, if given, must
+    be computed over the periods before ``placebo_pre`` only: a covariate that
+    looks into the discarded periods would leak them into the weights.
     """
     y1 = _series(treated, "treated", 1)
     y0 = _series(donors, "donors", 2)
     _check_split(y1, y0, n_pre)
     if not 2 <= placebo_pre < n_pre:
         raise ValueError(f"placebo_pre must satisfy 2 <= placebo_pre < n_pre={n_pre}")
-    return synthetic_control(y1[:n_pre], y0[:n_pre], n_pre=placebo_pre)
+    return synthetic_control(
+        y1[:n_pre], y0[:n_pre], n_pre=placebo_pre, covariates_treated=covariates_treated,
+        covariates_donors=covariates_donors, covariate_weight=covariate_weight,
+    )

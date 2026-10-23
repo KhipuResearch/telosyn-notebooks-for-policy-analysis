@@ -200,3 +200,51 @@ def test_the_second_start_is_used_when_the_first_fails_the_check(
     w, _ = synth.fit_weights(np.array([5.0]), np.array([[4.0, 8.0]]))
     assert calls["n"] == 2
     np.testing.assert_allclose(w, [0.75, 0.25], atol=1e-5)
+
+
+def test_in_space_placebo_uses_the_same_specification_for_every_unit() -> None:
+    """With covariates, the real fit and every placebo use them, so the distribution is its own."""
+    donors = _donors(units=6)
+    treated = 0.5 * donors[:, 0] + 0.5 * donors[:, 1]
+    treated[T0:] += 4.0
+    rng = np.random.default_rng(8)
+    cov_donors = rng.normal(size=(2, 6))
+    cov_treated = cov_donors @ np.array([0.5, 0.5, 0, 0, 0, 0])
+    with_cov = synth.placebo_in_space(
+        treated, donors, n_pre=T0, covariates_treated=cov_treated,
+        covariates_donors=cov_donors, covariate_weight=3.0,
+    )
+    direct = synth.synthetic_control(
+        treated, donors, n_pre=T0, covariates_treated=cov_treated,
+        covariates_donors=cov_donors, covariate_weight=3.0,
+    )
+    assert with_cov.treated_ratio == pytest.approx(direct.rmspe_ratio)
+    assert with_cov.n_placebos == 6 and with_cov.rank == 1
+    without = synth.placebo_in_space(treated, donors, n_pre=T0)
+    assert not np.allclose(with_cov.donor_ratios, without.donor_ratios)
+
+
+def test_in_space_placebo_covariate_guards() -> None:
+    """Half a covariate specification, or one that misses the donors, is an error."""
+    donors = _donors(units=4)
+    y = donors[:, 0] * 0.5 + donors[:, 1] * 0.5
+    with pytest.raises(ValueError, match="together"):
+        synth.placebo_in_space(y, donors, n_pre=T0, covariates_treated=np.ones(2))
+    with pytest.raises(ValueError, match="matching the donors"):
+        synth.placebo_in_space(
+            y, donors, n_pre=T0, covariates_treated=np.ones(2), covariates_donors=np.ones((2, 9))
+        )
+
+
+def test_in_time_placebo_takes_covariates_computed_before_the_placebo_date() -> None:
+    """Covariates reach the earlier fit; an exact convex combination is still recovered."""
+    donors = _donors()
+    treated = 0.3 * donors[:, 0] + 0.7 * donors[:, 1]
+    cov_donors = np.array([[1.0, 2.0, 4.0, 8.0]])
+    cov_treated = cov_donors @ np.array([0.3, 0.7, 0.0, 0.0])
+    fit = synth.placebo_in_time(
+        treated, donors, n_pre=T0, placebo_pre=8, covariates_treated=cov_treated,
+        covariates_donors=cov_donors, covariate_weight=2.0,
+    )
+    np.testing.assert_allclose(fit.weights, [0.3, 0.7, 0.0, 0.0], atol=1e-4)
+    assert fit.post_rmspe == pytest.approx(0.0, abs=1e-4)

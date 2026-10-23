@@ -265,8 +265,10 @@ def test_the_public_function_has_no_argument_that_asks_for_rows() -> None:
     names = set(inspect.signature(sources.fetch_acs_pums).parameters)
     assert names == {
         "year", "variables", "aggregate_by", "geography", "weight", "dataset",
-        "min_cell_records", "session",
+        "min_cell_records", "keep", "bands", "session",
     }
+    # `keep` restricts records and `bands` coarsens a column, both inside the aggregator;
+    # neither returns, prints or stores a record.
     assert "return_rows" not in inspect.getsource(sources)
 
 

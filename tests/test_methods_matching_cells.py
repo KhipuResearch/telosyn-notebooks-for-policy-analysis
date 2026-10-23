@@ -291,3 +291,42 @@ def test_overlap_counts_observations_not_rows_and_ignores_zero_frequency_rows() 
     assert out.counts_treated.tolist() == plain.counts_treated.tolist()
     with pytest.raises(ValueError, match="whole counts"):
         matching.overlap_data(score, d, frequency=freq + 0.5)
+
+
+def test_rosenbaum_negative_direction_single_table_by_hand() -> None:
+    """Treated 0 of 2 events, control 2 of 2: P(T <= 0) under odds 1/2, with continuity correction.
+
+    The table has k = 0, 1, 2 with weights C(2,k) C(2,2-k) odds^k = 1, 4 odds, odds^2, so under odds 1/2 the
+    weights are 1, 2, 0.25: mean 2.5/3.25, second moment 3/3.25. The bound is Phi((0 + 0.5 - mean) / sd).
+    """
+    from scipy import stats
+
+    out = matching.rosenbaum_bounds([0], [2], [2], [2], gamma=2.0)
+    weights = np.array([1.0, 4.0 * 0.5, 0.25])
+    prob = weights / weights.sum()
+    mean = float(prob @ np.array([0, 1, 2]))
+    var = float(prob @ np.array([0, 1, 4])) - mean**2
+    assert out.p_below_upper == pytest.approx(stats.norm.cdf((0.5 - mean) / np.sqrt(var)), abs=1e-12)
+    weights = np.array([1.0, 4.0 * 2.0, 4.0])
+    prob = weights / weights.sum()
+    mean = float(prob @ np.array([0, 1, 2]))
+    var = float(prob @ np.array([0, 1, 4])) - mean**2
+    assert out.p_below_lower == pytest.approx(stats.norm.cdf((0.5 - mean) / np.sqrt(var)), abs=1e-12)
+    assert out.p_below_lower < out.p_below_upper
+
+
+def test_rosenbaum_negative_direction_is_the_positive_test_on_the_complemented_outcome() -> None:
+    """Complementing the outcome inverts the odds ratio and turns T <= t into T' >= n1 - t."""
+    rng = np.random.default_rng(11)
+    n1 = rng.integers(8, 20, 30)
+    n0 = rng.integers(8, 20, 30)
+    e1 = rng.binomial(n1, 0.35)
+    e0 = rng.binomial(n0, 0.5)
+    for gamma in (1.0, 1.4, 2.0):
+        neg = matching.rosenbaum_bounds(e1, n1, e0, n0, gamma=gamma)
+        pos = matching.rosenbaum_bounds(n1 - e1, n1, n0 - e0, n0, gamma=gamma)
+        assert neg.p_below_upper == pytest.approx(pos.p_upper, abs=1e-10)
+        assert neg.p_below_lower == pytest.approx(pos.p_lower, abs=1e-10)
+    neg_g = matching.rosenbaum_critical_gamma(e1, n1, e0, n0, tol=1e-7)
+    pos_g = matching.rosenbaum_critical_gamma(n1 - e1, n1, n0 - e0, n0, tol=1e-7)
+    assert neg_g == pytest.approx(pos_g, abs=1e-5)

@@ -80,3 +80,78 @@ the page's own summary row.
 - **Join key is the state name.** The table carries no FIPS code, and adding one here would mean
   typing a mapping from memory. A notebook joins on the ACS `NAME` column, which uses the same
   names, and checks that all 51 match.
+
+---
+
+# Medicaid expansion expenditure — CMS-64 New Adult Group
+
+Retrieved **2026-10-23** (UTC) by an HTTP GET with a plain client (`curl -L`, `User-Agent: Mozilla/5.0 (research)`),
+after the dataset's own metadata record on data.medicaid.gov was read to find the file. Nothing was typed from
+memory: every state, quarter and amount in `expansion_expenditure.csv` is read from the downloaded file by
+`scripts/build_medicaid_expansion_expenditure.py`.
+
+## The download
+
+| | |
+|---|---|
+| Publisher | Centers for Medicare & Medicaid Services (CMS), through data.medicaid.gov |
+| Title | *Medicaid CMS-64 New Adult Group Expenditures* |
+| Dataset identifier | `00505e90-f8ac-5921-b12f-5e23ba7ffcf3`; the record was last modified 2026-02-17 |
+| URL | `https://download.medicaid.gov/data/medicaid-cms-64-new-adult-group-expenditures-dataset-02172026.csv` |
+| Access date | 2026-10-23 |
+| Response | HTTP 200, `application/octet-stream`; the portal reports no length, so the size is that of the bytes received |
+| Size | 374,311 bytes |
+| SHA-256 of the original | `1b9232bac8abcb92f74963962b0d31d9ea299176120d657b22eae680810377e5` |
+| Licence | the dataset record points to <https://www.usa.gov/government-works> (a US-government work) |
+| Publisher's description | the new adult group's summary-level expenditures, reported by states through the Medicaid Budget and Expenditure System (MBES). "VIII GROUP" is the new adult group; its figures are "N/A" for states that have not adopted it; "0" means no expenditures or not yet reported; MCHIP expenditures are not included in All Medical Assistance Expenditures |
+
+The original is committed unchanged as `expansion_expenditure.raw.csv`.
+
+## Files
+
+| File | Bytes | SHA-256 | What it is |
+|---|---|---|---|
+| `expansion_expenditure.raw.csv` | 374,311 | `1b9232bac8abcb92f74963962b0d31d9ea299176120d657b22eae680810377e5` | the downloaded file, unchanged |
+| `expansion_expenditure.csv` | 266,707 | `20ebd2560030dc10d1bfc186c8e1d00e6bcd8e70f09a0cbded4204caa241a35a` | the transformation below |
+
+## Transformation
+
+`python scripts/build_medicaid_expansion_expenditure.py --file <saved download>` verifies the digest, copies the
+file unchanged, then builds the tidy CSV; with no arguments it rebuilds the tidy CSV from the committed raw file, and
+`--check` fails if the tidy CSV is stale. The only changes are:
+
+- rows for the territories (American Samoa, Guam, the Northern Mariana Islands, Puerto Rico, the Virgin Islands) and
+  the "National Totals" row are set aside (276 rows) and counted, not kept;
+- the publisher's `Dist. Of Col.` becomes `District of Columbia`, to match the expansion-dates table;
+- quarter-end dates `m/d/yyyy` become ISO `yyyy-mm-dd`, with `year` and `quarter` columns; a date that is not a
+  calendar quarter end is an error;
+- amounts lose their thousands commas; `N/A` and blank become an empty field; a figure in parentheses, which is
+  accounting notation for a negative amount (for example `(72,227)`), becomes a negative number;
+- the `Updated Year` and `Updated Month` columns are dropped (they are inconsistent, for example swapped in some rows);
+- columns are renamed: `all_medical_assistance_*`, `viii_*`, `viii_newly_eligible_*`, `viii_not_newly_eligible_*`
+  (each as `_computable` and `_federal`), and `note` holds the publisher's footnote text.
+
+No other row is dropped, repaired or added. The parser raises on a header it does not recognise, an amount it cannot
+read, a duplicate state-quarter, a jurisdiction that is not one of the 50 states and the District of Columbia, or states
+that do not report the same quarters.
+
+## What the file says, as read from it
+
+51 jurisdictions by 46 quarters (quarter ends 2014-03-31 to 2025-06-30) = 2,346 rows. 744 rows have no VIII Group total:
+the states that have not adopted the group, and the quarters before an adopting state began.
+Where all three are present, `viii_newly_eligible_computable` plus `viii_not_newly_eligible_computable` equals
+`viii_computable` to within a dollar in every row.
+
+## Hazards, each visible in the source
+
+- **Negative amounts.** 65 cells in the VIII Group total and its two components are negative. The publisher's notes
+  attribute them to prior-period adjustments reported in that quarter. They are kept as reported; a quarterly series
+  can fall.
+- **Zero is ambiguous.** The publisher says a state that reports "0" has either no expenditures for the category or has
+  not yet reported. A zero for an expanded state in a quarter after expansion is therefore not evidence of no spending.
+- **Reporting errors the publisher flags.** Some notes say a state's newly eligible federal share exceeds its total
+  computable, or that CMS "is working with the state to correct this claiming issue". The figures are kept as published.
+- **Notes carry dates.** Many notes state a state's adoption date. These are the publisher's words and are not used to
+  date treatment here; the KFF table is the source of treatment dates (see above) and the two can differ.
+- **Totals include only the VIII Group's medical assistance.** Administrative spending is not in this file.
+- **Join key is the state name,** as for the expansion-dates table.

@@ -7,7 +7,7 @@
     "AGEP": "Age",
     "HICOV": "Health insurance coverage recode"
   },
-  "retrieved_utc": "2026-10-23T19:26:56+00:00",
+  "retrieved_utc": "2026-10-25T06:19:30+00:00",
   "row_count": 17267,
   "column_count": 3,
   "content_sha256": "c1b19b880c150be8df52008d2c610be381190dad54c4aa4fb263ecc898c80131",
@@ -24,6 +24,7 @@
   "request_params": {
     "get": "AGEP,HICOV,PWGTP",
     "for": "state:28",
+    "AGEP": "19:64",
     "key": "<redacted>"
   },
   "request_method": "GET",

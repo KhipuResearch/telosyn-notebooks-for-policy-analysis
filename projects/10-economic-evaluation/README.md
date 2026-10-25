@@ -17,7 +17,7 @@ jupyter lab projects/10-economic-evaluation/
 
 | Notebook | Thesis | Sources |
 |---|---|---|
-| [Cost-Effectiveness](E01_cost_per_newly_insured/E01_cost_per_newly_insured.ipynb) | The Cost of Medicaid Expansion per Newly Insured Person | American Community Survey Public Use Microdata Sample (acs/acs1/pums) |
+| [Cost-Effectiveness](E01_cost_per_newly_insured/E01_cost_per_newly_insured.ipynb) | The Cost of Medicaid Expansion per Newly Insured Person | American Community Survey Public Use Microdata Sample (acs/acs1/pums), CMS Medicaid CMS-64, KFF Medicaid expansion status |
 
 ## Cost-Effectiveness
 
@@ -32,7 +32,7 @@ jupyter lab projects/10-economic-evaluation/
 - Build the denominator from a causal estimate, and see why the population the cost covers and the population the effect covers have to be the same.
 - Propagate uncertainty from the effect and from a range of costs into a ratio, and read a cost-effectiveness acceptability curve.
 
-**Sources** — American Community Survey Public Use Microdata Sample (acs/acs1/pums)  
+**Sources** — American Community Survey Public Use Microdata Sample (acs/acs1/pums); CMS Medicaid CMS-64; KFF Medicaid expansion status  
 280 provenance records committed in `E01_cost_per_newly_insured/provenance/`.
 
 **Limitations**

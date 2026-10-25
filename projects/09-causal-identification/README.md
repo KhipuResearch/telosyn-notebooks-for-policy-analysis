@@ -17,12 +17,12 @@ jupyter lab projects/09-causal-identification/
 
 | Notebook | Thesis | Sources |
 |---|---|---|
-| [Difference-in-Differences](C01_medicaid_expansion_did/C01_medicaid_expansion_did.ipynb) | Medicaid Expansion and the Uninsured Rate | American Community Survey (acs/acs1) |
+| [Difference-in-Differences](C01_medicaid_expansion_did/C01_medicaid_expansion_did.ipynb) | Medicaid Expansion and the Uninsured Rate | American Community Survey (acs/acs1), KFF Medicaid expansion status |
 | [Regression Discontinuity](C02_medicare_age65_rdd/C02_medicare_age65_rdd.ipynb) | Health Insurance Coverage at Age 65 | American Community Survey Public Use Microdata Sample (acs/acs1/pums) |
 | [Staggered Adoption](C03_minimum_wage_staggered/C03_minimum_wage_staggered.ipynb) | First Moves Above the Federal Minimum Wage and Food-Service Employment | QCEW industry 722, 2014 Q1, QCEW industry 722, 2014 Q2, QCEW industry 722, 2014 Q3 … |
 | [Synthetic Control](C04_ca_minimum_wage_synth/C04_ca_minimum_wage_synth.ipynb) | California SB 3 and Leisure-and-Hospitality Employment | FRED series ALLEIH, FRED series ALNA, FRED series ALUR … |
 | [Matching and Weighting on Observables](C05_public_coverage_matching/C05_public_coverage_matching.ipynb) | Public Coverage and Employment | American Community Survey Public Use Microdata Sample (acs/acs1/pums) |
-| [Instrumental Variables](C06_medicaid_expansion_iv/C06_medicaid_expansion_iv.ipynb) | Medicaid Expansion as an Instrument for Coverage | American Community Survey Public Use Microdata Sample (acs/acs1/pums), State FIPS codes and names |
+| [Instrumental Variables](C06_medicaid_expansion_iv/C06_medicaid_expansion_iv.ipynb) | Medicaid Expansion as an Instrument for Coverage | American Community Survey Public Use Microdata Sample (acs/acs1/pums), State FIPS codes and names, KFF Medicaid expansion status |
 
 ## Difference-in-Differences
 
@@ -37,7 +37,7 @@ jupyter lab projects/09-causal-identification/
 - Read an event-study plot, and explain why the leads — not the lags — are the argument.
 - Run two falsification tests (a joint test of pre-period coefficients and a placebo outcome), and apply a decision rule that was written down before the data were seen.
 
-**Sources** — American Community Survey (acs/acs1)  
+**Sources** — American Community Survey (acs/acs1); KFF Medicaid expansion status  
 13 provenance records committed in `C01_medicaid_expansion_did/provenance/`.
 
 **Limitations**
@@ -147,7 +147,7 @@ jupyter lab projects/09-causal-identification/
 - Say who the estimate is about and what it needs: the compliers whose coverage changed because their state expanded, how large that group is, and the assumptions beyond exclusion (parallel trends, no anticipation, monotonicity, stable effects) that a treated-times-post instrument adds to an ordinary one.
 - Measure what weighting does to the estimand, by comparing the weighted and equal-weight estimates, and see why grouping does not.
 
-**Sources** — American Community Survey Public Use Microdata Sample (acs/acs1/pums); State FIPS codes and names  
+**Sources** — American Community Survey Public Use Microdata Sample (acs/acs1/pums); State FIPS codes and names; KFF Medicaid expansion status  
 281 provenance records committed in `C06_medicaid_expansion_iv/provenance/`.
 
 **Limitations**

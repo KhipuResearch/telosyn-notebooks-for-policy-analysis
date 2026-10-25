@@ -75,6 +75,9 @@ _CACHE_PATH = re.compile(
     r"(^|/)(" + "|".join(re.escape(n) for n in sorted(IGNORED_DIRS_NAMES)) + r")/"
 )
 
+#: A file-sync tool names its conflict copies "name 2.ext"; they are stale copies, never content.
+SYNC_DUPLICATE = re.compile(r" [0-9]+(\.[A-Za-z0-9]+)?$")
+
 #: The path rule is about *shape*, not names, so it lives here. The checker and its test
 #: plant such paths on purpose, and are exempt from this one rule by exact path.
 PATH_RULE = re.compile(r"/Users/|/home/(?!runner)|/sessions/|/mnt/")
@@ -358,11 +361,17 @@ def _header_findings(root: Path, paths: list[str], rev: str) -> list[Finding]:
 
 
 def _path_findings(names: list[str]) -> list[Finding]:
-    return [
+    found = [
         Finding("cache", n, "a tool cache holds local paths and must not be committed")
         for n in names
         if _CACHE_PATH.search(n)
     ]
+    found += [
+        Finding("sync-duplicate", n, "a name ending in a space and a number is a file-sync copy")
+        for n in names
+        if SYNC_DUPLICATE.search(n)
+    ]
+    return found
 
 
 def check_range(root: Path, base: str, deny: Denylist | None, allow: Allowlist) -> list[Finding]:
@@ -446,7 +455,9 @@ def check_tree(
     root: Path, deny: Denylist | None, allow: Allowlist
 ) -> tuple[list[Finding], list[str]]:
     """Unallowlisted hits and stale allowlist entries, plus a one-line summary of the allowlist."""
-    findings: list[Finding] = []
+    findings: list[Finding] = _path_findings(
+        [n for n in _git(root, "ls-files", "-z").split("\0") if n]
+    )
     used: set[tuple[str, str, str]] = set()
     for name, hits in sorted(tree_hits(root, deny).items()):
         findings += _apply_allowlist(name, hits, allow, used)

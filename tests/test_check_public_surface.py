@@ -716,3 +716,23 @@ def test_an_allowlist_entry_for_a_rule_that_was_not_run_is_not_called_stale(
     ]
     found_private, _ = cps.check_tree(repo.root, _deny(), allow)
     assert [(f.rule, f.where) for f in found_private] == [("allowlist", "docs/gone.md")]
+
+
+@pytest.mark.parametrize("name", ["data/a 2.json", "x/y/notebook 13.ipynb", "docs/readme 3", "p/q 10.py"])
+def test_a_file_sync_duplicate_is_refused_in_a_range_staged_and_in_the_tree(repo: Repo, name: str) -> None:
+    """A name ending in a space and a number is refused everywhere the public rules run."""
+    repo.write(name, "x")
+    repo.git("add", name)
+    assert "sync-duplicate" in _rules(cps.check_staged(repo.root, None, NO_ALLOW))
+    repo.git("commit", "-q", "-m", "copy")
+    assert "sync-duplicate" in _rules(cps.check_range(repo.root, "origin/main", None, NO_ALLOW))
+    found, _ = cps.check_tree(repo.root, None, NO_ALLOW)
+    assert "sync-duplicate" in _rules(found)
+
+
+@pytest.mark.parametrize("name", ["data/a2.json", "docs/chapter 2 notes.md", "dir 2/file.txt", "x/y 2a.txt"])
+def test_names_that_only_contain_a_space_and_a_number_are_not_refused(repo: Repo, name: str) -> None:
+    """Only a trailing space-number (with an optional extension) is a sync duplicate."""
+    repo.write(name, "x")
+    repo.git("add", name)
+    assert "sync-duplicate" not in _rules(cps.check_staged(repo.root, None, NO_ALLOW))

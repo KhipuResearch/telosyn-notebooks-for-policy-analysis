@@ -14,7 +14,7 @@ This repository analyses public socioeconomic data published by U.S. federal age
 
 ## Source datasets
 
-130 datasets from 6 publishers, across 852 committed provenance records.
+130 datasets from 6 publishers, across 608 committed provenance records.
 
 | Publisher | Dataset | Vintages | Records | Hash basis |
 |---|---|---|---|---|
@@ -143,7 +143,7 @@ This repository analyses public socioeconomic data published by U.S. federal age
 | U.S. Census Bureau | American Community Survey (acs/acs1) | 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023 | 13 | canonical-rows |
 | U.S. Census Bureau | American Community Survey (acs/acs5) | 2019, 2023 | 15 | canonical-rows |
 | U.S. Census Bureau | American Community Survey (acs/acs5/profile) | 2023 | 1 | canonical-rows |
-| U.S. Census Bureau | American Community Survey Public Use Microdata Sample (acs/acs1/pums) | 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2023 | 690 | canonical-rows |
+| U.S. Census Bureau | American Community Survey Public Use Microdata Sample (acs/acs1/pums) | 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2023 | 446 | canonical-rows |
 | U.S. Census Bureau | County Business Patterns 2022 | 2022 | 4 | canonical-rows |
 | U.S. Census Bureau | State FIPS codes and names | retrieval | 2 | response-bytes |
 | U.S. Census Bureau | State FIPS codes, names and postal abbreviations | retrieval | 1 | response-bytes |

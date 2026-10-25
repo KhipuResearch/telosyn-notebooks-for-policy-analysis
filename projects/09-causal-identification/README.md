@@ -148,7 +148,7 @@ jupyter lab projects/09-causal-identification/
 - Measure what weighting does to the estimand, by comparing the weighted and equal-weight estimates, and see why grouping does not.
 
 **Sources** — American Community Survey Public Use Microdata Sample (acs/acs1/pums); State FIPS codes and names  
-525 provenance records committed in `C06_medicaid_expansion_iv/provenance/`.
+281 provenance records committed in `C06_medicaid_expansion_iv/provenance/`.
 
 **Limitations**
 

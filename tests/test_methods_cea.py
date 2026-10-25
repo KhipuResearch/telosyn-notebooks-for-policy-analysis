@@ -141,3 +141,36 @@ def test_remaining_guards() -> None:
         cea.efficient_frontier(["A", "B"], [1.0, np.nan], [1.0, 2.0])
     with pytest.raises(ValueError, match="same length"):
         cea.net_monetary_benefit([1.0], [1.0, 2.0], threshold=1.0)
+
+
+def test_ratio_set_bounded_when_the_effect_interval_excludes_zero() -> None:
+    """Cost 100 over an effect in [2, 5] is a ratio in [20, 50]; over [-5, -2] it is [-50, -20]."""
+    up = cea.ratio_set(100.0, 2.0, 5.0)
+    assert (up.status, up.lower, up.upper) == ("bounded", 20.0, 50.0)
+    down = cea.ratio_set(100.0, -5.0, -2.0)
+    assert (down.status, down.lower, down.upper) == ("bounded", -50.0, -20.0)
+
+
+def test_ratio_set_is_unbounded_when_the_effect_interval_includes_zero() -> None:
+    """Cost 100 over an effect in [-2, 5]: the ratio is at least 20 or at most -50, with nothing in between."""
+    out = cea.ratio_set(100.0, -2.0, 5.0)
+    assert out.status == "denominator_includes_zero"
+    assert out.positive_branch_lower == 20.0 and out.negative_branch_upper == -50.0
+    assert out.lower is None and out.upper is None
+    one_sided = cea.ratio_set(100.0, 0.0, 5.0)
+    assert one_sided.status == "denominator_includes_zero"
+    assert one_sided.positive_branch_lower == 20.0 and one_sided.negative_branch_upper is None
+
+
+@pytest.mark.parametrize(
+    ("args", "message"),
+    [
+        ((0.0, 1.0, 2.0), "positive"),
+        ((100.0, 3.0, 2.0), "lower"),
+        ((float("nan"), 1.0, 2.0), "finite"),
+    ],
+)
+def test_ratio_set_guards(args: tuple[float, float, float], message: str) -> None:
+    """A non-positive cost difference, a reversed interval and non-finite inputs raise."""
+    with pytest.raises(ValueError, match=message):
+        cea.ratio_set(*args)

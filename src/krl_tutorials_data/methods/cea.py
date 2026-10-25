@@ -48,6 +48,26 @@ class Icer:
 
 
 @dataclass(frozen=True)
+class RatioSet:
+    """The ratios compatible with a fixed cost difference over an interval of effects.
+
+    ``bounded``: the effect interval excludes zero and the ratios lie in ``[lower, upper]``.
+    ``denominator_includes_zero``: the ratios are the union of ``[positive_branch_lower, inf)``
+    (when the interval reaches above zero) and ``(-inf, negative_branch_upper]`` (when it reaches
+    below zero); there is no finite interval and a point ratio is not a finding.
+    """
+
+    delta_cost: float
+    effect_lower: float
+    effect_upper: float
+    status: str
+    lower: float | None
+    upper: float | None
+    positive_branch_lower: float | None
+    negative_branch_upper: float | None
+
+
+@dataclass(frozen=True)
 class FrontierStep:
     """One strategy on the efficient frontier and its ICER against the previous step."""
 
@@ -78,6 +98,30 @@ def icer(cost: float, effect: float, ref_cost: float, ref_effect: float) -> Icer
     if de < 0 <= dc:
         return Icer(dc, de, None, "dominated")
     return Icer(dc, de, dc / de, "icer" if de > 0 else "icer_saving")
+
+
+def ratio_set(delta_cost: float, effect_lower: float, effect_upper: float) -> RatioSet:
+    """Ratios ``delta_cost / e`` for ``e`` in the interval, with the cost difference held fixed.
+
+    This is a set, not a confidence interval: only the effect carries uncertainty. A positive
+    ``delta_cost`` is required (a cost saving has no ratio set here). When the interval includes
+    zero the set is unbounded and the status says so.
+    """
+    values = (delta_cost, effect_lower, effect_upper)
+    if not all(np.isfinite(v) for v in values):
+        raise ValueError("cost and effect inputs must be finite")
+    if delta_cost <= 0:
+        raise ValueError("the cost difference must be positive")
+    if effect_lower > effect_upper:
+        raise ValueError("the effect lower bound must not exceed the upper bound")
+    if effect_lower > 0 or effect_upper < 0:
+        return RatioSet(delta_cost, effect_lower, effect_upper, "bounded",
+                        delta_cost / effect_upper, delta_cost / effect_lower, None, None)
+    return RatioSet(
+        delta_cost, effect_lower, effect_upper, "denominator_includes_zero", None, None,
+        delta_cost / effect_upper if effect_upper > 0 else None,
+        delta_cost / effect_lower if effect_lower < 0 else None,
+    )
 
 
 def efficient_frontier(

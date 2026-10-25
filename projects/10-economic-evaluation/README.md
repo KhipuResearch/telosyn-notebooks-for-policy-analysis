@@ -17,11 +17,11 @@ jupyter lab projects/10-economic-evaluation/
 
 | Notebook | Thesis | Sources |
 |---|---|---|
-| [Cost-Effectiveness](E01_cost_per_newly_insured/E01_cost_per_newly_insured.ipynb) | The Cost of Medicaid Expansion per Newly Insured Person | American Community Survey Public Use Microdata Sample (acs/acs1/pums), CMS Medicaid CMS-64, KFF Medicaid expansion status |
+| [Cost-Effectiveness](E01_cost_per_newly_insured/E01_cost_per_newly_insured.ipynb) | Spending and Coverage Gained in the 2014 Medicaid Expansion | American Community Survey Public Use Microdata Sample (acs/acs1/pums), State FIPS codes and names, CMS Medicaid CMS-64 … |
 
 ## Cost-Effectiveness
 
-**The Cost of Medicaid Expansion per Newly Insured Person.**
+**Spending and Coverage Gained in the 2014 Medicaid Expansion.**
 
 `E01_cost_per_newly_insured/E01_cost_per_newly_insured.ipynb`
 
@@ -32,14 +32,14 @@ jupyter lab projects/10-economic-evaluation/
 - Build the denominator from a causal estimate, and see why the population the cost covers and the population the effect covers have to be the same.
 - Propagate uncertainty from the effect and from a range of costs into a ratio, and read a cost-effectiveness acceptability curve.
 
-**Sources** — American Community Survey Public Use Microdata Sample (acs/acs1/pums); CMS Medicaid CMS-64; KFF Medicaid expansion status  
-280 provenance records committed in `E01_cost_per_newly_insured/provenance/`.
+**Sources** — American Community Survey Public Use Microdata Sample (acs/acs1/pums); State FIPS codes and names; CMS Medicaid CMS-64; KFF Medicaid expansion status  
+281 provenance records committed in `E01_cost_per_newly_insured/provenance/`.
 
 **Limitations**
 
-- Gross, not net. The cost is gross public spending on the expansion population. It leaves out offsets that would lower the net cost: reduced uncompensated care, state savings on programmes the newly covered would otherwise have used, and any tax or employment effects. It also leaves out administrative cost, which would raise it. The omissions of offsets mean the gross figure overstates the net cost per newly insured person; the omission of administrative cost pushes the other way.
-- Cost per newly insured, not per enrollee. The spending includes people who would have been insured anyway; it is part of the gross cost, which is what makes the ratio a cost per added insured person rather than per enrolled one.
-- Nominal dollars, no discounting. Costs from 2014 and 2019 are added as they were reported (discounting is E02).
+- The ratio is not estimable with useful precision. The effect's 95% interval includes zero, so the cost per newly insured person-year has no finite upper limit; the ratio set printed above gives only a floor. The point ratio is arithmetic and is not a finding. Spending and the effect are reported separately for that reason.
+- The perspective is the public payer, on a cash basis, gross. The cost is gross public spending in the CMS file, summed as reported. Prior-period adjustments reported after 2019 Q4 are outside the window, and adjustments inside it may relate to earlier quarters. Offsets that would lower the net cost are omitted (reduced uncompensated care, state savings, tax and employment effects), as is administrative cost, which would raise it. The marketplace premium tax credits that the expansion displaced or did not are in neither the numerator nor the effect.
+- The plan's numerator is not incremental spending. The VIII Group total computable includes spending on adults who were covered before 2014 under waivers, now paid at a different federal match; the numerator cell prints how much, and for which states. Newly eligible spending is the closer measure of incremental spending and is reported beside the plan's figure, as a departure after review. Crowd-out of other coverage raises the numerator without raising the gain; woodwork enrollees (eligible before 2014, enrolling after) are paid under regular categories, so are missing from the numerator and present in the gain. Their directions differ, and none is netted out.
 
 ---
 

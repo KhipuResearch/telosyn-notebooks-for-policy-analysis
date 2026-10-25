@@ -50,6 +50,6 @@ Every notebook in the corpus, by project. Thesis is the notebook's own title.
 | 37 | [Causal Identification](../projects/09-causal-identification/README.md) | [Synthetic Control](../projects/09-causal-identification/C04_ca_minimum_wage_synth/C04_ca_minimum_wage_synth.ipynb) | California SB 3 and Leisure-and-Hospitality Employment |
 | 38 | [Causal Identification](../projects/09-causal-identification/README.md) | [Matching and Weighting on Observables](../projects/09-causal-identification/C05_public_coverage_matching/C05_public_coverage_matching.ipynb) | Public Coverage and Employment |
 | 39 | [Causal Identification](../projects/09-causal-identification/README.md) | [Instrumental Variables](../projects/09-causal-identification/C06_medicaid_expansion_iv/C06_medicaid_expansion_iv.ipynb) | Medicaid Expansion as an Instrument for Coverage |
-| 40 | [Economic Evaluation](../projects/10-economic-evaluation/README.md) | [Cost-Effectiveness](../projects/10-economic-evaluation/E01_cost_per_newly_insured/E01_cost_per_newly_insured.ipynb) | The Cost of Medicaid Expansion per Newly Insured Person |
+| 40 | [Economic Evaluation](../projects/10-economic-evaluation/README.md) | [Cost-Effectiveness](../projects/10-economic-evaluation/E01_cost_per_newly_insured/E01_cost_per_newly_insured.ipynb) | Spending and Coverage Gained in the 2014 Medicaid Expansion |
 
 40 notebooks across 10 projects.

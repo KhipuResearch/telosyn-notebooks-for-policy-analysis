@@ -53,13 +53,15 @@ Repository = "https://github.com/KhipuResearch/telosyn-notebooks-for-policy-anal
 
 [project.optional-dependencies]
 # Everything a reader needs to open and execute the corpus. Thirteen notebooks
-# draw with matplotlib, two fit statsmodels, one uses scikit-learn.
+# draw with matplotlib, two fit statsmodels, one uses scikit-learn, one reads PDF tables.
 notebooks = [
     "jupyterlab>=4.0.0",
     "notebook>=7.0.0",
     "matplotlib>=3.7.0",
     "statsmodels>=0.14.0",
     "scikit-learn>=1.2.0",
+    # Reads the state tables FNS publishes only as PDF (I01; DECISIONS/0010).
+    "pypdf>=6.0.0",
 ]
 # Only `krl_tutorials_data.connectors.load_connector()` reaches this package,
 # through importlib, and no notebook in the corpus calls it. It is optional so

@@ -141,6 +141,18 @@ def test_the_methods_extra_declares_only_what_something_imports() -> None:
     assert not unused, f"`methods` declares {sorted(unused)}, which no test or notebook imports"
 
 
+def test_pypdf_is_declared_in_the_notebooks_extra_with_a_lower_bound_and_something_imports_it() -> None:
+    """DECISIONS/0010: pypdf is declared where readers install it, bounded, imported by a test or notebook,
+    and not by the package (so the runtime dependency list is unchanged)."""
+    notebooks = _pyproject()["project"]["optional-dependencies"]["notebooks"]
+    declared = [r for r in notebooks if _name(r) == "pypdf"]
+    assert len(declared) == 1 and ">=" in declared[0], declared
+    assert "pypdf" in _test_and_notebook_imports()
+    assert "pypdf" not in _src_imports()
+    runtime = {module_of(_name(r)) for r in _pyproject()["project"]["dependencies"]}
+    assert "pypdf" not in runtime
+
+
 def test_the_package_ships_its_type_marker() -> None:
     """The package ships its type marker."""
     assert (SRC / "py.typed").exists()

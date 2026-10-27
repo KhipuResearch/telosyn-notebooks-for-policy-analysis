@@ -181,3 +181,50 @@ def test_online_application_coding(value: str, offered: int) -> None:
     ("12 &, 24 months", 24.0), ("6 months only", 6.0), ("Change reporting only", None), (None, None)])
 def test_longest_certification_period(value: str | None, months: float | None) -> None:
     assert pdf_tables.longest_months(value) == months
+
+
+# --- amendment 2 (I01): a profile page with no heading, assigned by contents page number ---------
+TOC = "Contents\nAlabama ........ 10\nVirginia ........ 11\nNew York 12\nWest Virginia 13\n"
+P_ALABAMA = "Alabama—Program\nOnline Application Apply\nSimplified Reporting—Certification Length 12 months\nSNAP State Options Report • 10\n"
+P_HEADLESS = "SNAP State Options Report • 11\nProgram Administration State-administered\nSimplified Reporting—Certification Length 6 months\nOnline Application No online application\n"
+LBL = {"online": r"Online\s+Application", "length": r"Certification\s+Length"}
+
+
+def test_contents_page_numbers_ignore_leader_dots() -> None:
+    assert pdf_tables.contents_page_numbers([TOC, P_ALABAMA], NAMES) == {
+        "Alabama": 10, "Virginia": 11, "New York": 12, "West Virginia": 13}
+
+
+def test_a_headingless_page_is_assigned_by_its_footer_and_the_assignment_is_reported() -> None:
+    profs, assigned = pdf_tables.parse_profiles_with_contents([TOC, P_ALABAMA, P_HEADLESS], NAMES, LBL)
+    assert [(p.name, p.page) for p in profs] == [("Alabama", 1), ("Virginia", 2)]
+    assert profs[1].fields == {"online": "No online application", "length": "6 months"}
+    assert [(a.name, a.page, a.footer, a.contents) for a in assigned] == [("Virginia", 2, 11, 11)]
+
+
+def test_no_assignment_when_two_pages_share_the_footer_number() -> None:
+    profs, assigned = pdf_tables.parse_profiles_with_contents([TOC, P_ALABAMA, P_HEADLESS, P_HEADLESS], NAMES, LBL)
+    assert [p.name for p in profs] == ["Alabama"] and assigned == []
+
+
+def test_no_assignment_when_the_jurisdiction_already_has_a_profile() -> None:
+    virginia = "Virginia—Program\nOnline Application Apply\nSNAP State Options Report • 11\n"
+    profs, assigned = pdf_tables.parse_profiles_with_contents([TOC, P_ALABAMA, virginia, P_HEADLESS], NAMES, LBL)
+    assert [p.name for p in profs] == ["Alabama", "Virginia"] and assigned == []
+
+
+def test_no_assignment_when_the_footer_matches_no_contents_entry() -> None:
+    other = P_HEADLESS.replace("• 11", "• 99")
+    profs, assigned = pdf_tables.parse_profiles_with_contents([TOC, P_ALABAMA, other], NAMES, LBL)
+    assert [p.name for p in profs] == ["Alabama"] and assigned == []
+
+
+def test_a_page_without_a_label_is_never_assigned() -> None:
+    bare = "SNAP State Options Report • 11\nnothing here\n"
+    profs, assigned = pdf_tables.parse_profiles_with_contents([TOC, P_ALABAMA, bare], NAMES, LBL)
+    assert [p.name for p in profs] == ["Alabama"] and assigned == []
+
+
+def test_footer_number() -> None:
+    assert pdf_tables.footer_number("x\nSNAP State Options Report • 82 \n") == 82
+    assert pdf_tables.footer_number("no footer") is None

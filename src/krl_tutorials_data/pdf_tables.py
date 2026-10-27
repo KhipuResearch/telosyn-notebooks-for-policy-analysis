@@ -255,3 +255,81 @@ def longest_months(value: str | None) -> float | None:
         return None
     numbers = re.findall(r"\d+", value)
     return float(max(int(n) for n in numbers)) if numbers else None
+
+
+_FOOTER = re.compile(r"Options\s+Report\s*[•·]\s*(\d+)")
+
+
+def footer_number(text: str) -> int | None:
+    """The printed page number in a "... Options Report • <n>" footer, or ``None``."""
+    m = _FOOTER.search(text)
+    return int(m.group(1)) if m else None
+
+
+def contents_page_numbers(pages: Sequence[str], names: Sequence[str]) -> dict[str, int]:
+    """Each jurisdiction's printed page number from a table of contents.
+
+    A contents line is a jurisdiction's name followed by one whole number (leader dots are ignored). Only
+    pages with at least half the names (and at least two) count, so a stray line elsewhere is not a contents entry.
+    """
+    out: dict[str, int] = {}
+    for text in pages:
+        lines = [re.sub(r"\.{3,}", " ", line) for line in text.splitlines()]
+        rows = [r for r in parse_jurisdiction_rows(lines, names).rows
+                if len(r.values) == 1 and r.values[0] == int(r.values[0]) and r.values[0] == r.values[0]]
+        distinct = {r.name for r in rows}
+        if len(distinct) >= max(2, len(names) // 2):
+            for r in rows:
+                out.setdefault(r.name, int(r.values[0]))
+    return out
+
+
+@dataclass(frozen=True)
+class Assignment:
+    """A headingless profile page given to a jurisdiction by page number."""
+
+    name: str
+    page: int
+    footer: int
+    contents: int
+
+
+def parse_profiles_with_contents(
+    pages: Sequence[str],
+    names: Sequence[str],
+    labels: Mapping[str, str],
+    aliases: Mapping[str, str] | None = None,
+) -> tuple[list[Profile], list[Assignment]]:
+    """:func:`parse_profiles`, plus headingless pages assigned by contents page number.
+
+    A page that carries a label but names no jurisdiction is assigned to a jurisdiction only if that
+    jurisdiction has no other profile, its contents entry equals the page's footer number, and exactly
+    one page has that footer number. Returns the profiles in page order and the assignments made.
+    """
+    profiles = parse_profiles(pages, names, labels, aliases)
+    have = {p.name for p in profiles}
+    contents = contents_page_numbers(pages, names)
+    named_pages = {p.page for p in profiles}
+    headless: dict[int, list[tuple[int, dict[str, str | None]]]] = {}
+    for index, text in enumerate(pages):
+        if index in named_pages:
+            continue
+        footer = footer_number(text)
+        if footer is None:
+            continue
+        fields: dict[str, str | None] = {}
+        for key, label in labels.items():
+            m = re.search(r"(?m)^(?:[^\n]*?[—–-]\s*)?" + label + r"\s+(\S[^\n]*?)\s*$", text)
+            fields[key] = m.group(1) if m else None
+        if any(v is not None for v in fields.values()):
+            headless.setdefault(footer, []).append((index, fields))
+    assigned: list[Assignment] = []
+    for name in names:
+        number = contents.get(name)
+        if name in have or number is None or len(headless.get(number, [])) != 1:
+            continue
+        index, fields = headless[number][0]
+        profiles.append(Profile(name, index, fields))
+        assigned.append(Assignment(name, index, number, number))
+    profiles.sort(key=lambda p: p.page)
+    return profiles, assigned

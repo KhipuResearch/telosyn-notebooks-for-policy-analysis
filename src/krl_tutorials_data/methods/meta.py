@@ -103,6 +103,23 @@ def pool(y: ArrayLike, se: ArrayLike) -> MetaResult:
     )
 
 
+def prediction_interval(result: MetaResult, level: float = 0.95) -> tuple[float, float]:
+    """Interval for the effect in a *new* study under the random-effects model.
+
+    ``mean +/- t(k - 2) * sqrt(tau^2 + SE^2)`` with ``k = result.n_studies`` studies
+    (Higgins, Thompson & Spiegelhalter 2009; recalled, not verified in this build).
+    It is wider than the confidence interval for the mean whenever ``tau^2 > 0``.
+    Needs at least three studies: with two there are no degrees of freedom.
+    """
+    if not 0.0 < level < 1.0:
+        raise ValueError(f"level must be strictly between 0 and 1, got {level!r}.")
+    if result.n_studies < 3:
+        raise ValueError("A prediction interval needs at least three studies.")
+    t_crit = float(stats.t.ppf(0.5 + level / 2.0, result.n_studies - 2))
+    half = t_crit * float(np.sqrt(result.tau2 + result.random_se**2))
+    return result.random_effect - half, result.random_effect + half
+
+
 def egger_test(y: ArrayLike, se: ArrayLike) -> EggerResult:
     """Regress ``y/se`` on ``1/se``; the intercept is the small-study asymmetry."""
     yy, ss = _inputs(y, se, 3, "three")

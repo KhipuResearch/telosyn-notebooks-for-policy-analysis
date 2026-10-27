@@ -130,3 +130,44 @@ def test_property_location_shift_and_scale_equivariance(shift: float, scale: flo
     scaled = meta.pool(Y * scale, SE * scale)
     assert scaled.random_effect == pytest.approx(base.random_effect * scale, rel=1e-9, abs=1e-9)
     assert scaled.i2 == pytest.approx(base.i2, abs=1e-9)
+
+
+def test_prediction_interval_by_hand() -> None:
+    """Prediction interval by hand for the three-study case.
+
+    tau^2 = 3 and the random-effects variance is 4/3, so the half-width is
+    t_{0.975, 1} * sqrt(3 + 4/3) with t_{0.975, 1} = 12.706204736432095.
+    """
+    low, high = meta.prediction_interval(meta.pool(Y, SE))
+    half = 12.706204736432095 * math.sqrt(3.0 + 4.0 / 3.0)
+    assert low == pytest.approx(2.0 - half, abs=1e-9)
+    assert high == pytest.approx(2.0 + half, abs=1e-9)
+
+
+def test_prediction_interval_level_and_homogeneous_case() -> None:
+    """With tau^2 = 0 the interval is the t interval on the pooled standard error."""
+    r = meta.pool([1.0, 1.1, 0.9, 1.0], [1.0, 1.0, 1.0, 1.0])
+    assert r.tau2 == 0.0
+    low, high = meta.prediction_interval(r, level=0.90)
+    half = 2.919985580353725 * r.random_se  # t_{0.95, 2}
+    assert (low, high) == pytest.approx((r.random_effect - half, r.random_effect + half), abs=1e-9)
+
+
+def test_prediction_interval_is_wider_than_the_confidence_interval_when_tau2_is_positive() -> None:
+    """Prediction interval is wider than the confidence interval when tau2 is positive."""
+    r = meta.pool(Y, SE)
+    low, high = meta.prediction_interval(r)
+    assert high - low > 2 * 1.959963984540054 * r.random_se
+
+
+@pytest.mark.parametrize("level", [0.0, 1.0, -0.5, 1.5])
+def test_prediction_interval_rejects_a_level_outside_zero_one(level: float) -> None:
+    """Prediction interval rejects a level outside zero one."""
+    with pytest.raises(ValueError, match="level"):
+        meta.prediction_interval(meta.pool(Y, SE), level=level)
+
+
+def test_prediction_interval_needs_three_studies() -> None:
+    """Two studies leave no degrees of freedom for a new study's effect."""
+    with pytest.raises(ValueError, match="three"):
+        meta.prediction_interval(meta.pool([0.0, 1.0], [1.0, 1.0]))

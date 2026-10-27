@@ -284,8 +284,10 @@ def frame_from_bulk_file(
     #: the committed Zillow record carried a sandbox path under `/sessions/...`,
     #: which tells a later reader nothing and does not exist for them.
     _path = Path(source.path).resolve()
+    _root = next((d for d in Path(__file__).resolve().parents if (d / "pyproject.toml").is_file()),
+                 Path(__file__).resolve().parent.parent)
     try:
-        _located = _path.relative_to(Path(__file__).resolve().parent.parent).as_posix()
+        _located = _path.relative_to(_root).as_posix()
     except ValueError:
         _located = str(_path)
 

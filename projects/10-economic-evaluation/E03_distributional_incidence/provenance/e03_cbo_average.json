@@ -1,0 +1,37 @@
+{
+  "source_name": "Congressional Budget Office",
+  "dataset": "The Distribution of Household Income, 2023 - supplemental data (September 2026 report (publication 62761))",
+  "vintage": "September 2026 report (publication 62761)",
+  "endpoint": "file://data/cbo/62761-supp-data.xlsx",
+  "variables": {},
+  "retrieved_utc": "2026-10-27T20:33:56+00:00",
+  "row_count": 450,
+  "column_count": 8,
+  "content_sha256": "d74a8e5fa7c5c77103d1aa375c7e0811326aec7efdadf7b58ef14a66387b1738",
+  "mode": "empirical",
+  "notes": [
+    "Bulk download, not an API. Publisher: Congressional Budget Office.",
+    "Vintage September 2026 report (publication 62761), retrieved 2026-10-27.",
+    "File size 263,423 bytes; SHA-256 of the bytes read is recorded above.",
+    "Digest was pinned in the notebook and matched.",
+    "Parsed by krl-data-connectors, which this package treats as read-only upstream and does not modify.",
+    "Publisher terms: https://www.cbo.gov/about/website-policies",
+    "Downloaded by the owner in a browser; the publisher's bot protection refuses scripted clients. See data/cbo/SOURCES.md."
+  ],
+  "pinned": true,
+  "hash_basis": "response-bytes",
+  "request_params": {},
+  "request_method": "GET",
+  "pap_sha256": "74d2a906ac0b5107064cc2f0aa17ed43a67701738d166997d7f6144b33fff15a",
+  "pap_amendments": [
+    {
+      "file": "E03_plan_amendment_1.md",
+      "sha256": "0a22788b520d3ba5d550de8fc066f4095d8758e09ca75830bcc6585162cf8f8d"
+    },
+    {
+      "file": "E03_plan_amendment_2.md",
+      "sha256": "c0847b6d350e18fbdc98eced46fc032c3f919a77e9717acfbb7f57baf47fbd32"
+    }
+  ],
+  "pap_chain_sha256": "d095a8c253c27ed169c59d982121e80fdf2f69a302526f26769ef636143c3e58"
+}

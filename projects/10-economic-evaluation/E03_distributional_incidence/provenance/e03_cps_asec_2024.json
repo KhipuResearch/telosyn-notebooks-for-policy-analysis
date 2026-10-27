@@ -1,0 +1,46 @@
+{
+  "source_name": "U.S. Census Bureau",
+  "dataset": "Current Population Survey Annual Social and Economic Supplement (cps/asec/mar)",
+  "vintage": "2024",
+  "endpoint": "https://api.census.gov/data/2024/cps/asec/mar",
+  "variables": {
+    "PH_SEQ": "Household sequence number",
+    "A_EXPRRP": "Demographics, Relationship expanded code",
+    "A_AGE": "Demographics, Age",
+    "PRDTRACE": "Demographic - race of respondent",
+    "PEHSPNON": "Demographics- hispanic/non-hispanic origin",
+    "HTOTVAL": "Household income amount",
+    "H_NUMPER": "Number of persons in household",
+    "MARSUPWT": "Weight, March supplement - Person"
+  },
+  "retrieved_utc": "2026-10-27T20:34:00+00:00",
+  "row_count": 144265,
+  "column_count": 8,
+  "content_sha256": "b2cd088ca3b5ed24a02ed7aa40a8782915896233543e888982caef71b377a727",
+  "mode": "empirical",
+  "notes": [
+    "CPS ASEC is a sample of person records; weighted cells estimate population counts. The API serves no replicate weights, so sampling error is not computed here.",
+    "Household income (HTOTVAL) divided by the square root of household size, in $2,500 bins labelled by lower edge; at or above $150,000 one bin, below $0 one bin labelled -2,500.",
+    "Children are persons under 18; race is Hispanic of any race, else White, Black, Asian alone, else other non-Hispanic; age group is the household reference person's.",
+    "Aggregated to 1242 cell(s) from 144265 person record(s); 444 cell(s) with fewer than 10 records were withheld (1909 record(s), weighted 4,531,099). No person-level row is returned."
+  ],
+  "pinned": true,
+  "hash_basis": "canonical-rows",
+  "request_params": {
+    "get": "PH_SEQ,A_EXPRRP,A_AGE,PRDTRACE,PEHSPNON,HTOTVAL,H_NUMPER,MARSUPWT",
+    "key": "<redacted>"
+  },
+  "request_method": "GET",
+  "pap_sha256": "74d2a906ac0b5107064cc2f0aa17ed43a67701738d166997d7f6144b33fff15a",
+  "pap_amendments": [
+    {
+      "file": "E03_plan_amendment_1.md",
+      "sha256": "0a22788b520d3ba5d550de8fc066f4095d8758e09ca75830bcc6585162cf8f8d"
+    },
+    {
+      "file": "E03_plan_amendment_2.md",
+      "sha256": "c0847b6d350e18fbdc98eced46fc032c3f919a77e9717acfbb7f57baf47fbd32"
+    }
+  ],
+  "pap_chain_sha256": "d095a8c253c27ed169c59d982121e80fdf2f69a302526f26769ef636143c3e58"
+}

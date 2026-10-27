@@ -51,7 +51,8 @@ Every notebook in the corpus, by project. Thesis is the notebook's own title.
 | 38 | [Causal Identification](../projects/09-causal-identification/README.md) | [Matching and Weighting on Observables](../projects/09-causal-identification/C05_public_coverage_matching/C05_public_coverage_matching.ipynb) | Public Coverage and Employment |
 | 39 | [Causal Identification](../projects/09-causal-identification/README.md) | [Instrumental Variables](../projects/09-causal-identification/C06_medicaid_expansion_iv/C06_medicaid_expansion_iv.ipynb) | Medicaid Expansion as an Instrument for Coverage |
 | 40 | [Economic Evaluation](../projects/10-economic-evaluation/README.md) | [Cost-Effectiveness](../projects/10-economic-evaluation/E01_cost_per_newly_insured/E01_cost_per_newly_insured.ipynb) | Spending and Coverage Gained in the 2014 Medicaid Expansion |
-| 41 | [Distribution and Heterogeneity](../projects/11-distribution-heterogeneity/README.md) | [Subgroup Effects and Multiple Comparisons](../projects/11-distribution-heterogeneity/Q01_subgroup_effects_multiplicity/Q01_subgroup_effects_multiplicity.ipynb) | C01's Design Run Seven Times |
-| 42 | [Evidence Synthesis](../projects/13-evidence-synthesis/README.md) | [One Expansion State at a Time](../projects/13-evidence-synthesis/M01_state_replication_pooling/M01_state_replication_pooling.ipynb) | A Decomposition of C01, Pooled by Random Effects |
+| 41 | [Economic Evaluation](../projects/10-economic-evaluation/README.md) | [Distributional Incidence](../projects/10-economic-evaluation/E03_distributional_incidence/E03_distributional_incidence.ipynb) | Who Pays Federal Taxes, Who Gets Transfers, and Who Would Get a Child Transfer |
+| 42 | [Distribution and Heterogeneity](../projects/11-distribution-heterogeneity/README.md) | [Subgroup Effects and Multiple Comparisons](../projects/11-distribution-heterogeneity/Q01_subgroup_effects_multiplicity/Q01_subgroup_effects_multiplicity.ipynb) | C01's Design Run Seven Times |
+| 43 | [Evidence Synthesis](../projects/13-evidence-synthesis/README.md) | [One Expansion State at a Time](../projects/13-evidence-synthesis/M01_state_replication_pooling/M01_state_replication_pooling.ipynb) | A Decomposition of C01, Pooled by Random Effects |
 
-42 notebooks across 12 projects.
+43 notebooks across 12 projects.

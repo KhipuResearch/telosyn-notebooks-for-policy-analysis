@@ -14,11 +14,12 @@ This repository analyses public socioeconomic data published by U.S. federal age
 
 ## Source datasets
 
-130 datasets from 6 publishers, across 909 committed provenance records.
+132 datasets from 7 publishers, across 917 committed provenance records.
 
 | Publisher | Dataset | Vintages | Records | Hash basis |
 |---|---|---|---|---|
 | Centers for Disease Control and Prevention (PLACES) | PLACES county estimates, 2025 release, crude prevalence | 2025 | 1 | canonical-json |
+| Congressional Budget Office | The Distribution of Household Income, 2023 - supplemental data (September 2026 report (publication 62761)) | September 2026 report (publication 62761) | 6 | response-bytes |
 | Federal Reserve Bank of St. Louis | FRED series ALLEIH | 2010-01-01 to 2019-12-01, current revision | 1 | response-bytes |
 | Federal Reserve Bank of St. Louis | FRED series ALNA | 2010-01-01 to 2019-12-01, current revision | 1 | response-bytes |
 | Federal Reserve Bank of St. Louis | FRED series ALUR | 2010-01-01 to 2019-12-01, current revision | 1 | response-bytes |
@@ -145,6 +146,7 @@ This repository analyses public socioeconomic data published by U.S. federal age
 | U.S. Census Bureau | American Community Survey (acs/acs5/profile) | 2023 | 1 | canonical-rows |
 | U.S. Census Bureau | American Community Survey Public Use Microdata Sample (acs/acs1/pums) | 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2023 | 726 | canonical-rows |
 | U.S. Census Bureau | County Business Patterns 2022 | 2022 | 4 | canonical-rows |
+| U.S. Census Bureau | Current Population Survey Annual Social and Economic Supplement (cps/asec/mar) | 2024 | 2 | canonical-rows |
 | U.S. Census Bureau | State FIPS codes and names | retrieval | 3 | response-bytes |
 | U.S. Census Bureau | State FIPS codes, names and postal abbreviations | retrieval | 1 | response-bytes |
 | Zillow Research | ZHVI, All Homes (SFR/Condo), smoothed & seasonally adjusted, county (2026-08 release (series through 2026-07)) | 2026-08 release (series through 2026-07) | 1 | response-bytes |
@@ -307,6 +309,8 @@ Every record carries `content_sha256`. `scripts/verify_provenance_reproducibilit
 | FRED series WYNA | 2010-01-01 to 2019-12-01, current revision | 2026-10-23T20:56:45 | `ebfa93be0a058558` | [`c04_fred_WYNA.json`](../projects/09-causal-identification/C04_ca_minimum_wage_synth/provenance/c04_fred_WYNA.json) |
 | FRED series WYUR | 2010-01-01 to 2019-12-01, current revision | 2026-10-23T20:56:39 | `c51307c3ae1c5f55` | [`c04_fred_WYUR.json`](../projects/09-causal-identification/C04_ca_minimum_wage_synth/provenance/c04_fred_WYUR.json) |
 | State FIPS codes, names and postal abbreviations | retrieval | 2026-10-23T20:52:04 | `bea4e03f71a1fa00` | [`c04_state_codes.json`](../projects/09-causal-identification/C04_ca_minimum_wage_synth/provenance/c04_state_codes.json) |
+| The Distribution of Household Income, 2023 - supplemental data (September 2026 report (publication 62761)) | September 2026 report (publication 62761) | 2026-10-27T20:33:56 | `d74a8e5fa7c5c771` | [`e03_cbo_average.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cbo_average.json) |
+| Current Population Survey Annual Social and Economic Supplement (cps/asec/mar) | 2024 | 2026-10-27T20:34:00 | `b2cd088ca3b5ed24` | [`e03_cps_asec_2024.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cps_asec_2024.json) |
 
 ## Restrictions and privacy
 

@@ -99,3 +99,85 @@ def test_round_trip_through_a_real_pdf() -> None:
 def test_the_package_does_not_import_pypdf() -> None:
     import inspect
     assert "pypdf" not in inspect.getsource(pdf_tables)
+
+
+# --- amendment 1 (I01): split names, split numbers, profile pages ---------------------------------
+def test_a_lone_letter_line_is_joined_to_the_name_it_starts() -> None:
+    lines = ["Kentucky 74 75 75", "L", "ouisiana 82 86 83", "Maine 85", "O", "regon 100", "x", "y"]
+    names = [*NAMES, "Louisiana", "Oregon", "Kentucky", "Maine"]
+    fixed, joins = pdf_tables.repair_split_names(lines, names)
+    assert fixed == ["Kentucky 74 75 75", "Louisiana 82 86 83", "Maine 85", "Oregon 100", "x", "y"]
+    assert joins == [(2, "L", "ouisiana 82 86 83"), (5, "O", "regon 100")]
+
+
+def test_a_lone_letter_that_does_not_make_a_name_is_left_alone() -> None:
+    lines = ["Z", "ebra 5", "A", "labama 4"]
+    fixed, joins = pdf_tables.repair_split_names(lines, NAMES)
+    assert fixed == ["Z", "ebra 5", "Alabama 4"] and len(joins) == 1
+
+
+def test_a_row_with_one_extra_value_is_merged_only_when_exactly_one_merge_fits() -> None:
+    row = pdf_tables.parse_jurisdiction_rows(["Alabama 80 83 85 71 7 6 78"], NAMES).rows[0]
+    assert pdf_tables.reconcile_row(row, expected=6, max_value=100.0) == (80.0, 83.0, 85.0, 71.0, 76.0, 78.0)
+    ambiguous = pdf_tables.parse_jurisdiction_rows(["Alabama 80 83 85 7 6 5 4"], NAMES).rows[0]
+    assert pdf_tables.reconcile_row(ambiguous, expected=6, max_value=100.0) is None
+    toofar = pdf_tables.parse_jurisdiction_rows(["Alabama 80 83 8 5 71 78 70"], NAMES).rows[0]
+    assert pdf_tables.reconcile_row(toofar, expected=6, max_value=100.0) is None  # a split inside the first three
+
+
+def test_reconcile_passes_a_row_of_the_right_length_and_refuses_other_lengths() -> None:
+    ok = pdf_tables.parse_jurisdiction_rows(["Alabama 1 2 3"], NAMES).rows[0]
+    assert pdf_tables.reconcile_row(ok, expected=3, max_value=100.0) == (1.0, 2.0, 3.0)
+    assert pdf_tables.reconcile_row(ok, expected=5, max_value=100.0) is None
+    short = pdf_tables.parse_jurisdiction_rows(["Alabama 1"], NAMES).rows[0]
+    assert pdf_tables.reconcile_row(short, expected=2, max_value=100.0) is None
+
+
+PAGE_14 = """
+Alabama—Food Assistance Program
+Program Administration State-administered
+Simplified Reporting—Certification Length 4 & 12 months
+Online Application Apply & recertify
+Online Case Management View case information
+"""
+PAGE_12 = """
+State Options Report • 26
+SNAP State Agency Profiles
+Virginia
+SNAP Name Food Assistance Program
+Simplified Reporting - Certification Length 12 & 24 months only
+Online Application No online application
+"""
+PAGE_PROSE = """
+Online Application is described in this section. Alabama is one of many states.
+Online Application Apply
+"""
+
+
+def test_profile_pages_are_read_by_label_in_both_layouts() -> None:
+    labels = {"online": r"Online\s+Application", "length": r"Certification\s+Length"}
+    t = pdf_tables.parse_profiles([PAGE_14, PAGE_12, PAGE_PROSE, "nothing"], NAMES, labels)
+    assert [(p.name, p.page, p.fields) for p in t] == [
+        ("Alabama", 0, {"online": "Apply & recertify", "length": "4 & 12 months"}),
+        ("Virginia", 1, {"online": "No online application", "length": "12 & 24 months only"}),
+    ]
+
+
+def test_a_page_without_the_label_is_not_a_profile_and_a_missing_second_label_is_none() -> None:
+    labels = {"online": r"Online\s+Application", "length": r"Certification\s+Length"}
+    page = "Alabama—Program\nOnline Application Apply only\n"
+    (p,) = pdf_tables.parse_profiles([page, "Alabama—Program\nnothing\n"], NAMES, labels)
+    assert p.fields == {"online": "Apply only", "length": None}
+
+
+@pytest.mark.parametrize(("value", "offered"), [
+    ("Apply & recertify", 1), ("Apply only", 1), ("Apply", 1), ("No online application", 0), ("Recertify", 0)])
+def test_online_application_coding(value: str, offered: int) -> None:
+    assert pdf_tables.online_offered(value) == offered
+
+
+@pytest.mark.parametrize(("value", "months"), [
+    ("12 & 24 months only", 24.0), ("4, 6, & 12 months", 12.0), ("4,5,6, & 24 Months", 24.0),
+    ("12 &, 24 months", 24.0), ("6 months only", 6.0), ("Change reporting only", None), (None, None)])
+def test_longest_certification_period(value: str | None, months: float | None) -> None:
+    assert pdf_tables.longest_months(value) == months

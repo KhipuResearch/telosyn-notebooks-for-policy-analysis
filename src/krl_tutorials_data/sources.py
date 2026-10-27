@@ -1353,6 +1353,8 @@ def fetch_cps_asec(  # pylint: disable=too-many-arguments,too-many-locals,too-ma
 
 FNS_FILE_PREFIX: Final[str] = "https://www.fna.usda.gov/sites/default/files/"
 _FNS_PATH: Final[re.Pattern[str]] = re.compile(r"^(?:ops|resource-files|snap)/[A-Za-z0-9_.\-]+\.pdf$")
+#: Pauses before each attempt at an FNS file: none, then growing (seconds). A 502 or 503 is retried.
+FNS_RETRY_PAUSES: Final[tuple[float, ...]] = (0.0, 3.0, 10.0)
 IRS_EITC_URL: Final[str] = (
     "https://www.irs.gov/tax-professionals/eitc-central/eitc-participation-rate-by-state"
 )
@@ -1373,10 +1375,16 @@ def fetch_fns_pdf(
         raise ValueError(f"{path!r} is not a single .pdf under ops/, resource-files/ or snap/.")
     url = FNS_FILE_PREFIX + path
     http = session or requests
-    try:
-        resp = http.get(url, timeout=300, headers={"User-Agent": "telosyn-notebooks/1.0"})
-    except requests.RequestException as exc:
-        raise UpstreamError(f"FNS request failed: {redact(exc)}") from exc
+    resp = None
+    for attempt, pause in enumerate(FNS_RETRY_PAUSES):
+        _sleep(pause)
+        try:
+            resp = http.get(url, timeout=300, headers={"User-Agent": "telosyn-notebooks/1.0"})
+        except requests.RequestException as exc:
+            raise UpstreamError(f"FNS request failed: {redact(exc)}") from exc
+        if resp.status_code not in (502, 503) or attempt == len(FNS_RETRY_PAUSES) - 1:
+            break
+    assert resp is not None
     reject_bot_challenge(resp, source="USDA FNS", endpoint=url)
     if resp.status_code != 200:
         raise UpstreamError(f"FNS returned HTTP {resp.status_code} for {url}.")

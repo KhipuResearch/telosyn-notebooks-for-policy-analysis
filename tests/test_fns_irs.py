@@ -107,3 +107,35 @@ def test_irs_errors() -> None:
         sources.fetch_irs_eitc_participation(session=_Session(_Response(b"")))
     with pytest.raises(ResponseShapeError, match="Participation rate by state"):
         sources.fetch_irs_eitc_participation(session=_Session(_Response(b"<html><table><tr><th>x</th></tr></table></html>")))
+
+
+class _Flaky:  # pylint: disable=too-few-public-methods
+    """Answers with the given responses in order, then repeats the last."""
+
+    def __init__(self, *responses: _Response) -> None:
+        self.responses = list(responses)
+        self.calls = 0
+
+    def get(self, url: str, **kwargs: Any) -> _Response:
+        r = self.responses[min(self.calls, len(self.responses) - 1)]
+        self.calls += 1
+        return r
+
+
+def test_fns_pdf_retries_a_gateway_error_then_succeeds(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(sources, "_sleep", lambda s: None)
+    session = _Flaky(_Response(b"", 502), _Response(b"", 503), _Response(PDF))
+    body, _ = sources.fetch_fns_pdf(path="ops/x.pdf", vintage="v", session=session)
+    assert body == PDF and session.calls == 3
+
+
+def test_fns_pdf_gives_up_after_the_last_attempt_and_does_not_retry_a_404(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(sources, "_sleep", lambda s: None)
+    always = _Flaky(_Response(b"", 502))
+    with pytest.raises(UpstreamError, match="502"):
+        sources.fetch_fns_pdf(path="ops/x.pdf", vintage="v", session=always)
+    assert always.calls == len(sources.FNS_RETRY_PAUSES)
+    gone = _Flaky(_Response(b"", 404))
+    with pytest.raises(UpstreamError, match="404"):
+        sources.fetch_fns_pdf(path="ops/x.pdf", vintage="v", session=gone)
+    assert gone.calls == 1

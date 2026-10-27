@@ -14,7 +14,7 @@ This repository analyses public socioeconomic data published by U.S. federal age
 
 ## Source datasets
 
-130 datasets from 6 publishers, across 899 committed provenance records.
+130 datasets from 6 publishers, across 909 committed provenance records.
 
 | Publisher | Dataset | Vintages | Records | Hash basis |
 |---|---|---|---|---|
@@ -140,7 +140,7 @@ This repository analyses public socioeconomic data published by U.S. federal age
 | U.S. Bureau of Labor Statistics | QCEW industry 722, 2023 Q2 | 2023Q2 | 1 | response-bytes |
 | U.S. Bureau of Labor Statistics | QCEW industry 722, 2023 Q3 | 2023Q3 | 1 | response-bytes |
 | U.S. Bureau of Labor Statistics | QCEW industry 722, 2023 Q4 | 2023Q4 | 1 | response-bytes |
-| U.S. Census Bureau | American Community Survey (acs/acs1) | 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023 | 23 | canonical-rows, composed-digests |
+| U.S. Census Bureau | American Community Survey (acs/acs1) | 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023 | 33 | canonical-rows, composed-digests |
 | U.S. Census Bureau | American Community Survey (acs/acs5) | 2019, 2023 | 15 | canonical-rows |
 | U.S. Census Bureau | American Community Survey (acs/acs5/profile) | 2023 | 1 | canonical-rows |
 | U.S. Census Bureau | American Community Survey Public Use Microdata Sample (acs/acs1/pums) | 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2023 | 726 | canonical-rows |

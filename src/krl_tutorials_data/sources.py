@@ -1251,65 +1251,6 @@ def fetch_cps_asec(  # pylint: disable=too-many-arguments,too-many-locals
 
 
 # ---------------------------------------------------------------------------
-# Congressional Budget Office -- one dated workbook, every sheet unparsed
-# ---------------------------------------------------------------------------
-
-CBO_FILE_PREFIX: Final[str] = "https://www.cbo.gov/system/files/"
-
-
-def fetch_cbo_workbook(
-    *,
-    url: str,
-    session: requests.Session | None = None,
-) -> tuple[dict[str, pd.DataFrame], DataProvenance]:
-    """Fetch one CBO ``.xlsx`` and return every sheet unparsed, or raise.
-
-    ``url`` must be an https address under ``https://www.cbo.gov/system/files/`` ending in
-    ``.xlsx``; anything else is refused before a request is made. Sheets are returned with
-    ``header=None`` so the caller finds each table's title and header row itself. The path is
-    dated, but CBO does not promise a dated file is never revised in place, so the retrieval is
-    **not** pinned: the SHA-256 of the response bytes is the vintage identifier.
-    """
-    if not (url.startswith(CBO_FILE_PREFIX) and url.lower().endswith(".xlsx")
-            and "@" not in url and ".." not in url):
-        raise ValueError(
-            f"{url!r} is not an .xlsx under {CBO_FILE_PREFIX}; only an approved workbook "
-            "file is fetched."
-        )
-    http = session or requests
-    try:
-        resp = http.get(url, timeout=300, headers={"User-Agent": "telosyn-notebooks/1.0"})
-    except requests.RequestException as exc:
-        raise UpstreamError(f"CBO request failed: {redact(exc)}") from exc
-    reject_bot_challenge(resp, source="the Congressional Budget Office", endpoint=url)
-    if resp.status_code != 200:
-        raise UpstreamError(f"CBO returned HTTP {resp.status_code} for {url}.")
-    if not resp.content:
-        raise EmptyResultError("CBO returned an empty body.")
-    try:
-        sheets = pd.read_excel(io.BytesIO(resp.content), sheet_name=None, header=None)
-    except Exception as exc:  # pylint: disable=broad-exception-caught
-        raise ResponseShapeError(f"The CBO response is not a readable workbook: {redact(exc)}") from exc
-    prov = DataProvenance.build(
-        source_name="Congressional Budget Office",
-        dataset=url.rsplit("/", 1)[-1],
-        vintage=url.split("/system/files/", 1)[1].split("/", 1)[0],
-        endpoint=url,
-        variables={name: f"sheet, {frame.shape[0]} rows x {frame.shape[1]} columns"
-                   for name, frame in sheets.items()},
-        payload=resp.content,
-        pinned=False,
-        row_count=int(sum(f.shape[0] for f in sheets.values())),
-        column_count=int(max((f.shape[1] for f in sheets.values()), default=0)),
-        notes=(
-            f"{len(sheets)} sheet(s): {', '.join(sheets)}. Returned unparsed.",
-            "Dated bulk workbook; the payload hash is the vintage identifier.",
-        ),
-    )
-    return sheets, prov
-
-
-# ---------------------------------------------------------------------------
 # FRED (Federal Reserve Bank of St. Louis)
 # ---------------------------------------------------------------------------
 

@@ -447,6 +447,15 @@ def test_staged_refuses_a_cache_file_and_a_planted_line_but_not_unstaged_ones(re
     assert all("unstaged" not in f.where for f in found)
 
 
+def test_staged_reads_a_binary_file_without_crashing_and_still_sees_other_files(repo: Repo) -> None:
+    """A staged workbook (non-UTF-8 bytes) must not stop the check or hide a planted line."""
+    (repo.root / "data").mkdir()
+    (repo.root / "data" / "table.xlsx").write_bytes(b"PK\x03\x04\xa5\xff\x00binary\x80")
+    repo.write("docs/ok.md", HEADER + "\nzorblax\n")
+    repo.git("add", "data/table.xlsx", "docs/ok.md")
+    assert _rules(cps.check_staged(repo.root, _deny(), NO_ALLOW)) == ["apex"]
+
+
 def test_staged_with_nothing_staged_is_clean(repo: Repo) -> None:
     """Staged with nothing staged is clean."""
     assert cps.check_staged(repo.root, _deny(), NO_ALLOW) == []

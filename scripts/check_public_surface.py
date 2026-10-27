@@ -284,7 +284,12 @@ def _apply_allowlist(
 def _git(root: Path, *args: str, check: bool = True) -> str:
     try:
         done = subprocess.run(
-            ["git", "-C", str(root), *args], capture_output=True, text=True, check=False
+            ["git", "-C", str(root), *args],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",  # a staged workbook or image is bytes, not text; do not crash on it
+            check=False,
         )
     except OSError as exc:
         raise SurfaceError(f"git could not be run: {exc.strerror}") from None

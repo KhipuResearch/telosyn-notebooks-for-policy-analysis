@@ -51,6 +51,7 @@ PINNED_FETCHERS: Final[frozenset[str]] = frozenset({
     "fetch_acs",                  # each ACS release is a distinct, permanent product
     "fetch_acs_wide",
     "fetch_acs_pums",             # a PUMS 1-year file is a separately addressed, immutable release
+    "fetch_cps_asec",             # each ASEC year is a separately addressed release
     "fetch_fred",                 # ALFRED serves any vintage by date
     "fetch_places_county",        # each release is a separately addressed asset
     "fetch_opportunity_atlas",    # static archived research release

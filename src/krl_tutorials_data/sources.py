@@ -1076,6 +1076,240 @@ def _pums_restriction_notes(
 
 
 # ---------------------------------------------------------------------------
+# Census CPS ASEC -- person records, returned as weighted income-bin cells only
+# ---------------------------------------------------------------------------
+
+#: The CPS ASEC person weight. Replicate weights are not served by the API.
+CPS_ASEC_WEIGHT: Final[str] = "MARSUPWT"
+
+#: Variable code -> verbatim label from the API's ``variables.json`` (checked 2026-10-27).
+CPS_ASEC_VARIABLES: Final[dict[str, str]] = {
+    "PH_SEQ": "Household sequence number",
+    "A_EXPRRP": "Demographics, Relationship expanded code",
+    "A_AGE": "Demographics, Age",
+    "PRDTRACE": "Demographic - race of respondent",
+    "PEHSPNON": "Demographics- hispanic/non-hispanic origin",
+    "HTOTVAL": "Household income amount",
+    "H_NUMPER": "Number of persons in household",
+    "MARSUPWT": "Weight, March supplement - Person",
+}
+
+CPS_RACE_LABELS: Final[dict[int, str]] = {1: "White alone", 2: "Black alone", 4: "Asian alone"}
+CPS_CELL_KEYS: Final[tuple[str, ...]] = ("income_bin", "race", "ref_age", "child")
+
+
+def _cps_race(race: pd.Series, hispanic: pd.Series) -> pd.Series:
+    """Five mutually exclusive groups: Hispanic of any race, else White, Black, Asian, other."""
+    label = race.map(CPS_RACE_LABELS).fillna("Other non-Hispanic")
+    return label.where(hispanic != 1, "Hispanic")
+
+
+def _cps_reference_age(person: pd.DataFrame) -> pd.Series:
+    """Each person's household reference person's age group; raises unless exactly one exists."""
+    ref = person[person["A_EXPRRP"].isin((1, 2))]
+    per_household = ref.groupby("PH_SEQ").size()
+    households = person["PH_SEQ"].unique()
+    if len(per_household) != len(households) or (per_household != 1).any():
+        raise SchemaError(
+            "every household needs exactly one reference person (A_EXPRRP 1 or 2); "
+            f"{len(households) - int((per_household == 1).sum())} household(s) do not have one."
+        )
+    age = ref.set_index("PH_SEQ")["A_AGE"].reindex(person["PH_SEQ"]).to_numpy()
+    return pd.Series(
+        np.select([age < 35, age < 65], ["Under 35", "35-64"], default="65 and over"),
+        index=person.index,
+    )
+
+
+def _cps_income_bin(adjusted: pd.Series, width: float, floor: float, cap: float) -> pd.Series:
+    """Lower edge of the bin; everything at or above ``cap`` is one bin, below ``floor`` another."""
+    binned = np.floor(adjusted / width) * width
+    binned = binned.where(adjusted < cap, cap)
+    return binned.where(adjusted >= floor, floor - width)
+
+
+def _cps_check_request(bin_width: float, income_floor: float, income_cap: float,
+                       min_cell_records: int) -> None:
+    if bin_width <= 0.0:
+        raise ValueError("bin_width must be positive.")
+    if not income_floor < income_cap:
+        raise ValueError("income_floor must be below income_cap.")
+    if min_cell_records < PUMS_CELL_FLOOR:
+        raise ValueError(
+            f"min_cell_records must be at least {PUMS_CELL_FLOOR}: a cell of fewer "
+            "people is a person row under another name."
+        )
+
+
+def _cps_person_frame(raw: pd.DataFrame) -> pd.DataFrame:
+    requested = list(CPS_ASEC_VARIABLES)
+    person = _pums_person_frame(raw, requested, CPS_ASEC_WEIGHT)
+    if person["PH_SEQ"].isna().any() or person["A_EXPRRP"].isna().any():
+        raise SchemaError("PH_SEQ and A_EXPRRP must be present in every record.")
+    if (person["H_NUMPER"].isna() | (person["H_NUMPER"] < 1)).any():
+        raise RangeError("H_NUMPER must be at least 1 in every record.")
+    if person["HTOTVAL"].isna().any() or person["A_AGE"].isna().any():
+        raise SchemaError("HTOTVAL and A_AGE must be present in every record.")
+    return person
+
+
+def _cps_cells(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    person: pd.DataFrame, bin_width: float, income_floor: float, income_cap: float,
+    min_cell_records: int, child_age: int,
+) -> tuple[pd.DataFrame, str]:
+    """The only reader of the CPS person frame: weighted cells, small cells withheld."""
+    w = person[CPS_ASEC_WEIGHT]
+    adjusted = person["HTOTVAL"] / np.sqrt(person["H_NUMPER"])
+    keyed = pd.DataFrame(
+        {
+            "income_bin": _cps_income_bin(adjusted, bin_width, income_floor, income_cap),
+            "race": _cps_race(person["PRDTRACE"], person["PEHSPNON"]),
+            "ref_age": _cps_reference_age(person),
+            "child": (person["A_AGE"] < child_age).astype(int),
+            "w": w,
+            "w2": w * w,
+            "wx": w * adjusted,
+        }
+    )
+    cells = (
+        keyed.groupby(list(CPS_CELL_KEYS))
+        .agg(weighted_n=("w", "sum"), sum_w2=("w2", "sum"),
+             weighted_income=("wx", "sum"), n_records=("w", "size"))
+        .reset_index()
+    )
+    return _pums_apply_floor(cells, CPS_CELL_KEYS, min_cell_records, len(person), len(person))
+
+
+def fetch_cps_asec(  # pylint: disable=too-many-arguments,too-many-locals
+    *,
+    year: int,
+    geography: str | None = None,
+    bin_width: float = 2500.0,
+    income_floor: float = 0.0,
+    income_cap: float = 150_000.0,
+    child_age: int = 18,
+    min_cell_records: int = PUMS_DEFAULT_MIN_CELL,
+    session: requests.Session | None = None,
+) -> tuple[pd.DataFrame, DataProvenance]:
+    """Fetch CPS ASEC person records and return weighted cells, or raise.
+
+    Mirrors :func:`fetch_acs_pums`: the person frame exists only inside this call and
+    :func:`_cps_cells`, and **no person-level row is returned or stored**. A cell is
+    ``(income_bin, race, ref_age, child)`` where ``income_bin`` is the lower edge of the
+    bin of household income divided by the square root of household size (CBO's
+    adjustment), ``race`` is one of five mutually exclusive groups, ``ref_age`` is the
+    household reference person's age group and ``child`` is 1 when the person is under
+    ``child_age``. Values at or above ``income_cap`` share one bin (labelled by the cap);
+    values below ``income_floor`` share another (labelled ``income_floor - bin_width``).
+    Each cell carries ``weighted_n`` (sum of weights), ``sum_w2`` (sum of squared weights,
+    for Kish's effective sample size), ``weighted_income`` (sum of weight times the exact
+    adjusted income, so tail bins keep their means) and ``n_records``; cells under
+    ``min_cell_records`` are withheld and counted in ``frame.attrs`` and the notes.
+
+    The API serves no replicate weights, so no sampling error is computed here.
+    """
+    _cps_check_request(bin_width, income_floor, income_cap, min_cell_records)
+    requested = list(CPS_ASEC_VARIABLES)
+    endpoint = f"{CENSUS_HOST}/{year}/cps/asec/mar"
+    api_key = load_key("CENSUS_API_KEY")
+    http = session or requests
+    params = {
+        "get": ",".join(requested),
+        **({"for": geography} if geography else {}),
+        "key": api_key,
+    }
+    raw, payload = _pums_fetch_raw(http, endpoint, params, requested)
+    person = _cps_person_frame(raw)
+    out, floor_note = _cps_cells(
+        person, bin_width, income_floor, income_cap, min_cell_records, child_age
+    )
+    notes = (
+        "CPS ASEC is a sample of person records; weighted cells estimate population "
+        "counts. The API serves no replicate weights, so sampling error is not computed here.",
+        f"Household income (HTOTVAL) divided by the square root of household size, in "
+        f"${bin_width:,.0f} bins labelled by lower edge; at or above ${income_cap:,.0f} one "
+        f"bin, below ${income_floor:,.0f} one bin labelled {income_floor - bin_width:,.0f}.",
+        f"Children are persons under {child_age}; race is Hispanic of any race, else "
+        "White, Black, Asian alone, else other non-Hispanic; age group is the household "
+        "reference person's.",
+        floor_note,
+    )
+    prov = DataProvenance.build(
+        hash_basis="canonical-rows",
+        request_params=params,
+        source_name="U.S. Census Bureau",
+        dataset="Current Population Survey Annual Social and Economic Supplement (cps/asec/mar)",
+        vintage=str(year),
+        endpoint=endpoint,
+        variables=dict(CPS_ASEC_VARIABLES),
+        payload=payload,
+        row_count=len(person),
+        column_count=len(requested),
+        notes=notes,
+    )
+    return out, prov
+
+
+# ---------------------------------------------------------------------------
+# Congressional Budget Office -- one dated workbook, every sheet unparsed
+# ---------------------------------------------------------------------------
+
+CBO_FILE_PREFIX: Final[str] = "https://www.cbo.gov/system/files/"
+
+
+def fetch_cbo_workbook(
+    *,
+    url: str,
+    session: requests.Session | None = None,
+) -> tuple[dict[str, pd.DataFrame], DataProvenance]:
+    """Fetch one CBO ``.xlsx`` and return every sheet unparsed, or raise.
+
+    ``url`` must be an https address under ``https://www.cbo.gov/system/files/`` ending in
+    ``.xlsx``; anything else is refused before a request is made. Sheets are returned with
+    ``header=None`` so the caller finds each table's title and header row itself. The path is
+    dated, but CBO does not promise a dated file is never revised in place, so the retrieval is
+    **not** pinned: the SHA-256 of the response bytes is the vintage identifier.
+    """
+    if not (url.startswith(CBO_FILE_PREFIX) and url.lower().endswith(".xlsx")
+            and "@" not in url and ".." not in url):
+        raise ValueError(
+            f"{url!r} is not an .xlsx under {CBO_FILE_PREFIX}; only an approved workbook "
+            "file is fetched."
+        )
+    http = session or requests
+    try:
+        resp = http.get(url, timeout=300, headers={"User-Agent": "telosyn-notebooks/1.0"})
+    except requests.RequestException as exc:
+        raise UpstreamError(f"CBO request failed: {redact(exc)}") from exc
+    reject_bot_challenge(resp, source="the Congressional Budget Office", endpoint=url)
+    if resp.status_code != 200:
+        raise UpstreamError(f"CBO returned HTTP {resp.status_code} for {url}.")
+    if not resp.content:
+        raise EmptyResultError("CBO returned an empty body.")
+    try:
+        sheets = pd.read_excel(io.BytesIO(resp.content), sheet_name=None, header=None)
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        raise ResponseShapeError(f"The CBO response is not a readable workbook: {redact(exc)}") from exc
+    prov = DataProvenance.build(
+        source_name="Congressional Budget Office",
+        dataset=url.rsplit("/", 1)[-1],
+        vintage=url.split("/system/files/", 1)[1].split("/", 1)[0],
+        endpoint=url,
+        variables={name: f"sheet, {frame.shape[0]} rows x {frame.shape[1]} columns"
+                   for name, frame in sheets.items()},
+        payload=resp.content,
+        pinned=False,
+        row_count=int(sum(f.shape[0] for f in sheets.values())),
+        column_count=int(max((f.shape[1] for f in sheets.values()), default=0)),
+        notes=(
+            f"{len(sheets)} sheet(s): {', '.join(sheets)}. Returned unparsed.",
+            "Dated bulk workbook; the payload hash is the vintage identifier.",
+        ),
+    )
+    return sheets, prov
+
+
+# ---------------------------------------------------------------------------
 # FRED (Federal Reserve Bank of St. Louis)
 # ---------------------------------------------------------------------------
 

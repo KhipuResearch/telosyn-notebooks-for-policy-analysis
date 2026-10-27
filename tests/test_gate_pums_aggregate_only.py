@@ -23,7 +23,7 @@ import pytest
 from gate_support import Notebook
 
 #: Names a notebook must not use: the removed argument and the private helpers.
-FORBIDDEN = ("return_rows", "_pums_person_frame", "_pums_cells")
+FORBIDDEN = ("return_rows", "_pums_person_frame", "_pums_cells", "_cps_person_frame", "_cps_cells")
 
 
 def person_rows_requested(source: str) -> list[str]:

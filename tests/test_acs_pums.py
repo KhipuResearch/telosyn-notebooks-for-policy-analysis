@@ -273,14 +273,26 @@ def test_the_public_function_has_no_argument_that_asks_for_rows() -> None:
 
 
 def test_the_person_frame_has_one_producer_and_one_reader() -> None:
-    """Only fetch_acs_pums builds it, and only _pums_cells consumes it."""
+    """Only fetch_acs_pums builds it, and only _pums_cells consumes it.
+
+    ``fetch_cps_asec`` follows the same rule through its own pair: ``_cps_person_frame`` is the
+    one place it is built (on top of ``_pums_person_frame``) and ``_cps_cells`` the one reader.
+    """
     tree = ast.parse(inspect.getsource(sources))
-    callers: dict[str, set[str]] = {"_pums_person_frame": set(), "_pums_cells": set()}
+    callers: dict[str, set[str]] = {
+        "_pums_person_frame": set(), "_pums_cells": set(),
+        "_cps_person_frame": set(), "_cps_cells": set(),
+    }
     for fn in [n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]:
         for call in [c for c in ast.walk(fn) if isinstance(c, ast.Call)]:
             if isinstance(call.func, ast.Name) and call.func.id in callers:
                 callers[call.func.id].add(fn.name)
-    assert callers == {"_pums_person_frame": {"fetch_acs_pums"}, "_pums_cells": {"fetch_acs_pums"}}
+    assert callers == {
+        "_pums_person_frame": {"fetch_acs_pums", "_cps_person_frame"},
+        "_pums_cells": {"fetch_acs_pums"},
+        "_cps_person_frame": {"fetch_cps_asec"},
+        "_cps_cells": {"fetch_cps_asec"},
+    }
 
 
 def _person(rows: list[tuple[float | None, float | None, float]]) -> pd.DataFrame:

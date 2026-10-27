@@ -34,6 +34,7 @@ import numpy as np
 import pandas as pd
 import requests
 
+from . import html_tables
 from .provenance import DataProvenance, canonical_rows, canonical_stable_json, ledgered
 
 # --------------------------------------------------------------------------- #
@@ -1343,6 +1344,115 @@ def fetch_cps_asec(  # pylint: disable=too-many-arguments,too-many-locals,too-ma
         notes=notes,
     )
     return out, prov
+
+
+# ---------------------------------------------------------------------------
+
+# USDA Food and Nutrition Service PDFs and the IRS EITC participation table
+# ---------------------------------------------------------------------------
+
+FNS_FILE_PREFIX: Final[str] = "https://www.fna.usda.gov/sites/default/files/"
+_FNS_PATH: Final[re.Pattern[str]] = re.compile(r"^(?:ops|resource-files|snap)/[A-Za-z0-9_.\-]+\.pdf$")
+IRS_EITC_URL: Final[str] = (
+    "https://www.irs.gov/tax-professionals/eitc-central/eitc-participation-rate-by-state"
+)
+IRS_EITC_HEADING: Final[str] = "Participation rate by state"
+
+
+def fetch_fns_pdf(
+    *, path: str, vintage: str, session: requests.Session | None = None
+) -> tuple[bytes, DataProvenance]:
+    """Fetch one FNS PDF under ``/sites/default/files/`` and return its bytes, or raise.
+
+    ``path`` is the part after that prefix (``ops/…``, ``resource-files/…`` or ``snap/…``, one file name,
+    ``.pdf``); anything else is refused before a request is made. The publisher redirects to a
+    second host, which is followed; the body must begin with ``%PDF``. The retrieval is **not
+    pinned**: FNS may replace a file in place, so the SHA-256 of the bytes is the vintage identifier.
+    """
+    if not _FNS_PATH.match(path):
+        raise ValueError(f"{path!r} is not a single .pdf under ops/, resource-files/ or snap/.")
+    url = FNS_FILE_PREFIX + path
+    http = session or requests
+    try:
+        resp = http.get(url, timeout=300, headers={"User-Agent": "telosyn-notebooks/1.0"})
+    except requests.RequestException as exc:
+        raise UpstreamError(f"FNS request failed: {redact(exc)}") from exc
+    reject_bot_challenge(resp, source="USDA FNS", endpoint=url)
+    if resp.status_code != 200:
+        raise UpstreamError(f"FNS returned HTTP {resp.status_code} for {url}.")
+    if not resp.content:
+        raise EmptyResultError("FNS returned an empty body.")
+    if not resp.content.startswith(b"%PDF"):
+        raise ResponseShapeError(f"The response for {url} is not a PDF.")
+    prov = DataProvenance.build(
+        source_name="U.S. Department of Agriculture, Food and Nutrition Service",
+        dataset=path.rsplit("/", 1)[-1],
+        vintage=vintage,
+        endpoint=url,
+        variables={},
+        payload=resp.content,
+        pinned=False,
+        row_count=0,
+        column_count=0,
+        notes=(
+            f"A PDF of {len(resp.content):,} bytes; its text is extracted and parsed by the notebook.",
+            "Not pinned: the publisher can replace a file in place; the payload hash is the vintage identifier.",
+        ),
+    )
+    return resp.content, prov
+
+
+def fetch_irs_eitc_participation(
+    *, session: requests.Session | None = None
+) -> tuple[pd.DataFrame, DataProvenance]:
+    """Fetch the IRS EITC participation-rate-by-state table (HTML) as numbers, or raise.
+
+    The table is on the page itself; there is no file. The frame has ``state`` and one column per tax
+    year, as printed, in percent. ``n/a`` and blanks become NaN. The digest is over the table's text
+    (header and rows, in order), so page furniture does not change it. Not pinned.
+    """
+    http = session or requests
+    try:
+        resp = http.get(IRS_EITC_URL, timeout=120, headers={"User-Agent": "telosyn-notebooks/1.0"})
+    except requests.RequestException as exc:
+        raise UpstreamError(f"IRS request failed: {redact(exc)}") from exc
+    reject_bot_challenge(resp, source="the IRS", endpoint=IRS_EITC_URL)
+    if resp.status_code != 200:
+        raise UpstreamError(f"IRS returned HTTP {resp.status_code} for {IRS_EITC_URL}.")
+    if not resp.content:
+        raise EmptyResultError("IRS returned an empty body.")
+    tables = [t for t in html_tables.read_tables(resp.text) if t and t[0] and t[0][0].startswith(IRS_EITC_HEADING)]
+    if len(tables) != 1:
+        raise ResponseShapeError(
+            f"Expected one table headed {IRS_EITC_HEADING!r}, found {len(tables)}."
+        )
+    header, *body = tables[0]
+    if any(len(r) != len(header) for r in body):
+        raise ResponseShapeError("A row of the IRS table has a different number of cells than its header.")
+    frame = pd.DataFrame(body, columns=["state", *header[1:]])
+    for column in frame.columns[1:]:
+        frame[column] = pd.to_numeric(
+            frame[column].str.replace("%", "", regex=False).str.replace(",", "", regex=False), errors="coerce"
+        )
+    prov = DataProvenance.build(
+        source_name="Internal Revenue Service",
+        dataset="EITC participation rate by state",
+        vintage="; ".join(header[1:]),
+        endpoint=IRS_EITC_URL,
+        variables={c: "percent of eligible taxpayers who received an EITC payment" for c in header[1:]},
+        payload=json.dumps([header, *body]).encode(),
+        pinned=False,
+        hash_basis="canonical-json",
+        row_count=len(frame),
+        column_count=len(frame.columns),
+        notes=(
+            "An HTML table, not a file. The IRS describes the rate as the share of eligible taxpayers "
+            "who received an EITC payment, estimated by the Census Bureau's Center for Economic Studies "
+            "by linking ACS respondents to IRS records.",
+            "Not pinned: the page can be revised; the hash is over the table's text.",
+        ),
+    )
+    return frame, prov
 
 
 # ---------------------------------------------------------------------------

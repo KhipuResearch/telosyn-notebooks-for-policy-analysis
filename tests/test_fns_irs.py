@@ -1,0 +1,109 @@
+"""Contract tests for ``sources.fetch_fns_pdf``, ``sources.fetch_irs_eitc_participation`` and ``html_tables``.
+
+Responses are injected; no network is used. FNS serves its files through a redirect to a second host, which
+``requests`` follows; the client checks the final bytes are a PDF and records the URL it was asked for.
+
+© 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
+Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
+SPDX-License-Identifier: LicenseRef-Proprietary
+"""
+from __future__ import annotations
+
+from typing import Any
+
+import pytest
+
+from krl_tutorials_data import html_tables, sources
+from krl_tutorials_data.sources import EmptyResultError, ResponseShapeError, UpstreamError
+
+PDF = b"%PDF-1.7\n1 0 obj\n<<>>\nendobj\n%%EOF\n"
+
+
+class _Response:
+    def __init__(self, body: bytes, status: int = 200) -> None:
+        self.status_code = status
+        self.content = body
+        self.text = body.decode("utf-8", "replace")
+        self.headers: dict[str, str] = {}
+
+
+class _Session:  # pylint: disable=too-few-public-methods
+    def __init__(self, response: _Response) -> None:
+        self.response = response
+        self.calls: list[dict[str, Any]] = []
+
+    def get(self, url: str, **kwargs: Any) -> _Response:
+        self.calls.append({"url": url, **kwargs})
+        return self.response
+
+
+def test_fns_pdf_returns_the_bytes_and_a_hash_of_them() -> None:
+    session = _Session(_Response(PDF))
+    body, prov = sources.fetch_fns_pdf(path="resource-files/snap2019reaching.pdf", vintage="FY 2019", session=session)
+    assert body == PDF
+    assert prov.content_sha256 == prov.hash_payload(PDF)
+    assert prov.endpoint == "https://www.fna.usda.gov/sites/default/files/resource-files/snap2019reaching.pdf"
+    assert prov.pinned is False and prov.vintage == "FY 2019"
+    assert session.calls[0]["headers"]["User-Agent"] == "telosyn-notebooks/1.0"
+
+
+@pytest.mark.parametrize("bad", [
+    "../etc/passwd.pdf", "resource-files/x.zip", "https://evil.example/x.pdf", "resource-files/a/b.pdf",
+    "resource-files/x.pdf?x=1", "other/x.pdf", "",
+])
+def test_fns_pdf_refuses_other_paths_before_any_request(bad: str) -> None:
+    session = _Session(_Response(PDF))
+    with pytest.raises(ValueError):
+        sources.fetch_fns_pdf(path=bad, vintage="v", session=session)
+    assert session.calls == []
+
+
+def test_fns_pdf_errors() -> None:
+    with pytest.raises(UpstreamError, match="404"):
+        sources.fetch_fns_pdf(path="ops/x.pdf", vintage="v", session=_Session(_Response(b"", 404)))
+    with pytest.raises(EmptyResultError):
+        sources.fetch_fns_pdf(path="ops/x.pdf", vintage="v", session=_Session(_Response(b"")))
+    with pytest.raises(ResponseShapeError, match="PDF"):
+        sources.fetch_fns_pdf(path="ops/x.pdf", vintage="v", session=_Session(_Response(b"<html>no")))
+
+
+HTML = """
+<html><body><table><tr><th>other</th></tr><tr><td>1</td></tr></table>
+<table>
+ <thead><tr><th>Participation rate by state</th><th>Tax year 2022</th><th>Tax year 2021</th></tr></thead>
+ <tbody>
+  <tr><td>Alabama</td><td>80.5%</td><td>79.1%</td></tr>
+  <tr><td> District&nbsp;of Columbia </td><td>73.6%</td><td>n/a</td></tr>
+ </tbody></table></body></html>
+"""
+
+
+def test_html_tables_reads_every_table_with_normalised_cell_text() -> None:
+    tables = html_tables.read_tables(HTML)
+    assert len(tables) == 2
+    assert tables[1][0] == ["Participation rate by state", "Tax year 2022", "Tax year 2021"]
+    assert tables[1][2][0] == "District of Columbia"
+
+
+def test_irs_table_is_numeric_and_hashed_over_its_content() -> None:
+    session = _Session(_Response(HTML.encode()))
+    frame, prov = sources.fetch_irs_eitc_participation(session=session)
+    assert list(frame.columns) == ["state", "Tax year 2022", "Tax year 2021"]
+    assert frame.loc[0, "Tax year 2022"] == 80.5
+    assert frame["Tax year 2021"].isna().tolist() == [False, True]
+    assert prov.hash_basis == "canonical-json" and prov.pinned is False
+    other = HTML.replace("80.5%", "80.6%")
+    _, prov2 = sources.fetch_irs_eitc_participation(session=_Session(_Response(other.encode())))
+    assert prov2.content_sha256 != prov.content_sha256
+    noisy = HTML.replace("<body>", "<body><!-- generated 12:00 -->")
+    _, prov3 = sources.fetch_irs_eitc_participation(session=_Session(_Response(noisy.encode())))
+    assert prov3.content_sha256 == prov.content_sha256
+
+
+def test_irs_errors() -> None:
+    with pytest.raises(UpstreamError, match="500"):
+        sources.fetch_irs_eitc_participation(session=_Session(_Response(b"", 500)))
+    with pytest.raises(EmptyResultError):
+        sources.fetch_irs_eitc_participation(session=_Session(_Response(b"")))
+    with pytest.raises(ResponseShapeError, match="Participation rate by state"):
+        sources.fetch_irs_eitc_participation(session=_Session(_Response(b"<html><table><tr><th>x</th></tr></table></html>")))

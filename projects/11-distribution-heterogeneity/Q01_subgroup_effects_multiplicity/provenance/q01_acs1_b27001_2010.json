@@ -65,7 +65,7 @@
     "B27001_055E": "Estimate!!Total!!Female!!75 years and over",
     "B27001_057E": "Estimate!!Total!!Female!!75 years and over!!No health insurance coverage"
   },
-  "retrieved_utc": "2026-10-27T13:40:54+00:00",
+  "retrieved_utc": "2026-10-28T12:46:51+00:00",
   "row_count": 52,
   "column_count": 62,
   "content_sha256": "03381029dad19e640e9dfa2acf125e93cca57e33e24613dfc35b5c740e7e2434",
@@ -84,6 +84,6 @@
   },
   "request_method": "GET",
   "pap_sha256": "89275e52f6e903bd6a1832ade5e16084a2f1db3e08c77ecd5ad2fcebfcca34e5",
-  "pap_amendments": [],
-  "pap_chain_sha256": "3d85f50c0711a53ca75aa433be7d586496dba2e246c66137524b88fac1434781"
+  "pap_chain_sha256": "3d85f50c0711a53ca75aa433be7d586496dba2e246c66137524b88fac1434781",
+  "pap_amendments": []
 }

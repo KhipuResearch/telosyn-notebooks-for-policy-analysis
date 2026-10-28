@@ -37,9 +37,9 @@ jupyter lab projects/11-distribution-heterogeneity/
 
 **Limitations**
 
-- The departure from the specification. The subgroups are race and ethnicity and three age bands inside 35–64, from the ACS detail tables, not the broader age bands of the subject table the track names. The reasons are in the Data Provenance note. Age bands outside 35–64 are not examined.
+- The departure from the specification. The subgroups are race and ethnicity and three age bands inside 35–64, from the ACS detail tables, not the broader age bands of the subject table S2701. The reasons are in the Data Provenance note. Age bands outside 35–64 are not examined.
 - C01's estimate is borderline, and every subgroup inherits that. The reference interval's upper end is a hair from zero and its verdict moves with the number of bootstrap draws (printed above, from C01's stored output). A subgroup result can be no firmer than the average it splits.
-- Power. The table above gives each subgroup's minimum detectable effect and its power to detect an effect as large as C01's. Where the power is low, a subgroup that does not clear the bar says the test could not tell; it does not say the effect is absent.
+- Power. The tables above give each subgroup's minimum detectable effect and its power to detect an effect as large as C01's, for an uncorrected two-sided 5% test and for the first step of Holm's procedure, which is the threshold the smallest p-value must clear and is where the survivor's power is read. Where the power is low, a subgroup that does not clear the bar says the test could not tell; it does not say the effect is absent.
 
 ---
 

@@ -174,3 +174,19 @@ def test_aggregate_bounds_bracket_the_census_formula() -> None:
 def test_aggregate_bounds_coincide_for_a_single_component() -> None:
     lo, hi = aggregate_moe_bounds([Estimate(10.0, 3.0)])
     assert lo.moe == pytest.approx(hi.moe)
+
+
+def test_holm_step_down_stops_at_the_first_failure_even_when_a_later_p_would_pass_alone() -> None:
+    """Hand arithmetic at alpha 0.05 over three tests: thresholds 0.05/3, 0.05/2, 0.05/1 for the sorted p-values.
+
+    Sorted p = (0.02, 0.026, 0.049): 0.02 > 0.016667 fails, so Holm stops; 0.049 <= 0.05 would pass if the
+    procedure kept going, and must not. Nothing is rejected.
+    """
+    res = holm_bonferroni(np.array([0.049, 0.02, 0.026]), alpha=0.05)
+    assert res.rejected.tolist() == [False, False, False]
+
+
+def test_holm_rejects_exactly_the_leading_run_that_clears_its_thresholds() -> None:
+    """Sorted p = (0.01, 0.04, 0.045) at 0.05: 0.01 <= 0.016667 rejects; 0.04 > 0.025 stops. Original order is kept."""
+    res = holm_bonferroni(np.array([0.045, 0.01, 0.04]), alpha=0.05)
+    assert res.rejected.tolist() == [False, True, False]

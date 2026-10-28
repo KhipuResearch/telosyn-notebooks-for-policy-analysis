@@ -1141,8 +1141,8 @@ def _cps_check_request(bin_width: float, income_floor: float, income_cap: float,
         )
 
 
-def _cps_person_frame(raw: pd.DataFrame) -> pd.DataFrame:
-    requested = list(CPS_ASEC_VARIABLES)
+def _cps_person_frame(raw: pd.DataFrame, extra: Sequence[str] = ()) -> pd.DataFrame:
+    requested = [*CPS_ASEC_VARIABLES, *extra]
     person = _pums_person_frame(raw, requested, CPS_ASEC_WEIGHT)
     if person["PH_SEQ"].isna().any() or person["A_EXPRRP"].isna().any():
         raise SchemaError("PH_SEQ and A_EXPRRP must be present in every record.")
@@ -1156,8 +1156,14 @@ def _cps_person_frame(raw: pd.DataFrame) -> pd.DataFrame:
 def _cps_cells(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     person: pd.DataFrame, bin_width: float, income_floor: float, income_cap: float,
     min_cell_records: int, child_age: int, income_edges: Sequence[float] = (0.0, 25_000.0, 50_000.0, 100_000.0, 150_000.0),
+    replicate_weights: np.ndarray | None = None,
 ) -> tuple[pd.DataFrame, str]:
-    """The only reader of the CPS person frame: weighted cells, small cells withheld."""
+    """The only reader of the CPS person frame: weighted cells, small cells withheld.
+
+    With ``replicate_weights`` (records x 160, aligned to ``person``) each cell also carries ``rep_001`` ...
+    ``rep_160``, the sums of the replicate weights of its records. The floor is decided on the main-weight
+    record count, so the same cells are withheld with or without replicates.
+    """
     w = person[CPS_ASEC_WEIGHT]
     adjusted = person["HTOTVAL"] / np.sqrt(person["H_NUMPER"])
     keyed = pd.DataFrame(
@@ -1177,6 +1183,12 @@ def _cps_cells(  # pylint: disable=too-many-arguments,too-many-positional-argume
              weighted_income=("wx", "sum"), n_records=("w", "size"))
         .reset_index()
     )
+    if replicate_weights is not None:
+        names = [f"rep_{k:03d}" for k in range(1, replicate_weights.shape[1] + 1)]
+        reps = pd.DataFrame(replicate_weights, columns=names, index=keyed.index)
+        for key in CPS_CELL_KEYS:
+            reps[key] = keyed[key]
+        cells = cells.merge(reps.groupby(list(CPS_CELL_KEYS))[names].sum().reset_index(), on=list(CPS_CELL_KEYS), how="left")
     out, note = _pums_apply_floor(cells, CPS_CELL_KEYS, min_cell_records, len(person), len(person))
     raw_total = float(w.sum())
     withheld = cells[cells["n_records"] < min_cell_records]
@@ -1219,7 +1231,34 @@ def _cps_withheld_margins(
     return margins
 
 
-def fetch_cps_asec(  # pylint: disable=too-many-arguments,too-many-locals
+def _cps_attach_replicates(person: pd.DataFrame, directory: Any) -> np.ndarray:
+    """Merge the Bureau's replicate-weight file to the person records on H_SEQ/PH_SEQ and PPPOS.
+
+    Keys are read from the SAS layout; both sides must be unique, every person must match exactly one row, and the
+    file's full-sample weight (PWWGT0) must equal the API's MARSUPWT (the API rounds to two decimals). Returns the
+    160 replicate weights aligned to ``person``; raises otherwise.
+    """
+    from . import cps_repweights  # pylint: disable=import-outside-toplevel
+
+    layout = cps_repweights.parse_layout((directory / "CPS_ASEC_ASCII_REPWGT_2024.SAS").read_text(encoding="utf-8"))
+    if len(layout.weights) != 161 or [f.name for f in layout.weights][:2] != ["pwwgt0", "pwwgt1"]:
+        raise SchemaError(f"the SAS layout defines {len(layout.weights)} weights; the ASEC formula needs PWWGT0 and 160 replicates.")
+    rep = cps_repweights.read_replicate_file(directory / "CPS_ASEC_ASCII_REPWGT_2024.ZIP", layout)
+    rep_key = rep.h_seq.astype(np.int64) * 100 + rep.pppos
+    person_key = person["PH_SEQ"].to_numpy(dtype=np.int64) * 100 + person["PPPOS"].to_numpy(dtype=np.int64)
+    if len(set(rep_key.tolist())) != len(rep_key) or len(set(person_key.tolist())) != len(person_key):
+        raise SchemaError("the match keys (H_SEQ with PH_SEQ, and PPPOS) must be unique on both sides.")
+    index = pd.Index(rep_key).get_indexer(person_key)
+    if (index < 0).any():
+        raise SchemaError(f"{int((index < 0).sum())} of {len(index)} person records match no replicate-weight row; "
+                          "the match rate must be 100%.")
+    gap = float(np.abs(rep.weights[index, 0] - person[CPS_ASEC_WEIGHT].to_numpy()).max())
+    if gap > 0.006:
+        raise RangeError(f"MARSUPWT differs from PWWGT0 by up to {gap:.4f}; the files do not merge as the Bureau documents.")
+    return rep.weights[index, 1:]
+
+
+def fetch_cps_asec(  # pylint: disable=too-many-arguments,too-many-locals,too-many-statements
     *,
     year: int,
     geography: str | None = None,
@@ -1228,6 +1267,9 @@ def fetch_cps_asec(  # pylint: disable=too-many-arguments,too-many-locals
     income_cap: float = 150_000.0,
     child_age: int = 18,
     min_cell_records: int = PUMS_DEFAULT_MIN_CELL,
+    replicates: bool = False,
+    cache_dir: Any = None,
+    download_session: Any = None,
     session: requests.Session | None = None,
 ) -> tuple[pd.DataFrame, DataProvenance]:
     """Fetch CPS ASEC person records and return weighted cells, or raise.
@@ -1245,10 +1287,13 @@ def fetch_cps_asec(  # pylint: disable=too-many-arguments,too-many-locals
     adjusted income, so tail bins keep their means) and ``n_records``; cells under
     ``min_cell_records`` are withheld and counted in ``frame.attrs`` and the notes.
 
-    The API serves no replicate weights, so no sampling error is computed here.
+    With ``replicates=True`` the Bureau's person replicate-weight file is fetched into a cache outside the
+    repository (:mod:`cps_repweights`; ``cache_dir`` overrides the default, ``download_session`` the downloader),
+    merged on the keys its SAS layout defines, and each cell also carries ``rep_001`` ... ``rep_160``. Without it
+    the API serves no replicate weights and no sampling error is computed here.
     """
     _cps_check_request(bin_width, income_floor, income_cap, min_cell_records)
-    requested = list(CPS_ASEC_VARIABLES)
+    requested = list(CPS_ASEC_VARIABLES) + (["PPPOS"] if replicates else [])
     endpoint = f"{CENSUS_HOST}/{year}/cps/asec/mar"
     api_key = load_key("CENSUS_API_KEY")
     http = session or requests
@@ -1258,13 +1303,24 @@ def fetch_cps_asec(  # pylint: disable=too-many-arguments,too-many-locals
         "key": api_key,
     }
     raw, payload = _pums_fetch_raw(http, endpoint, params, requested)
-    person = _cps_person_frame(raw)
+    person = _cps_person_frame(raw, extra=["PPPOS"] if replicates else ())
+    rep_weights, file_records = None, []
+    if replicates:
+        from . import cps_repweights  # pylint: disable=import-outside-toplevel
+
+        directory, file_records = cps_repweights.ensure_files(cache_dir=cache_dir, session=download_session)
+        rep_weights = _cps_attach_replicates(person, directory)
     out, floor_note = _cps_cells(
-        person, bin_width, income_floor, income_cap, min_cell_records, child_age
+        person, bin_width, income_floor, income_cap, min_cell_records, child_age, replicate_weights=rep_weights
     )
+    if replicates:
+        out.attrs["replicate_file_records"] = file_records
     notes = (
-        "CPS ASEC is a sample of person records; weighted cells estimate population "
-        "counts. The API serves no replicate weights, so sampling error is not computed here.",
+        ("CPS ASEC is a sample of person records; weighted cells estimate population counts. "
+         + ("Each cell also carries the sums of the Bureau's 160 replicate weights (ASEC successive-difference "
+            "replication), merged on H_SEQ/PH_SEQ and PPPOS from the SAS layout; files: "
+            + "; ".join(f"{r.endpoint.rsplit('/', 1)[-1]} {r.content_sha256}" for r in file_records) + "."
+            if replicates else "The API serves no replicate weights, so sampling error is not computed here.")),
         f"Household income (HTOTVAL) divided by the square root of household size, in "
         f"${bin_width:,.0f} bins labelled by lower edge; at or above ${income_cap:,.0f} one "
         f"bin, below ${income_floor:,.0f} one bin labelled {income_floor - bin_width:,.0f}.",

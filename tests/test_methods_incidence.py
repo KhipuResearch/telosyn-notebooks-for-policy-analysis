@@ -115,3 +115,33 @@ def test_rejects_duplicate_bins_and_bad_arguments() -> None:
         incidence.bin_group_fractions(
             pd.DataFrame({"bin": [0], "weight": [1.0]}), width=10.0, groups=1
         )
+
+
+# --- replicate-weight variance (Census ASEC usage instructions, formula 1) ----------------------------
+def test_replicate_variance_with_symmetric_deviations_by_hand() -> None:
+    """160 replicates at theta0 +/- 1: sum of squared deviations 160; factor 4/160 gives 4, so the SE is 2."""
+    reps = 10.0 + np.array([1.0] * 80 + [-1.0] * 80)
+    assert incidence.replicate_variance(10.0, reps) == pytest.approx(4.0)
+    assert incidence.replicate_se(10.0, reps) == pytest.approx(2.0)
+
+
+def test_replicate_variance_with_growing_deviations_by_hand() -> None:
+    """Deviations 1..160: sum of squares 160 * 161 * 321 / 6 = 1,378,160; times 4/160 = 34,454."""
+    reps = 3.0 + np.arange(1.0, 161.0)
+    assert incidence.replicate_variance(3.0, reps) == pytest.approx(34_454.0)
+
+
+def test_replicate_variance_is_about_theta0_not_the_replicate_mean() -> None:
+    reps = np.full(160, 5.0)
+    assert incidence.replicate_variance(4.0, reps) == pytest.approx(4.0 / 160 * 160 * 1.0)
+
+
+def test_replicate_variance_refuses_the_wrong_number_of_replicates() -> None:
+    with pytest.raises(ValueError, match="160"):
+        incidence.replicate_variance(0.0, np.zeros(159))
+
+
+def test_replicate_interval_is_the_normal_interval_on_that_se() -> None:
+    reps = 10.0 + np.array([1.0] * 80 + [-1.0] * 80)
+    lo, hi = incidence.replicate_interval(10.0, reps)
+    assert (lo, hi) == pytest.approx((10.0 - 1.959963984540054 * 2.0, 10.0 + 1.959963984540054 * 2.0))

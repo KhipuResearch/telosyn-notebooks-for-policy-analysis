@@ -74,6 +74,7 @@ def render() -> str:
         committed = [f for f in files if not (REPO_ROOT / ".gitignore").exists() or True]
         out.append(f"| `{folder}/` ({len(files)} file{'s' if len(files) != 1 else ''}) | [`{folder}/SOURCES.md`]({folder}/SOURCES.md) | "
                    + ("published workbook; the publisher's bot protection refuses scripted clients, so it was downloaded by the owner and is committed" if "cbo" in str(folder) else
+                      "downloaded by the fetcher into a cache outside the repository and checked against a pinned digest; never committed" if folder.name == "cps" else
                       "published schedule; the API does not serve it" if "hud" in str(folder) else
                       "policy table built by a committed script from the publisher's page; "
                       "the original's digest is in SOURCES.md" if "policy" in folder.parts else

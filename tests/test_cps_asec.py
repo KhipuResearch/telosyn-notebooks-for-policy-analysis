@@ -288,3 +288,137 @@ def test_the_income_band_margin_carries_a_numeric_lower_edge_for_matching_to_bin
     assert set(shown["band_lower"]) <= {0.0, 25_000.0}
     assert shown["n_records"].sum() + band[band["income_band"].astype(str).str.startswith("pooled")]["n_records"].sum() == 12 + 5
     assert band[band["income_band"].astype(str).str.startswith("pooled")]["band_lower"].isna().all()
+
+
+# --- replicate weights (owner approval 2026-10-28) -------------------------------------------------
+import hashlib as _hashlib                                       # noqa: E402
+from pathlib import Path as _Path                               # noqa: E402
+
+from krl_tutorials_data import cps_repweights as _rw           # noqa: E402
+from test_cps_repweights import dat_bytes, sas_text, zipped   # noqa: E402
+
+REP_HEADER = [*HEADER, "PPPOS"]
+
+
+def _rep_rows() -> list[list[Any]]:
+    """The base fixture with a PPPOS column: persons in a household get 41, 42, ... in order."""
+    out: list[list[Any]] = [REP_HEADER]
+    seen: dict[str, int] = {}
+    for r in _rows()[1:]:
+        k = seen.get(r[0], 0)
+        seen[r[0]] = k + 1
+        out.append([*r, str(41 + k)])
+    return out
+
+
+def _rep_cache(tmp_path: _Path, rows: list[list[Any]], *, offset: float = 0.01, main_shift: float = 0.0, drop: int | None = None) -> _Path:
+    """Files for the fixture: replicate r of a record is its weight + offset * r; PWWGT0 is the weight (+ main_shift)."""
+    body = rows[1:]
+    recs = []
+    for i, r in enumerate(body):
+        if drop is not None and i == drop:
+            continue
+        w = float(r[7])
+        recs.append(([w + main_shift, *[w + offset * k for k in range(1, 161)]], int(r[0]), int(r[8])))
+    sums = [sum(rc[0][k] for rc in recs) for k in range(161)]
+    cache = tmp_path / "cache"
+    cache.mkdir()
+    files = {"CPS_ASEC_ASCII_REPWGT_2024.SAS": sas_text(161, sums).encode(),
+             "CPS_ASEC_ASCII_REPWGT_2024.ZIP": zipped(dat_bytes(recs)),
+             "2024_ASEC_Replicate_Weight_Usage_Instructions.docx": b"docx"}
+    for n, b in files.items():
+        (cache / n).write_bytes(b)
+    table = {n: _rw.PinnedFile(len(b), _hashlib.sha256(b).hexdigest()) for n, b in files.items()}
+    _rw.PINNED.clear()
+    _rw.PINNED.update(table)
+    return cache
+
+
+@pytest.fixture(autouse=False)
+def _restore_pins():
+    saved = dict(_rw.PINNED)
+    yield
+    _rw.PINNED.clear()
+    _rw.PINNED.update(saved)
+
+
+def test_replicate_totals_by_cell_are_plain_sums_of_the_replicate_weights(tmp_path: _Path, _restore_pins) -> None:
+    rows = _rep_rows()
+    cache = _rep_cache(tmp_path, rows)
+    (frame, prov), _ = _fetch(rows, bin_width=1000.0, replicates=True, cache_dir=cache)
+    reps = [c for c in frame.columns if c.startswith("rep_")]
+    assert reps == [f"rep_{k:03d}" for k in range(1, 161)]
+    adult = _cell(frame, income_bin=40000.0, race="White alone", ref_age="35-64", child=0)
+    assert adult.weighted_n == 100.0 and adult.n_records == 10
+    assert adult["rep_001"] == pytest.approx(100.0 + 0.01 * 1 * 10)
+    assert adult["rep_160"] == pytest.approx(100.0 + 0.01 * 160 * 10)
+    hisp = _cell(frame, income_bin=12000.0, race="Hispanic", ref_age="65 and over", child=0)
+    assert hisp["rep_010"] == pytest.approx(150.0 + 0.01 * 10 * 5)
+
+
+def test_no_person_key_or_row_is_returned_and_the_files_are_recorded(tmp_path: _Path, _restore_pins) -> None:
+    rows = _rep_rows()
+    cache = _rep_cache(tmp_path, rows)
+    (frame, prov), _ = _fetch(rows, replicates=True, cache_dir=cache)
+    assert not {"PH_SEQ", "PPPOS", "H_SEQ", "MARSUPWT"} & set(frame.columns)
+    files = frame.attrs["replicate_file_records"]
+    assert sorted(r.endpoint.rsplit("/", 1)[-1] for r in files) == sorted(_rw.PINNED)
+    text = " ".join(prov.notes)
+    assert "replicate weights" in text and all(r.content_sha256[:12] in text for r in files)
+
+
+def test_the_floor_is_decided_on_the_main_weight_records_and_withheld_cells_have_no_replicate_rows(tmp_path: _Path, _restore_pins) -> None:
+    rows = _rep_rows()
+    cache = _rep_cache(tmp_path, rows)
+    (with_rep, _), _ = _fetch(rows, min_cell_records=10, replicates=True, cache_dir=cache)
+    (plain, _), _ = _fetch([r[:8] for r in rows], min_cell_records=10)
+    key = ["income_bin", "race", "ref_age", "child"]
+    assert with_rep[key].equals(plain[key])
+    assert with_rep.attrs["suppressed_cells"] == plain.attrs["suppressed_cells"]
+    assert with_rep.attrs["suppressed_weighted_n"] == plain.attrs["suppressed_weighted_n"]
+
+
+def test_every_person_must_match_exactly_one_replicate_row(tmp_path: _Path, _restore_pins) -> None:
+    rows = _rep_rows()
+    cache = _rep_cache(tmp_path, rows, drop=3)
+    with pytest.raises(SchemaError, match="match"):
+        _fetch(rows, replicates=True, cache_dir=cache)
+
+
+def test_duplicate_person_keys_on_the_api_side_stop_the_run(tmp_path: _Path, _restore_pins) -> None:
+    rows = _rep_rows()
+    rows.append(list(rows[1]))                                 # the same PH_SEQ and PPPOS again
+    cache = _rep_cache(tmp_path, _rep_rows())
+    with pytest.raises(SchemaError, match="unique"):
+        _fetch(rows, replicates=True, cache_dir=cache)
+
+
+def test_the_full_sample_weight_in_the_replicate_file_must_equal_the_api_weight(tmp_path: _Path, _restore_pins) -> None:
+    rows = _rep_rows()
+    cache = _rep_cache(tmp_path, rows, main_shift=0.5)
+    with pytest.raises(RangeError, match="MARSUPWT"):
+        _fetch(rows, replicates=True, cache_dir=cache)
+
+
+def test_a_layout_without_160_replicates_is_refused(tmp_path: _Path, _restore_pins) -> None:
+    rows = _rep_rows()
+    cache = _rep_cache(tmp_path, rows)
+    sas = cache / "CPS_ASEC_ASCII_REPWGT_2024.SAS"
+    bad = sas_text(10, [0.0] * 10).encode()
+    sas.write_bytes(bad)
+    _rw.PINNED["CPS_ASEC_ASCII_REPWGT_2024.SAS"] = _rw.PinnedFile(len(bad), _hashlib.sha256(bad).hexdigest())
+    with pytest.raises(SchemaError, match="160"):
+        _fetch(rows, replicates=True, cache_dir=cache)
+
+
+def test_without_replicates_the_request_does_not_ask_for_pppos_and_there_are_no_replicate_columns() -> None:
+    (frame, _), session = _fetch()
+    assert "PPPOS" not in session.calls[0]["params"]["get"]
+    assert not [c for c in frame.columns if c.startswith("rep_")]
+
+
+def test_with_replicates_the_request_asks_for_pppos(tmp_path: _Path, _restore_pins) -> None:
+    rows = _rep_rows()
+    cache = _rep_cache(tmp_path, rows)
+    (_, _), session = _fetch(rows, replicates=True, cache_dir=cache)
+    assert session.calls[0]["params"]["get"].split(",")[-1] == "PPPOS"

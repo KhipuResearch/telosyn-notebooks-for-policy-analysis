@@ -8,10 +8,10 @@ Estimand
 Assumptions
     The variable is known only to its bin, so people inside a bin are taken to be spread
     **uniformly across it**; the bin that holds each group boundary is reported so the reader
-    can see how much population that assumption governs. The interval is a **lower bound**:
-    it treats the sample as a simple random sample whose weights only change the effective
-    sample size (Kish), and it ignores clustering and stratification, which can only widen the
-    true interval. It is not a substitute for replicate weights and is never called one.
+    can see how much population that assumption governs. The Kish interval **likely understates**
+    the uncertainty and is not a guaranteed bound: it treats the sample as a simple random sample
+    whose weights only change the effective sample size, and ignores clustering (which widens it) and
+    stratification (which narrows it). It is not a substitute for replicate weights and is never called one.
 
 Estimators
     ``n_eff = (sum w)^2 / sum w^2``; ``se = sqrt(p (1 - p) / n_eff)`` for a weighted share
@@ -45,6 +45,35 @@ class ShareResult:
     low: float
     high: float
     n_effective: float
+
+
+#: ASEC successive-difference replication: 160 replicates and the factor 4/160 (Census Bureau, "Estimating ASEC
+#: Variances with Replicate Weights", formula 1: var(theta_0) = (4 / 160) * sum_{i=1..160} (theta_i - theta_0)^2).
+ASEC_REPLICATES: Final[int] = 160
+ASEC_FACTOR: Final[float] = 4.0 / ASEC_REPLICATES
+
+
+def replicate_variance(estimate: float, replicates: "np.ndarray | list[float]") -> float:
+    """Variance of ``estimate`` from its 160 replicate estimates: (4/160) * sum (replicate - estimate)^2.
+
+    The deviations are taken about the full-sample estimate, not the replicate mean, as the Bureau's
+    formula has it. Raises unless exactly 160 replicates are given.
+    """
+    reps = np.asarray(replicates, dtype=float)
+    if reps.shape != (ASEC_REPLICATES,):
+        raise ValueError(f"the ASEC formula needs exactly {ASEC_REPLICATES} replicate estimates; got {reps.shape}.")
+    return float(ASEC_FACTOR * np.sum((reps - estimate) ** 2))
+
+
+def replicate_se(estimate: float, replicates: "np.ndarray | list[float]") -> float:
+    """Standard error: the square root of :func:`replicate_variance`."""
+    return float(np.sqrt(replicate_variance(estimate, replicates)))
+
+
+def replicate_interval(estimate: float, replicates: "np.ndarray | list[float]") -> tuple[float, float]:
+    """95% interval ``estimate +/- 1.96 * SE`` (normal; the instructions give no degrees of freedom)."""
+    se = replicate_se(estimate, replicates)
+    return estimate - Z95 * se, estimate + Z95 * se
 
 
 def kish_effective_n(*, sum_w: float, sum_w2: float) -> float:

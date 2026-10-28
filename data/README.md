@@ -166,7 +166,8 @@ A digest only identifies content if the publisher serialises stably. Four of the
 
 | File | Source | Why local |
 |---|---|---|
-| `data/cbo/` (0 files) | [`data/cbo/SOURCES.md`](data/cbo/SOURCES.md) | bulk download; files are not committed, see Restrictions |
+| `data/cbo/` (1 file) | [`data/cbo/SOURCES.md`](data/cbo/SOURCES.md) | published workbook; the publisher's bot protection refuses scripted clients, so it was downloaded by the owner and is committed |
+| `data/cps/` (0 files) | [`data/cps/SOURCES.md`](data/cps/SOURCES.md) | downloaded by the fetcher into a cache outside the repository and checked against a pinned digest; never committed |
 | `data/hud/chas/` (2 files) | [`data/hud/chas/SOURCES.md`](data/hud/chas/SOURCES.md) | published schedule; the API does not serve it |
 | `data/hud/fmr/` (4 files) | [`data/hud/fmr/SOURCES.md`](data/hud/fmr/SOURCES.md) | published schedule; the API does not serve it |
 | `data/policy/medicaid/` (4 files) | [`data/policy/medicaid/SOURCES.md`](data/policy/medicaid/SOURCES.md) | policy table built by a committed script from the publisher's page; the original's digest is in SOURCES.md |

@@ -297,11 +297,13 @@ def frame_from_bulk_file(
         vintage=str(source.vintage),
         endpoint=f"file://{_located}",
         variables=dict(expected_columns or {}),
-        payload=digest.encode("ascii"),
+        payload=b"",
         row_count=len(frame),
         column_count=len(frame.columns),
         notes=tuple(notes),
     )
+    # the file's own SHA-256, not the hash of its hex string (an earlier version hashed the digest text)
+    object.__setattr__(prov, "content_sha256", digest)
     if mode is not DataMode.EMPIRICAL:
         object.__setattr__(prov, "mode", mode)
     return frame, prov

@@ -34,3 +34,12 @@ def test_a_file_outside_the_repository_keeps_its_absolute_path(tmp_path: Path) -
     file.write_text("a\n1\n", encoding="utf-8")
     _, prov = frame_from_bulk_file(_source(file), lambda p: pd.read_csv(p))
     assert prov.endpoint == f"file://{file.resolve()}"
+
+
+def test_the_recorded_digest_is_the_digest_of_the_file_bytes(tmp_path: Path) -> None:
+    import hashlib
+    file = tmp_path / "x.csv"
+    file.write_bytes(b"a,b\n1,2\n")
+    _, prov = frame_from_bulk_file(_source(file), lambda p: pd.read_csv(p))
+    assert prov.content_sha256 == hashlib.sha256(b"a,b\n1,2\n").hexdigest()
+    assert prov.hash_basis == "response-bytes"

@@ -227,3 +227,52 @@ def test_bad_binning_arguments_raise() -> None:
         _fetch(bin_width=0.0)
     with pytest.raises(ValueError):
         _fetch(income_cap=-1.0, income_floor=0.0)
+
+
+# --- review 3: weight conservation and where the withheld weight sits ------------------------------
+def test_kept_plus_withheld_weight_equals_the_raw_weight_and_the_client_reports_it() -> None:
+    rows = _rows() + _hh(99, [(2, 50, 4, 2, 7)], 20_000, 7)
+    (frame, _), _ = _fetch(rows)
+    raw = float(sum(int(r[7]) for r in rows[1:]))
+    assert frame.attrs["raw_weight_total"] == raw
+    assert frame["weighted_n"].sum() + frame.attrs["suppressed_weighted_n"] == pytest.approx(raw)
+
+
+def test_the_client_raises_if_cells_do_not_add_back_to_the_raw_weight(monkeypatch: pytest.MonkeyPatch) -> None:
+    real = sources._pums_apply_floor
+
+    def lossy(cells, keys, floor, read, kept):
+        out, note = real(cells, keys, floor, read, kept)
+        out.loc[out.index[0], "weighted_n"] -= 1.0          # drop a weight on the way out
+        return out, note
+
+    monkeypatch.setattr(sources, "_pums_apply_floor", lossy)
+    with pytest.raises(RangeError, match="add back"):
+        _fetch()
+
+
+def test_withheld_weight_is_reported_by_margin_with_a_floor_on_the_margins() -> None:
+    rows = _rows() + _hh(99, [(2, 50, 4, 2, 7)], 20_000, 7)
+    (frame, _), _ = _fetch(rows)
+    m = frame.attrs["withheld_margins"]
+    assert set(m) == {"child", "race", "ref_age", "income_band"}
+    # one withheld record: every margin group has fewer records than the floor, so each is pooled into one row
+    for name, table in m.items():
+        assert table["weighted_n"].sum() == 7.0 and table["n_records"].sum() == 1, name
+        if name != "child":
+            assert len(table) == 1 and str(table.iloc[0][table.columns[0]]).startswith("pooled"), name
+    assert m["child"]["weighted_n"].sum() == 7.0
+
+
+def test_a_margin_with_enough_records_is_shown_by_its_group_and_a_thin_one_is_pooled() -> None:
+    rows = _rows()
+    for k in range(12):                                      # 12 Asian single adults, each in its own income bin: 12 withheld cells
+        rows += _hh(200 + k, [(2, 50, 4, 2, 5)], 3_000 + 3_000 * k, 5)
+    rows += _hh(300, [(2, 50, 2, 2, 3)], 90_000, 3)           # one Black adult: a thin margin
+    (frame, _), _ = _fetch(rows, min_cell_records=10)
+    race = frame.attrs["withheld_margins"]["race"]
+    asian = race[race["race"] == "Asian alone"]
+    assert asian["n_records"].sum() == 12 and asian["weighted_n"].sum() == 60.0
+    pooled = race[race["race"].astype(str).str.startswith("pooled")]
+    assert pooled["weighted_n"].sum() == 153.0 and pooled["n_records"].sum() == 6   # 5 Hispanic (150) and 1 Black (3)
+    assert frame.attrs["withheld_margins"]["child"]["weighted_n"].sum() == frame.attrs["suppressed_weighted_n"]

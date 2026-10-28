@@ -54,11 +54,13 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import os
 import re
 import subprocess
 import sys
+import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -281,6 +283,37 @@ def _apply_allowlist(
 
 
 # -------------------------------------------------------------------------- git
+ARCHIVE_SUFFIXES = (".xlsx", ".docx", ".pptx", ".xlsm", ".zip")
+
+
+def _git_bytes(root: Path, *args: str) -> bytes:
+    try:
+        done = subprocess.run(["git", "-C", str(root), *args], capture_output=True, check=False)
+    except OSError as exc:
+        raise SurfaceError(f"git could not be run: {exc.strerror}") from None
+    return done.stdout if done.returncode == 0 else b""
+
+
+def archive_hits(name: str, data: bytes, deny: Denylist | None) -> dict[str, list[tuple[str, int, str]]]:
+    """Content-rule hits in the text parts of a zip-based file (a workbook, document or archive).
+
+    Each text member (XML, text, CSV, JSON) is scanned as ``<file>!<member>``; a member that is not valid
+    text, or an archive that will not open, is skipped here and left to the path and size rules.
+    """
+    out: dict[str, list[tuple[str, int, str]]] = {}
+    try:
+        with zipfile.ZipFile(io.BytesIO(data)) as z:
+            for member in z.namelist():
+                if not member.lower().endswith((".xml", ".txt", ".csv", ".json", ".rels", ".md")):
+                    continue
+                hits = scan_text(f"{name}!{member}", z.read(member).decode("utf-8", "replace"), deny)
+                if hits:
+                    out[f"{name}!{member}"] = hits
+    except (zipfile.BadZipFile, OSError):
+        return {}
+    return out
+
+
 def _git(root: Path, *args: str, check: bool = True) -> str:
     try:
         done = subprocess.run(
@@ -395,6 +428,10 @@ def check_range(root: Path, base: str, deny: Denylist | None, allow: Allowlist) 
     ]
     findings += _path_findings(names)
     findings += _header_findings(root, added, "HEAD")
+    for name in names:
+        if name.lower().endswith(ARCHIVE_SUFFIXES):
+            for member, hits in archive_hits(name, _git_bytes(root, "show", f"HEAD:{name}"), deny).items():
+                findings += _apply_allowlist(member, hits, allow, set())
     log = _git(root, "log", "--format=%H%x00%ae%x00%B%x01", span)
     for record in (r.strip("\n") for r in log.split("\x01")):
         if not record:
@@ -427,6 +464,10 @@ def check_staged(root: Path, deny: Denylist | None, allow: Allowlist) -> list[Fi
     ]
     findings += _path_findings(names)
     findings += _header_findings(root, added, "")
+    for name in names:
+        if name.lower().endswith(ARCHIVE_SUFFIXES):
+            for member, hits in archive_hits(name, _git_bytes(root, "show", f":{name}"), deny).items():
+                findings += _apply_allowlist(member, hits, allow, set())
     return findings
 
 
@@ -448,6 +489,9 @@ def tree_hits(root: Path, deny: Denylist | None) -> dict[str, list[tuple[str, in
         if not file.is_file():
             continue
         data = file.read_bytes()
+        if name.lower().endswith(ARCHIVE_SUFFIXES):
+            out.update(archive_hits(name, data, deny))
+            continue
         if b"\x00" in data[:8000]:
             continue
         hits = scan_text(name, data.decode("utf-8", "replace"), deny)

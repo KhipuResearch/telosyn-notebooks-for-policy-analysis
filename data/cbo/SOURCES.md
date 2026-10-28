@@ -20,8 +20,8 @@ publication page as "Supplemental Data", 263,423 bytes.
 
 ## How it was obtained
 
-By the owner, in a browser, on 2026-10-27, and placed at `~/Downloads/62761-supp-data.xlsx`; the
-byte count was checked against the size the publisher's server reports for that URL. A scripted
+By the owner, in a browser, on 2026-10-27; the byte count was checked against the size the publisher's server
+reports for that URL. A scripted
 client gets HTTP 403 from the publisher's bot protection (DataDome), including `curl` with this
 repository's neutral User-Agent, so there is no fetcher for it and none will disguise itself to
 get past that. Load the file through `connectors.BulkFileSource` and `frame_from_bulk_file`, which

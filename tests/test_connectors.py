@@ -152,7 +152,7 @@ def test_frame_and_provenance_from_a_loader(csv: Path):
         expected_columns={"Value": "Zillow Home Value Index, USD"},
     )
     assert len(frame) == 1
-    assert prov.content_sha256 == hashlib.sha256(_sha(csv).encode()).hexdigest()
+    assert prov.content_sha256 == _sha(csv)   # the file's own digest (an earlier version hashed the digest text)
     assert prov.vintage == "2026-08 release"
     assert prov.mode is DataMode.EMPIRICAL
     assert prov.variables == {"Value": "Zillow Home Value Index, USD"}

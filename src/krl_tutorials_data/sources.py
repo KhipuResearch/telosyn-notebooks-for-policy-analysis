@@ -1155,7 +1155,7 @@ def _cps_person_frame(raw: pd.DataFrame) -> pd.DataFrame:
 
 def _cps_cells(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     person: pd.DataFrame, bin_width: float, income_floor: float, income_cap: float,
-    min_cell_records: int, child_age: int,
+    min_cell_records: int, child_age: int, income_edges: Sequence[float] = (0.0, 25_000.0, 50_000.0, 100_000.0, 150_000.0),
 ) -> tuple[pd.DataFrame, str]:
     """The only reader of the CPS person frame: weighted cells, small cells withheld."""
     w = person[CPS_ASEC_WEIGHT]
@@ -1177,7 +1177,41 @@ def _cps_cells(  # pylint: disable=too-many-arguments,too-many-positional-argume
              weighted_income=("wx", "sum"), n_records=("w", "size"))
         .reset_index()
     )
-    return _pums_apply_floor(cells, CPS_CELL_KEYS, min_cell_records, len(person), len(person))
+    out, note = _pums_apply_floor(cells, CPS_CELL_KEYS, min_cell_records, len(person), len(person))
+    raw_total = float(w.sum())
+    withheld = cells[cells["n_records"] < min_cell_records]
+    if abs(float(out["weighted_n"].sum()) + float(withheld["weighted_n"].sum()) - raw_total) > 1e-6 * raw_total:
+        raise RangeError("the kept and withheld cells do not add back to the raw weight; nothing is returned.")
+    out.attrs["raw_weight_total"] = raw_total
+    out.attrs["withheld_margins"] = _cps_withheld_margins(withheld, min_cell_records, income_edges)
+    return out, note
+
+
+def _cps_withheld_margins(
+    withheld: pd.DataFrame, floor: int, income_edges: Sequence[float]
+) -> dict[str, pd.DataFrame]:
+    """Where the withheld weight sits, by margin: child, race, reference-person age, income band.
+
+    Aggregates only. Each margin is crossed with the child indicator; a margin group with fewer
+    than ``floor`` withheld records is pooled with the others like it into one row labelled
+    ``pooled (fewer than N records)``, so a margin never exposes a thin group.
+    """
+    edges = np.asarray([-np.inf, *income_edges, np.inf], dtype=float)
+    band = pd.Series(np.digitize(withheld["income_bin"].to_numpy(dtype=float), edges) - 1, index=withheld.index)
+    labels = [f"below {income_edges[0]:,.0f}", *[f"{lo:,.0f} to {hi:,.0f}" for lo, hi in zip(income_edges, income_edges[1:])],
+              f"{income_edges[-1]:,.0f} and above"]
+    w = withheld.assign(income_band=band.map(dict(enumerate(labels))))
+    margins: dict[str, pd.DataFrame] = {}
+    for name, keys in (("child", ["child"]), ("race", ["race", "child"]), ("ref_age", ["ref_age", "child"]),
+                       ("income_band", ["income_band", "child"])):
+        table = w.groupby(keys)[["weighted_n", "sum_w2", "n_records"]].sum().reset_index()
+        thin = table["n_records"] < floor
+        if name != "child" and thin.any():
+            pooled = table[thin].groupby("child")[["weighted_n", "sum_w2", "n_records"]].sum().reset_index()
+            pooled.insert(0, keys[0], f"pooled (fewer than {floor} records)")
+            table = pd.concat([table[~thin], pooled], ignore_index=True)
+        margins[name] = table
+    return margins
 
 
 def fetch_cps_asec(  # pylint: disable=too-many-arguments,too-many-locals

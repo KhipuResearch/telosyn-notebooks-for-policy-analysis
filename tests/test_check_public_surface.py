@@ -745,3 +745,38 @@ def test_names_that_only_contain_a_space_and_a_number_are_not_refused(repo: Repo
     repo.write(name, "x")
     repo.git("add", name)
     assert "sync-duplicate" not in _rules(cps.check_staged(repo.root, None, NO_ALLOW))
+
+
+# --- review 3: the text inside a workbook is scanned, not skipped -------------------------------
+def _workbook(path: Path, core_creator: str) -> None:
+    import zipfile
+    with zipfile.ZipFile(path, "w") as z:
+        z.writestr("docProps/core.xml", f"<cp:coreProperties><dc:creator>{core_creator}</dc:creator></cp:coreProperties>")
+        z.writestr("xl/sharedStrings.xml", "<sst><si><t>plain text</t></si></sst>")
+
+
+def test_a_denylisted_string_inside_a_committed_workbook_is_found_in_the_tree(repo: Repo) -> None:
+    (repo.root / "data").mkdir(exist_ok=True)
+    _workbook(repo.root / "data" / "t.xlsx", "zorblax author")
+    repo.git("add", "data/t.xlsx")
+    repo.git("commit", "-q", "-m", "workbook")
+    findings, _ = cps.check_tree(repo.root, _deny(), NO_ALLOW)
+    assert any(f.where.startswith("data/t.xlsx!docProps/core.xml") and f.rule == "apex" for f in findings), findings
+
+
+def test_a_clean_workbook_is_clean(repo: Repo) -> None:
+    (repo.root / "data").mkdir(exist_ok=True)
+    _workbook(repo.root / "data" / "ok.xlsx", "someone")
+    repo.git("add", "data/ok.xlsx")
+    repo.git("commit", "-q", "-m", "workbook")
+    findings, _ = cps.check_tree(repo.root, _deny(), NO_ALLOW)
+    assert not [f for f in findings if "ok.xlsx" in f.where]
+
+
+def test_a_workbook_added_in_a_range_and_one_staged_are_scanned_too(repo: Repo) -> None:
+    (repo.root / "data").mkdir(exist_ok=True)
+    _workbook(repo.root / "data" / "r.xlsx", "quuxcorp")
+    repo.git("add", "data/r.xlsx")
+    assert any(f.rule == "apex" and "r.xlsx!docProps/core.xml" in f.where for f in cps.check_staged(repo.root, _deny(), NO_ALLOW))
+    repo.git("commit", "-q", "-m", "workbook")
+    assert any(f.rule == "apex" and "r.xlsx!docProps/core.xml" in f.where for f in cps.check_range(repo.root, "origin/main", _deny(), NO_ALLOW))

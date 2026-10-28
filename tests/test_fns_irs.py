@@ -139,3 +139,27 @@ def test_fns_pdf_gives_up_after_the_last_attempt_and_does_not_retry_a_404(monkey
     with pytest.raises(UpstreamError, match="404"):
         sources.fetch_fns_pdf(path="ops/x.pdf", vintage="v", session=gone)
     assert gone.calls == 1
+
+
+class _Redirected(_Response):
+    """A response that arrived after following redirects, as requests reports it."""
+
+    def __init__(self, body: bytes, final: str, hops: list[str]) -> None:
+        super().__init__(body)
+        self.url = final
+        self.history = [type("H", (), {"url": u, "status_code": 302})() for u in hops]
+
+
+def test_fns_pdf_records_the_final_url_and_each_hop_after_cross_host_redirects() -> None:
+    final = "https://fna-example.z01.azurefd.us/sites/default/files/ops/x.pdf"
+    hops = ["https://www.fna.usda.gov/sites/default/files/ops/x.pdf"]
+    _, prov = sources.fetch_fns_pdf(path="ops/x.pdf", vintage="v", session=_Session(_Redirected(PDF, final, hops)))
+    assert prov.endpoint == "https://www.fna.usda.gov/sites/default/files/ops/x.pdf"
+    joined = " ".join(prov.notes)
+    assert f"Final URL after redirects: {final}" in joined
+    assert "Redirected from: " + hops[0] in joined
+
+
+def test_fns_pdf_without_a_redirect_says_so() -> None:
+    _, prov = sources.fetch_fns_pdf(path="ops/x.pdf", vintage="v", session=_Session(_Response(PDF)))
+    assert any("No redirect" in n for n in prov.notes)

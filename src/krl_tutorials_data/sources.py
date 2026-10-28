@@ -1392,6 +1392,13 @@ def fetch_fns_pdf(
         raise EmptyResultError("FNS returned an empty body.")
     if not resp.content.startswith(b"%PDF"):
         raise ResponseShapeError(f"The response for {url} is not a PDF.")
+    hops = [str(h.url) for h in getattr(resp, "history", [])]
+    final = str(getattr(resp, "url", url))
+    redirect_notes = (
+        (f"Redirected from: {' -> '.join(hops)}", f"Final URL after redirects: {final}")
+        if hops or final != url
+        else ("No redirect: the requested URL answered.",)
+    )
     prov = DataProvenance.build(
         source_name="U.S. Department of Agriculture, Food and Nutrition Service",
         dataset=path.rsplit("/", 1)[-1],
@@ -1404,6 +1411,7 @@ def fetch_fns_pdf(
         column_count=0,
         notes=(
             f"A PDF of {len(resp.content):,} bytes; its text is extracted and parsed by the notebook.",
+            *redirect_notes,
             "Not pinned: the publisher can replace a file in place; the payload hash is the vintage identifier.",
         ),
     )

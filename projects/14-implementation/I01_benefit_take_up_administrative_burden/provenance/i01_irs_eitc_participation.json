@@ -14,7 +14,7 @@
     "Tax year 2015": "percent of eligible taxpayers who received an EITC payment",
     "Tax year 2014": "percent of eligible taxpayers who received an EITC payment"
   },
-  "retrieved_utc": "2026-10-28T11:34:05+00:00",
+  "retrieved_utc": "2026-10-28T12:54:58+00:00",
   "row_count": 52,
   "column_count": 10,
   "content_sha256": "e23329d8a87000ef131631020aff017363f8daa243c1b33116dc40006de33b42",
@@ -28,6 +28,7 @@
   "request_params": {},
   "request_method": "GET",
   "pap_sha256": "07683027fa91f5525be1fe979fa71252f9d828fd9fd33176833d51b88798d206",
+  "pap_chain_sha256": "988f168966b527c2e237fb531379563c7b288e5339a7e24138925a8669494e57",
   "pap_amendments": [
     {
       "file": "I01_plan_amendment_1.md",
@@ -37,6 +38,5 @@
       "file": "I01_plan_amendment_2.md",
       "sha256": "bf50dc548aa11e734a5a504a7ec7f5a9335eceb180e60564042c5e757c5a7c2c"
     }
-  ],
-  "pap_chain_sha256": "988f168966b527c2e237fb531379563c7b288e5339a7e24138925a8669494e57"
+  ]
 }

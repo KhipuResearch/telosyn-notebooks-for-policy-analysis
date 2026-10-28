@@ -309,8 +309,8 @@ Every record carries `content_sha256`. `scripts/verify_provenance_reproducibilit
 | FRED series WYNA | 2010-01-01 to 2019-12-01, current revision | 2026-10-23T20:56:45 | `ebfa93be0a058558` | [`c04_fred_WYNA.json`](../projects/09-causal-identification/C04_ca_minimum_wage_synth/provenance/c04_fred_WYNA.json) |
 | FRED series WYUR | 2010-01-01 to 2019-12-01, current revision | 2026-10-23T20:56:39 | `c51307c3ae1c5f55` | [`c04_fred_WYUR.json`](../projects/09-causal-identification/C04_ca_minimum_wage_synth/provenance/c04_fred_WYUR.json) |
 | State FIPS codes, names and postal abbreviations | retrieval | 2026-10-23T20:52:04 | `bea4e03f71a1fa00` | [`c04_state_codes.json`](../projects/09-causal-identification/C04_ca_minimum_wage_synth/provenance/c04_state_codes.json) |
-| The Distribution of Household Income, 2023 - supplemental data (September 2026 report (publication 62761)) | September 2026 report (publication 62761) | 2026-10-27T20:33:56 | `d74a8e5fa7c5c771` | [`e03_cbo_average.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cbo_average.json) |
-| Current Population Survey Annual Social and Economic Supplement (cps/asec/mar) | 2024 | 2026-10-27T20:34:00 | `b2cd088ca3b5ed24` | [`e03_cps_asec_2024.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cps_asec_2024.json) |
+| The Distribution of Household Income, 2023 - supplemental data (September 2026 report (publication 62761)) | September 2026 report (publication 62761) | 2026-10-28T12:34:05 | `e91c2e8e5012628d` | [`e03_cbo_average.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cbo_average.json) |
+| Current Population Survey Annual Social and Economic Supplement (cps/asec/mar) | 2024 | 2026-10-28T12:34:10 | `b2cd088ca3b5ed24` | [`e03_cps_asec_2024.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cps_asec_2024.json) |
 
 ## Restrictions and privacy
 

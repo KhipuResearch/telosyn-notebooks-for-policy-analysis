@@ -276,3 +276,15 @@ def test_a_margin_with_enough_records_is_shown_by_its_group_and_a_thin_one_is_po
     pooled = race[race["race"].astype(str).str.startswith("pooled")]
     assert pooled["weighted_n"].sum() == 153.0 and pooled["n_records"].sum() == 6   # 5 Hispanic (150) and 1 Black (3)
     assert frame.attrs["withheld_margins"]["child"]["weighted_n"].sum() == frame.attrs["suppressed_weighted_n"]
+
+
+def test_the_income_band_margin_carries_a_numeric_lower_edge_for_matching_to_bins() -> None:
+    rows = _rows()
+    for k in range(12):
+        rows += _hh(200 + k, [(2, 50, 4, 2, 5)], 3_000 + 3_000 * k, 5)     # adjusted incomes 3,000 ... 36,000
+    (frame, _), _ = _fetch(rows, min_cell_records=10)
+    band = frame.attrs["withheld_margins"]["income_band"]
+    shown = band[~band["income_band"].astype(str).str.startswith("pooled")]
+    assert set(shown["band_lower"]) <= {0.0, 25_000.0}
+    assert shown["n_records"].sum() + band[band["income_band"].astype(str).str.startswith("pooled")]["n_records"].sum() == 12 + 5
+    assert band[band["income_band"].astype(str).str.startswith("pooled")]["band_lower"].isna().all()

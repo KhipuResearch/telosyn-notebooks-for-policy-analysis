@@ -1200,15 +1200,20 @@ def _cps_withheld_margins(
     band = pd.Series(np.digitize(withheld["income_bin"].to_numpy(dtype=float), edges) - 1, index=withheld.index)
     labels = [f"below {income_edges[0]:,.0f}", *[f"{lo:,.0f} to {hi:,.0f}" for lo, hi in zip(income_edges, income_edges[1:])],
               f"{income_edges[-1]:,.0f} and above"]
-    w = withheld.assign(income_band=band.map(dict(enumerate(labels))))
+    lowers = [-np.inf, *[float(e) for e in income_edges]]
+    w = withheld.assign(income_band=band.map(dict(enumerate(labels))), band_lower=band.map(dict(enumerate(lowers))))
     margins: dict[str, pd.DataFrame] = {}
     for name, keys in (("child", ["child"]), ("race", ["race", "child"]), ("ref_age", ["ref_age", "child"]),
                        ("income_band", ["income_band", "child"])):
         table = w.groupby(keys)[["weighted_n", "sum_w2", "n_records"]].sum().reset_index()
+        if name == "income_band":
+            table["band_lower"] = table["income_band"].map(dict(zip(labels, lowers)))
         thin = table["n_records"] < floor
         if name != "child" and thin.any():
             pooled = table[thin].groupby("child")[["weighted_n", "sum_w2", "n_records"]].sum().reset_index()
             pooled.insert(0, keys[0], f"pooled (fewer than {floor} records)")
+            if name == "income_band":
+                pooled["band_lower"] = np.nan
             table = pd.concat([table[~thin], pooled], ignore_index=True)
         margins[name] = table
     return margins

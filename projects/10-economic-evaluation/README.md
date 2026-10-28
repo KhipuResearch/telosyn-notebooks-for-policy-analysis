@@ -18,7 +18,7 @@ jupyter lab projects/10-economic-evaluation/
 | Notebook | Thesis | Sources |
 |---|---|---|
 | [Cost-Effectiveness](E01_cost_per_newly_insured/E01_cost_per_newly_insured.ipynb) | Spending and Coverage Gained in the 2014 Medicaid Expansion | American Community Survey Public Use Microdata Sample (acs/acs1/pums), State FIPS codes and names, CMS Medicaid CMS-64 … |
-| [Distributional Incidence](E03_distributional_incidence/E03_distributional_incidence.ipynb) | Who Pays Federal Taxes, Who Gets Transfers, and Who Would Get a Child Transfer | The Distribution of Household Income, 2023 - supplemental data (September 2026 report (publication 62761)), Current Population Survey Annual Social and Economic Supplement (cps/asec/mar) |
+| [Distributional Incidence](E03_distributional_incidence/E03_distributional_incidence.ipynb) | Who Pays Federal Taxes, Who Gets Transfers, and Who Would Get a Child Transfer | The Distribution of Household Income, 2023 - supplemental data (September 2026 report (publication 62761)), Current Population Survey Annual Social and Economic Supplement (cps/asec/mar), CPS ASEC 2024 replicate-weight download: 2024_ASEC_Replicate_Weight_Usage_Instructions.docx … |
 
 ## Cost-Effectiveness
 
@@ -55,8 +55,8 @@ jupyter lab projects/10-economic-evaluation/
 - Compute the incidence of a stylised transfer by income quintile, race and ethnicity, and the age of the household's reference person.
 - Report a survey share with the interval a simple random sample would give, and say why that interval likely understates the true uncertainty.
 
-**Sources** — The Distribution of Household Income, 2023 - supplemental data (September 2026 report (publication 62761)); Current Population Survey Annual Social and Economic Supplement (cps/asec/mar)  
-8 provenance records committed in `E03_distributional_incidence/provenance/`.
+**Sources** — The Distribution of Household Income, 2023 - supplemental data (September 2026 report (publication 62761)); Current Population Survey Annual Social and Economic Supplement (cps/asec/mar); CPS ASEC 2024 replicate-weight download: 2024_ASEC_Replicate_Weight_Usage_Instructions.docx; CPS ASEC 2024 replicate-weight download: CPS_ASEC_ASCII_REPWGT_2024.SAS; CPS ASEC 2024 replicate-weight download: CPS_ASEC_ASCII_REPWGT_2024.ZIP  
+11 provenance records committed in `E03_distributional_incidence/provenance/`.
 
 **Limitations**
 

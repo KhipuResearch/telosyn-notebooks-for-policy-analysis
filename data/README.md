@@ -14,7 +14,7 @@ This repository analyses public socioeconomic data published by U.S. federal age
 
 ## Source datasets
 
-132 datasets from 7 publishers, across 917 committed provenance records.
+135 datasets from 7 publishers, across 920 committed provenance records.
 
 | Publisher | Dataset | Vintages | Records | Hash basis |
 |---|---|---|---|---|
@@ -145,6 +145,9 @@ This repository analyses public socioeconomic data published by U.S. federal age
 | U.S. Census Bureau | American Community Survey (acs/acs5) | 2019, 2023 | 15 | canonical-rows |
 | U.S. Census Bureau | American Community Survey (acs/acs5/profile) | 2023 | 1 | canonical-rows |
 | U.S. Census Bureau | American Community Survey Public Use Microdata Sample (acs/acs1/pums) | 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2023 | 726 | canonical-rows |
+| U.S. Census Bureau | CPS ASEC 2024 replicate-weight download: 2024_ASEC_Replicate_Weight_Usage_Instructions.docx | 2024 ASEC (income year 2023) | 1 | response-bytes |
+| U.S. Census Bureau | CPS ASEC 2024 replicate-weight download: CPS_ASEC_ASCII_REPWGT_2024.SAS | 2024 ASEC (income year 2023) | 1 | response-bytes |
+| U.S. Census Bureau | CPS ASEC 2024 replicate-weight download: CPS_ASEC_ASCII_REPWGT_2024.ZIP | 2024 ASEC (income year 2023) | 1 | response-bytes |
 | U.S. Census Bureau | County Business Patterns 2022 | 2022 | 4 | canonical-rows |
 | U.S. Census Bureau | Current Population Survey Annual Social and Economic Supplement (cps/asec/mar) | 2024 | 2 | canonical-rows |
 | U.S. Census Bureau | State FIPS codes and names | retrieval | 3 | response-bytes |
@@ -310,8 +313,11 @@ Every record carries `content_sha256`. `scripts/verify_provenance_reproducibilit
 | FRED series WYNA | 2010-01-01 to 2019-12-01, current revision | 2026-10-23T20:56:45 | `ebfa93be0a058558` | [`c04_fred_WYNA.json`](../projects/09-causal-identification/C04_ca_minimum_wage_synth/provenance/c04_fred_WYNA.json) |
 | FRED series WYUR | 2010-01-01 to 2019-12-01, current revision | 2026-10-23T20:56:39 | `c51307c3ae1c5f55` | [`c04_fred_WYUR.json`](../projects/09-causal-identification/C04_ca_minimum_wage_synth/provenance/c04_fred_WYUR.json) |
 | State FIPS codes, names and postal abbreviations | retrieval | 2026-10-23T20:52:04 | `bea4e03f71a1fa00` | [`c04_state_codes.json`](../projects/09-causal-identification/C04_ca_minimum_wage_synth/provenance/c04_state_codes.json) |
-| The Distribution of Household Income, 2023 - supplemental data (September 2026 report (publication 62761)) | September 2026 report (publication 62761) | 2026-10-28T12:34:05 | `e91c2e8e5012628d` | [`e03_cbo_average.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cbo_average.json) |
-| Current Population Survey Annual Social and Economic Supplement (cps/asec/mar) | 2024 | 2026-10-28T12:34:10 | `b2cd088ca3b5ed24` | [`e03_cps_asec_2024.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cps_asec_2024.json) |
+| The Distribution of Household Income, 2023 - supplemental data (September 2026 report (publication 62761)) | September 2026 report (publication 62761) | 2026-10-28T15:37:47 | `e91c2e8e5012628d` | [`e03_cbo_average.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cbo_average.json) |
+| Current Population Survey Annual Social and Economic Supplement (cps/asec/mar) | 2024 | 2026-10-28T15:37:54 | `0be783d98d76c554` | [`e03_cps_asec_2024.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cps_asec_2024.json) |
+| CPS ASEC 2024 replicate-weight download: 2024_ASEC_Replicate_Weight_Usage_Instructions.docx | 2024 ASEC (income year 2023) | 2026-10-28T15:37:51 | `a842240dc56e1bf7` | [`e03_cps_download_2024_asec_replicate_weight_usage_instructions_docx.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cps_download_2024_asec_replicate_weight_usage_instructions_docx.json) |
+| CPS ASEC 2024 replicate-weight download: CPS_ASEC_ASCII_REPWGT_2024.SAS | 2024 ASEC (income year 2023) | 2026-10-28T15:37:51 | `3e5d1de838701cdd` | [`e03_cps_download_cps_asec_ascii_repwgt_2024_sas.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cps_download_cps_asec_ascii_repwgt_2024_sas.json) |
+| CPS ASEC 2024 replicate-weight download: CPS_ASEC_ASCII_REPWGT_2024.ZIP | 2024 ASEC (income year 2023) | 2026-10-28T15:37:51 | `ddb5cbf3c0d4ff6c` | [`e03_cps_download_cps_asec_ascii_repwgt_2024_zip.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cps_download_cps_asec_ascii_repwgt_2024_zip.json) |
 
 ## Restrictions and privacy
 

@@ -13,13 +13,13 @@
     "H_NUMPER": "Number of persons in household",
     "MARSUPWT": "Weight, March supplement - Person"
   },
-  "retrieved_utc": "2026-10-28T12:34:10+00:00",
+  "retrieved_utc": "2026-10-28T15:37:54+00:00",
   "row_count": 144265,
-  "column_count": 8,
-  "content_sha256": "b2cd088ca3b5ed24a02ed7aa40a8782915896233543e888982caef71b377a727",
+  "column_count": 9,
+  "content_sha256": "0be783d98d76c554fb5e5941ffbeb58bab27c185ac6e7e5eff0ca741c3d3e6f6",
   "mode": "empirical",
   "notes": [
-    "CPS ASEC is a sample of person records; weighted cells estimate population counts. The API serves no replicate weights, so sampling error is not computed here.",
+    "CPS ASEC is a sample of person records; weighted cells estimate population counts. Each cell also carries the sums of the Bureau's 160 replicate weights (ASEC successive-difference replication), merged on H_SEQ/PH_SEQ and PPPOS from the SAS layout; files: 2024_ASEC_Replicate_Weight_Usage_Instructions.docx a842240dc56e1bf73d9fb0aac1d2578427af2d3e8338e410f79c1e4a730f36a8; CPS_ASEC_ASCII_REPWGT_2024.SAS 3e5d1de838701cdde10352abc382a846ed0086e25c914234850c7a95c2fb4856; CPS_ASEC_ASCII_REPWGT_2024.ZIP ddb5cbf3c0d4ff6c56e3928a3d7fb78f079ba4c7d0e52c709282294fe5e48ac3.",
     "Household income (HTOTVAL) divided by the square root of household size, in $2,500 bins labelled by lower edge; at or above $150,000 one bin, below $0 one bin labelled -2,500.",
     "Children are persons under 18; race is Hispanic of any race, else White, Black, Asian alone, else other non-Hispanic; age group is the household reference person's.",
     "Aggregated to 1242 cell(s) from 144265 person record(s); 444 cell(s) with fewer than 10 records were withheld (1909 record(s), weighted 4,531,099). No person-level row is returned."
@@ -27,7 +27,7 @@
   "pinned": true,
   "hash_basis": "canonical-rows",
   "request_params": {
-    "get": "PH_SEQ,A_EXPRRP,A_AGE,PRDTRACE,PEHSPNON,HTOTVAL,H_NUMPER,MARSUPWT",
+    "get": "PH_SEQ,A_EXPRRP,A_AGE,PRDTRACE,PEHSPNON,HTOTVAL,H_NUMPER,MARSUPWT,PPPOS",
     "key": "<redacted>"
   },
   "request_method": "GET",

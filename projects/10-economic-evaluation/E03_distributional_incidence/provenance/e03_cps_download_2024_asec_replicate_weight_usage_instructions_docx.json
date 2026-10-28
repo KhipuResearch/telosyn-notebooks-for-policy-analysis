@@ -1,0 +1,31 @@
+{
+  "source_name": "U.S. Census Bureau",
+  "dataset": "CPS ASEC 2024 replicate-weight download: 2024_ASEC_Replicate_Weight_Usage_Instructions.docx",
+  "vintage": "2024 ASEC (income year 2023)",
+  "endpoint": "https://www2.census.gov/programs-surveys/cps/datasets/2024/march/2024_ASEC_Replicate_Weight_Usage_Instructions.docx",
+  "variables": {},
+  "retrieved_utc": "2026-10-28T15:37:51+00:00",
+  "row_count": 0,
+  "column_count": 0,
+  "content_sha256": "a842240dc56e1bf73d9fb0aac1d2578427af2d3e8338e410f79c1e4a730f36a8",
+  "mode": "empirical",
+  "notes": [
+    "79,166 bytes; SHA-256 a842240dc56e1bf73d9fb0aac1d2578427af2d3e8338e410f79c1e4a730f36a8. Stored in a cache outside the repository and never committed; a file whose size or digest differs is refused."
+  ],
+  "pinned": true,
+  "hash_basis": "response-bytes",
+  "request_params": {},
+  "request_method": "GET",
+  "pap_sha256": "74d2a906ac0b5107064cc2f0aa17ed43a67701738d166997d7f6144b33fff15a",
+  "pap_chain_sha256": "d095a8c253c27ed169c59d982121e80fdf2f69a302526f26769ef636143c3e58",
+  "pap_amendments": [
+    {
+      "file": "E03_plan_amendment_1.md",
+      "sha256": "0a22788b520d3ba5d550de8fc066f4095d8758e09ca75830bcc6585162cf8f8d"
+    },
+    {
+      "file": "E03_plan_amendment_2.md",
+      "sha256": "c0847b6d350e18fbdc98eced46fc032c3f919a77e9717acfbb7f57baf47fbd32"
+    }
+  ]
+}

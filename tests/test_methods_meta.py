@@ -171,3 +171,23 @@ def test_prediction_interval_needs_three_studies() -> None:
     """Two studies leave no degrees of freedom for a new study's effect."""
     with pytest.raises(ValueError, match="three"):
         meta.prediction_interval(meta.pool([0.0, 1.0], [1.0, 1.0]))
+
+
+def test_prediction_interval_with_a_tabulated_t_quantile() -> None:
+    """Three studies give t(1) = 12.7062 at the 97.5th percentile (the Cauchy value tan(0.475 pi), a tabulated constant).
+
+    For y = (0, 2, 4) and unit variances: mean 2, tau^2 = 3, random-effects variance 4/3, so the half-width is
+    12.7062 * sqrt(3 + 4/3) = 12.7062 * 2.081666 = 26.4496 (the constants are written out, not computed here).
+    """
+    low, high = meta.prediction_interval(meta.pool(Y, SE))
+    assert (low, high) == pytest.approx((2.0 - 26.4496, 2.0 + 26.4496), abs=2e-3)
+
+
+def test_prediction_interval_for_five_studies_uses_t_with_three_degrees_of_freedom() -> None:
+    """t(3) at the 97.5th percentile is the tabulated 3.1824; with all variances 1 and equal estimates tau^2 = 0.
+
+    Five studies at 1.0 with unit variances: mean 1, SE^2 = 1/5, so the half-width is 3.1824 * sqrt(0.2) = 1.42327.
+    """
+    r = meta.pool([1.0] * 5, [1.0] * 5)
+    low, high = meta.prediction_interval(r)
+    assert (low, high) == pytest.approx((1.0 - 1.42327, 1.0 + 1.42327), abs=1e-4)

@@ -20,8 +20,9 @@ Estimators
     ``y/se`` on ``1/se`` and tests the intercept; it has low power with fewer
     than about ten studies and the notebook reports the count.
 
-References (recalled, not verified in this build): DerSimonian & Laird (1986)
-Controlled Clinical Trials 7(3); Egger et al. (1997) BMJ 315.
+References (author, year, venue and pages checked against the publishers' records on 2026-10-28):
+DerSimonian & Laird (1986) Controlled Clinical Trials 7(3):177-188; Egger, Davey Smith, Schneider &
+Minder (1997) BMJ 315:629-634; Higgins, Thompson & Spiegelhalter (2009) J R Stat Soc A 172(1):137-159.
 
 © 2026 Deloatch, Williams, Faison & Parker, LLLP. All rights reserved.
 Property of Deloatch, Williams, Faison & Parker, LLLP; exclusively licensed to Telosyn, Inc.
@@ -107,9 +108,14 @@ def prediction_interval(result: MetaResult, level: float = 0.95) -> tuple[float,
     """Interval for the effect in a *new* study under the random-effects model.
 
     ``mean +/- t(k - 2) * sqrt(tau^2 + SE^2)`` with ``k = result.n_studies`` studies
-    (Higgins, Thompson & Spiegelhalter 2009; recalled, not verified in this build).
+    (Higgins, Thompson & Spiegelhalter 2009, J R Stat Soc A 172(1):137-159; the t(k - 2) form was
+    checked against a published description of it, not against the paper's text).
     It is wider than the confidence interval for the mean whenever ``tau^2 > 0``.
     Needs at least three studies: with two there are no degrees of freedom.
+
+    It is approximate: it treats ``tau^2`` as known (it is the DerSimonian-Laird estimate), assumes the
+    studies are independent and the new study is exchangeable with them, and covers poorly when ``k`` is
+    small or the weights are unequal.
     """
     if not 0.0 < level < 1.0:
         raise ValueError(f"level must be strictly between 0 and 1, got {level!r}.")

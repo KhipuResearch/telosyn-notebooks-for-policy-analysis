@@ -385,6 +385,22 @@ def acs_period_note(dataset: str) -> str:
     return f"The estimation period of {dataset} is defined by the product, not by this record."
 
 
+def acs_moe_note(variables: Mapping[str, str]) -> str:
+    """Say whether margins of error were retrieved: they are when a margin-of-error variable (code ending in M) was requested."""
+    margins = sorted(code for code in variables if code.endswith("M"))
+    if margins:
+        return (
+            "ACS estimates are survey-based. Their margins of error were requested with the estimates "
+            f"({', '.join(margins)}) and are returned as columns; differences between geographies may not "
+            "be statistically distinguishable."
+        )
+    return (
+        "ACS estimates are survey-based and carry margins of error that are "
+        "not retrieved here; differences between geographies may not be "
+        "statistically distinguishable."
+    )
+
+
 def fetch_acs(
     *,
     year: int,
@@ -495,9 +511,7 @@ def fetch_acs(
         row_count=len(df),
         column_count=len(df.columns),
         notes=(
-            "ACS estimates are survey-based and carry margins of error that are "
-            "not retrieved here; differences between geographies may not be "
-            "statistically distinguishable.",
+            acs_moe_note(variables),
             "Jam values (suppressed / unavailable estimates) were converted to "
             f"missing. Sentinels recognised: {sorted(ACS_SENTINELS)}.",
             acs_period_note(dataset),
@@ -634,9 +648,7 @@ def fetch_acs_wide(
             f"is {CENSUS_GET_CEILING} names including NAME.",
             "Payload hash is over the concatenated per-batch payload digests in "
             "request order, not over a single response body.",
-            "ACS estimates are survey-based and carry margins of error that are "
-            "not retrieved here; differences between geographies may not be "
-            "statistically distinguishable.",
+            acs_moe_note(variables),
             "Jam values (suppressed / unavailable estimates) were converted to "
             f"missing. Sentinels recognised: {sorted(ACS_SENTINELS)}.",
             acs_period_note(dataset),

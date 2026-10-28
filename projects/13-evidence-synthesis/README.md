@@ -17,11 +17,11 @@ jupyter lab projects/13-evidence-synthesis/
 
 | Notebook | Thesis | Sources |
 |---|---|---|
-| [Internal Replication and Random-Effects Pooling](M01_state_replication_pooling/M01_state_replication_pooling.ipynb) | One Expansion State at a Time | American Community Survey (acs/acs1), KFF Medicaid expansion status |
+| [One Expansion State at a Time](M01_state_replication_pooling/M01_state_replication_pooling.ipynb) | A Decomposition of C01, Pooled by Random Effects | American Community Survey (acs/acs1), KFF Medicaid expansion status |
 
-## Internal Replication and Random-Effects Pooling
+## One Expansion State at a Time
 
-**One Expansion State at a Time.**
+**A Decomposition of C01, Pooled by Random Effects.**
 
 `M01_state_replication_pooling/M01_state_replication_pooling.ipynb`
 
@@ -37,9 +37,9 @@ jupyter lab projects/13-evidence-synthesis/
 
 **Limitations**
 
-- The state estimates are not independent. Every one is measured against the same ten never-expanded states, so a chance fluctuation in the control group moves all of them together. The pooling treats them as independent, so every pooled interval above is too narrow, and the prediction interval is too. This notebook does not say by how much.
-- Standard errors are sampling errors only. They come from the published margins of error and treat the years as independent samples. Differences between states that these errors do not explain are called between-state variance, τ², but they also include any year-level noise in the comparison that the margins of error do not capture.
-- Single-state estimates are noisy by design. Each compares one state with ten controls. The sampling-error intervals above are the honest range of each; the table's ordering is partly noise.
+- The state estimates are not independent, and the plan's intervals leave out the largest shared part. Every estimate is measured against the same ten never-expanded states. The plan's standard errors include only the sampling variance of the control mean; they omit the variation among the control states' own changes, whose mean is one common draw for all 25 estimates. The labelled sensitivity above sizes it from the ten control changes and adds it: the pooled interval then becomes borderline, as C01's is. That sensitivity is a plug-in from ten control states and is itself imprecise; it does not replace the plan's primary result, which stays printed.
+- Per-state intervals are sampling error in each state's own rates, not intervals for that state's effect. Each state is one treated unit compared with a shared control pool; the control pool's variance and trend noise (the placebo-timing contrast shows variation of that size arises with no expansion effect) are omitted. The counts of states whose intervals exclude zero are shown with and without the shared-control variance and are not a count of states with an effect.
+- Heterogeneity is not heterogeneity in the effect alone. The expansion states start from very different uninsured rates and are compared with controls that start higher; the labelled meta-regression shows how much of the spread in estimates follows each state's starting level. τ is therefore an upper bound on heterogeneity in treatment effects, not a measure of it, and the levels specification inherits the problem C01 handles with a log specification.
 
 ---
 

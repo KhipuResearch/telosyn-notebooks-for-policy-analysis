@@ -13,13 +13,13 @@
     "B27010_066E": "Estimate!!Total!!65 years and over!!No health insurance coverage",
     "B27010_066M": "Margin of Error!!Total!!65 years and over!!No health insurance coverage"
   },
-  "retrieved_utc": "2026-10-27T13:55:03+00:00",
+  "retrieved_utc": "2026-10-28T12:08:45+00:00",
   "row_count": 52,
   "column_count": 10,
   "content_sha256": "4f0329569e7ac04039e373be3b25be1408d58abaa6b1c475a7734c48bc15394e",
   "mode": "empirical",
   "notes": [
-    "ACS estimates are survey-based and carry margins of error that are not retrieved here; differences between geographies may not be statistically distinguishable.",
+    "ACS estimates are survey-based. Their margins of error were requested with the estimates (B27010_034M, B27010_050M, B27010_051M, B27010_066M) and are returned as columns; differences between geographies may not be statistically distinguishable.",
     "Jam values (suppressed / unavailable estimates) were converted to missing. Sentinels recognised: [-999999999, -888888888, -777777777, -666666666, -555555555, -333333333, -222222222, -111111111].",
     "1-year estimates describe a single calendar year of data collection."
   ],
@@ -32,6 +32,6 @@
   },
   "request_method": "GET",
   "pap_sha256": "c16fbbfe49a98d4f7bd5a4cde6da41c432a3d73e15a85d295b4d8722fb450b20",
-  "pap_amendments": [],
-  "pap_chain_sha256": "fbd51df58b896f27a87f8991d223164f7882eda5fbfbc3d9048193f0838c5a49"
+  "pap_chain_sha256": "fbd51df58b896f27a87f8991d223164f7882eda5fbfbc3d9048193f0838c5a49",
+  "pap_amendments": []
 }

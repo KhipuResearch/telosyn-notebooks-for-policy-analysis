@@ -14,7 +14,7 @@ This repository analyses public socioeconomic data published by U.S. federal age
 
 ## Source datasets
 
-135 datasets from 7 publishers, across 920 committed provenance records.
+144 datasets from 9 publishers, across 929 committed provenance records.
 
 | Publisher | Dataset | Vintages | Records | Hash basis |
 |---|---|---|---|---|
@@ -90,6 +90,7 @@ This repository analyses public socioeconomic data published by U.S. federal age
 | Federal Reserve Bank of St. Louis | FRED series WYLEIH | 2010-01-01 to 2019-12-01, current revision | 1 | response-bytes |
 | Federal Reserve Bank of St. Louis | FRED series WYNA | 2010-01-01 to 2019-12-01, current revision | 1 | response-bytes |
 | Federal Reserve Bank of St. Louis | FRED series WYUR | 2010-01-01 to 2019-12-01, current revision | 1 | response-bytes |
+| Internal Revenue Service | EITC participation rate by state | Tax year 2022; Tax year 2021; Tax year 2020; Tax year 2019; Tax year 2018; Tax year 2017; Tax year 2016; Tax year 2015; Tax year 2014 | 1 | canonical-json |
 | Opportunity Insights (Opportunity Atlas) | Opportunity Atlas outcomes, county level | children born 1978-1983, outcomes at age 35 | 1 | response-bytes |
 | U.S. Bureau of Labor Statistics | BLS timeseries API v2 | 2019 to 2024, 2024 to 2024 | 2 | canonical-stable-json |
 | U.S. Bureau of Labor Statistics | QCEW area 51013, 2022 Q1 | 2022Q1 | 1 | response-bytes |
@@ -152,6 +153,14 @@ This repository analyses public socioeconomic data published by U.S. federal age
 | U.S. Census Bureau | Current Population Survey Annual Social and Economic Supplement (cps/asec/mar) | 2024 | 2 | canonical-rows |
 | U.S. Census Bureau | State FIPS codes and names | retrieval | 3 | response-bytes |
 | U.S. Census Bureau | State FIPS codes, names and postal abbreviations | retrieval | 1 | response-bytes |
+| U.S. Department of Agriculture, Food and Nutrition Service | 12-State_Options.pdf | State Options Report, 12th edition | 1 | response-bytes |
+| U.S. Department of Agriculture, Food and Nutrition Service | 14-State-Options.pdf | State Options Report, 14th edition | 1 | response-bytes |
+| U.S. Department of Agriculture, Food and Nutrition Service | Reaching2016.pdf | fiscal year 2016 | 1 | response-bytes |
+| U.S. Department of Agriculture, Food and Nutrition Service | Reaching2017-1.pdf | fiscal year 2017 | 1 | response-bytes |
+| U.S. Department of Agriculture, Food and Nutrition Service | Reaching2018.pdf | fiscal year 2018 | 1 | response-bytes |
+| U.S. Department of Agriculture, Food and Nutrition Service | ear-snap-Reaching-Those-in-Need-2022.pdf | fiscal year 2022 | 1 | response-bytes |
+| U.S. Department of Agriculture, Food and Nutrition Service | snap-15th-state-options-report-october23.pdf | State Options Report, 15th edition | 1 | response-bytes |
+| U.S. Department of Agriculture, Food and Nutrition Service | snap-stateOptionsReport-17edition-120925.pdf | State Options Report, 17th edition | 1 | response-bytes |
 | Zillow Research | ZHVI, All Homes (SFR/Condo), smoothed & seasonally adjusted, county (2026-08 release (series through 2026-07)) | 2026-08 release (series through 2026-07) | 1 | response-bytes |
 
 ## Why `hash_basis` exists
@@ -318,6 +327,15 @@ Every record carries `content_sha256`. `scripts/verify_provenance_reproducibilit
 | CPS ASEC 2024 replicate-weight download: 2024_ASEC_Replicate_Weight_Usage_Instructions.docx | 2024 ASEC (income year 2023) | 2026-10-29T03:35:39 | `a842240dc56e1bf7` | [`e03_cps_download_2024_asec_replicate_weight_usage_instructions_docx.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cps_download_2024_asec_replicate_weight_usage_instructions_docx.json) |
 | CPS ASEC 2024 replicate-weight download: CPS_ASEC_ASCII_REPWGT_2024.SAS | 2024 ASEC (income year 2023) | 2026-10-29T03:35:39 | `3e5d1de838701cdd` | [`e03_cps_download_cps_asec_ascii_repwgt_2024_sas.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cps_download_cps_asec_ascii_repwgt_2024_sas.json) |
 | CPS ASEC 2024 replicate-weight download: CPS_ASEC_ASCII_REPWGT_2024.ZIP | 2024 ASEC (income year 2023) | 2026-10-29T03:35:39 | `ddb5cbf3c0d4ff6c` | [`e03_cps_download_cps_asec_ascii_repwgt_2024_zip.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cps_download_cps_asec_ascii_repwgt_2024_zip.json) |
+| snap-15th-state-options-report-october23.pdf | State Options Report, 15th edition | 2026-10-28T11:33:56 | `1202fcbc8d717aab` | [`i01_fns_options_15th.json`](../projects/14-implementation/I01_benefit_take_up_administrative_burden/provenance/i01_fns_options_15th.json) |
+| snap-stateOptionsReport-17edition-120925.pdf | State Options Report, 17th edition | 2026-10-28T11:33:58 | `c27018fd44ede95a` | [`i01_fns_options_17th.json`](../projects/14-implementation/I01_benefit_take_up_administrative_burden/provenance/i01_fns_options_17th.json) |
+| 12-State_Options.pdf | State Options Report, 12th edition | 2026-10-28T11:33:52 | `3fe71ad37b864658` | [`i01_fns_options_2016.json`](../projects/14-implementation/I01_benefit_take_up_administrative_burden/provenance/i01_fns_options_2016.json) |
+| 14-State-Options.pdf | State Options Report, 14th edition | 2026-10-28T11:33:54 | `31dc7ac217416a9f` | [`i01_fns_options_2018.json`](../projects/14-implementation/I01_benefit_take_up_administrative_burden/provenance/i01_fns_options_2018.json) |
+| Reaching2016.pdf | fiscal year 2016 | 2026-10-28T11:33:47 | `de54239d9c1a36e2` | [`i01_fns_reaching_2016.json`](../projects/14-implementation/I01_benefit_take_up_administrative_burden/provenance/i01_fns_reaching_2016.json) |
+| Reaching2017-1.pdf | fiscal year 2017 | 2026-10-28T11:33:48 | `c03ce0190e788e98` | [`i01_fns_reaching_2017.json`](../projects/14-implementation/I01_benefit_take_up_administrative_burden/provenance/i01_fns_reaching_2017.json) |
+| Reaching2018.pdf | fiscal year 2018 | 2026-10-28T11:33:49 | `b7b8f5e89898731a` | [`i01_fns_reaching_2018.json`](../projects/14-implementation/I01_benefit_take_up_administrative_burden/provenance/i01_fns_reaching_2018.json) |
+| ear-snap-Reaching-Those-in-Need-2022.pdf | fiscal year 2022 | 2026-10-28T11:33:50 | `2aec9d73abbd31d9` | [`i01_fns_reaching_2022.json`](../projects/14-implementation/I01_benefit_take_up_administrative_burden/provenance/i01_fns_reaching_2022.json) |
+| EITC participation rate by state | Tax year 2022; Tax year 2021; Tax year 2020; Tax year 2019; Tax year 2018; Tax year 2017; Tax year 2016; Tax year 2015; Tax year 2014 | 2026-10-28T11:34:05 | `e23329d8a87000ef` | [`i01_irs_eitc_participation.json`](../projects/14-implementation/I01_benefit_take_up_administrative_burden/provenance/i01_irs_eitc_participation.json) |
 
 ## Restrictions and privacy
 

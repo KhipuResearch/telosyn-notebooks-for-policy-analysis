@@ -54,5 +54,6 @@ Every notebook in the corpus, by project. Thesis is the notebook's own title.
 | 41 | [Economic Evaluation](../projects/10-economic-evaluation/README.md) | [Distributional Incidence](../projects/10-economic-evaluation/E03_distributional_incidence/E03_distributional_incidence.ipynb) | Who Pays Federal Taxes, Who Gets Transfers, and Who Would Get a Child Transfer |
 | 42 | [Distribution and Heterogeneity](../projects/11-distribution-heterogeneity/README.md) | [Subgroup Effects and Multiple Comparisons](../projects/11-distribution-heterogeneity/Q01_subgroup_effects_multiplicity/Q01_subgroup_effects_multiplicity.ipynb) | C01's Design Run Seven Times |
 | 43 | [Evidence Synthesis](../projects/13-evidence-synthesis/README.md) | [One Expansion State at a Time](../projects/13-evidence-synthesis/M01_state_replication_pooling/M01_state_replication_pooling.ipynb) | A Decomposition of C01, Pooled by Random Effects |
+| 44 | [Implementation and Take-up](../projects/14-implementation/README.md) | [Take-Up Gaps and Administrative Burden](../projects/14-implementation/I01_benefit_take_up_administrative_burden/I01_benefit_take_up_administrative_burden.ipynb) | SNAP and the EITC across the States |
 
-43 notebooks across 12 projects.
+44 notebooks across 13 projects.

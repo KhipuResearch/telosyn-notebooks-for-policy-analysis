@@ -1,0 +1,34 @@
+{
+  "source_name": "U.S. Department of Agriculture, Food and Nutrition Service",
+  "dataset": "14-State-Options.pdf",
+  "vintage": "State Options Report, 14th edition",
+  "endpoint": "https://www.fna.usda.gov/sites/default/files/snap/14-State-Options.pdf",
+  "variables": {},
+  "retrieved_utc": "2026-10-28T11:33:54+00:00",
+  "row_count": 0,
+  "column_count": 0,
+  "content_sha256": "31dc7ac217416a9fe62e78b6b44e5770d55e106cb65532eea399897dd2d18c79",
+  "mode": "empirical",
+  "notes": [
+    "A PDF of 6,879,323 bytes; its text is extracted and parsed by the notebook.",
+    "Redirected from: https://www.fna.usda.gov/sites/default/files/snap/14-State-Options.pdf",
+    "Final URL after redirects: https://fna-bwbufwdzbabpezgc.z01.azurefd.us/sites/default/files/snap/14-State-Options.pdf",
+    "Not pinned: the publisher can replace a file in place; the payload hash is the vintage identifier."
+  ],
+  "pinned": false,
+  "hash_basis": "response-bytes",
+  "request_params": {},
+  "request_method": "GET",
+  "pap_sha256": "07683027fa91f5525be1fe979fa71252f9d828fd9fd33176833d51b88798d206",
+  "pap_amendments": [
+    {
+      "file": "I01_plan_amendment_1.md",
+      "sha256": "558aa55fe126484bfcc770118bcb2725d2aa298fbdbde60d5678daa76054b51c"
+    },
+    {
+      "file": "I01_plan_amendment_2.md",
+      "sha256": "bf50dc548aa11e734a5a504a7ec7f5a9335eceb180e60564042c5e757c5a7c2c"
+    }
+  ],
+  "pap_chain_sha256": "988f168966b527c2e237fb531379563c7b288e5339a7e24138925a8669494e57"
+}

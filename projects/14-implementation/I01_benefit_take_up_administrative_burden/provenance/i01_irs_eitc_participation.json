@@ -1,0 +1,42 @@
+{
+  "source_name": "Internal Revenue Service",
+  "dataset": "EITC participation rate by state",
+  "vintage": "Tax year 2022; Tax year 2021; Tax year 2020; Tax year 2019; Tax year 2018; Tax year 2017; Tax year 2016; Tax year 2015; Tax year 2014",
+  "endpoint": "https://www.irs.gov/tax-professionals/eitc-central/eitc-participation-rate-by-state",
+  "variables": {
+    "Tax year 2022": "percent of eligible taxpayers who received an EITC payment",
+    "Tax year 2021": "percent of eligible taxpayers who received an EITC payment",
+    "Tax year 2020": "percent of eligible taxpayers who received an EITC payment",
+    "Tax year 2019": "percent of eligible taxpayers who received an EITC payment",
+    "Tax year 2018": "percent of eligible taxpayers who received an EITC payment",
+    "Tax year 2017": "percent of eligible taxpayers who received an EITC payment",
+    "Tax year 2016": "percent of eligible taxpayers who received an EITC payment",
+    "Tax year 2015": "percent of eligible taxpayers who received an EITC payment",
+    "Tax year 2014": "percent of eligible taxpayers who received an EITC payment"
+  },
+  "retrieved_utc": "2026-10-28T11:34:05+00:00",
+  "row_count": 52,
+  "column_count": 10,
+  "content_sha256": "e23329d8a87000ef131631020aff017363f8daa243c1b33116dc40006de33b42",
+  "mode": "empirical",
+  "notes": [
+    "An HTML table, not a file. The IRS describes the rate as the share of eligible taxpayers who received an EITC payment, estimated by the Census Bureau's Center for Economic Studies by linking ACS respondents to IRS records.",
+    "Not pinned: the page can be revised; the hash is over the table's text."
+  ],
+  "pinned": false,
+  "hash_basis": "canonical-json",
+  "request_params": {},
+  "request_method": "GET",
+  "pap_sha256": "07683027fa91f5525be1fe979fa71252f9d828fd9fd33176833d51b88798d206",
+  "pap_amendments": [
+    {
+      "file": "I01_plan_amendment_1.md",
+      "sha256": "558aa55fe126484bfcc770118bcb2725d2aa298fbdbde60d5678daa76054b51c"
+    },
+    {
+      "file": "I01_plan_amendment_2.md",
+      "sha256": "bf50dc548aa11e734a5a504a7ec7f5a9335eceb180e60564042c5e757c5a7c2c"
+    }
+  ],
+  "pap_chain_sha256": "988f168966b527c2e237fb531379563c7b288e5339a7e24138925a8669494e57"
+}

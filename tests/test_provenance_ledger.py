@@ -135,3 +135,17 @@ def test_write_adds_a_record_line_with_the_status_ok(ledger) -> None:
 def test_every_fetch_function_in_sources_is_ledgered() -> None:
     names = [n for n in dir(sources) if n.startswith("fetch_") and callable(getattr(sources, n))]
     assert names and all(getattr(getattr(sources, n), "__ledgered__", False) for n in names), names
+
+
+def test_every_live_line_carries_the_time_it_was_logged(ledger) -> None:
+    path, _ = ledger
+
+    @pv.ledgered
+    def fetch_a():
+        return None, _prov("a")
+
+    fetch_a()
+    pv.ledger_stop("stop")
+    _prov("b").write(path.parent / "r.json")
+    stamps = [x["logged_utc"] for x in lines(path)]
+    assert len(stamps) == 3 and stamps == sorted(stamps) and all(s.endswith("+00:00") for s in stamps)

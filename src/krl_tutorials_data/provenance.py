@@ -336,7 +336,8 @@ class DataProvenance:
         p.write_text(json.dumps(self.to_dict(), indent=2), encoding="utf-8")
         if p.parent.name == "provenance":
             line = {"kind": "record", "status": "ok", "record": p.name, "retrieved_utc": self.retrieved_utc,
-                    "content_sha256": self.content_sha256, "pap_chain_sha256": self.pap_chain_sha256}
+                    "content_sha256": self.content_sha256, "pap_chain_sha256": self.pap_chain_sha256,
+                    "logged_utc": datetime.now(timezone.utc).isoformat(timespec="microseconds")}
             with (p.parent / "_runs.jsonl").open("a", encoding="utf-8") as ledger:
                 ledger.write(json.dumps(line) + "\n")
         return p
@@ -391,7 +392,7 @@ def _append(line: dict[str, Any]) -> None:
     path = _LEDGER["path"]
     if path is None:
         return
-    line = {**line, "pap_chain_sha256": _LEDGER["chain"]}
+    line = {**line, "pap_chain_sha256": _LEDGER["chain"], "logged_utc": datetime.now(timezone.utc).isoformat(timespec="microseconds")}
     with Path(path).open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(line) + "\n")
 

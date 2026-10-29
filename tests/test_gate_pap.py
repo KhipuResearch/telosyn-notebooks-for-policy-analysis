@@ -313,9 +313,10 @@ def check_pap(nb: Notebook, facts: Facts | None, root: Path | None = None) -> li
             if kind == "fetch" and "cache_hit" not in line:
                 fail(f"{label} (a fetch) has no cache_hit", "write it with provenance.ledgered")
             stamp = epoch(line["retrieved_utc"])
-            if last is not None and stamp < last:
+            order_key = epoch(line["logged_utc"]) if "logged_utc" in line else stamp      # live lines are ordered by when they were appended
+            if last is not None and order_key < last:
                 fail(f"{label} is out of time order", "the ledger is append-only")
-            last = stamp
+            last = order_key
             if line.get("reconstructed"):
                 if not str(line.get("note", "")).strip():
                     fail(f"{label} is reconstructed but has no note giving the source of its timestamp", "add a `note`")
@@ -485,6 +486,22 @@ PLANTED = [
 def test_each_planted_violation_fails_and_names_its_rule(tmp_path: Path, label: str, mutate: Any, expect: str) -> None:
     text = _problems(tmp_path, mutate)
     assert expect in text, f"{label}: expected {expect!r} in\n{text}"
+
+
+def test_live_lines_are_ordered_by_when_they_were_logged_not_by_the_data_time(tmp_path: Path) -> None:
+    """A record line for data fetched a few seconds before the call returned is logged after the fetch line: retrieved_utc may go backwards."""
+    def logged(nb: Any, r: Any, l: Any, h: Any, d: Any, v: Any) -> None:
+        l[3].update(retrieved_utc="2026-10-04T00:00:01+00:00", logged_utc="2026-10-04T00:00:03+00:00")    # data time after the next line's
+        l[4].update(retrieved_utc=R2, logged_utc="2026-10-04T00:00:04+00:00")
+        r["final.json"]["retrieved_utc"] = R2
+    assert _problems(tmp_path, logged) == ""
+
+
+def test_a_line_logged_before_its_predecessor_is_out_of_order(tmp_path: Path) -> None:
+    def backwards(nb: Any, r: Any, l: Any, h: Any, d: Any, v: Any) -> None:
+        l[3].update(logged_utc="2026-10-04T00:00:05+00:00")
+        l[4].update(logged_utc="2026-10-04T00:00:02+00:00")
+    assert "out of time order" in _problems(tmp_path, backwards)
 
 
 def test_the_ledger_may_extend_the_committed_versions(tmp_path: Path) -> None:

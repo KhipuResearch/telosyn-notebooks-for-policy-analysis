@@ -4,7 +4,7 @@
   "vintage": "2024 ASEC (income year 2023)",
   "endpoint": "https://www2.census.gov/programs-surveys/cps/datasets/2024/march/2024_ASEC_Replicate_Weight_Usage_Instructions.docx",
   "variables": {},
-  "retrieved_utc": "2026-10-29T02:30:25+00:00",
+  "retrieved_utc": "2026-10-29T03:32:34+00:00",
   "row_count": 0,
   "column_count": 0,
   "content_sha256": "a842240dc56e1bf73d9fb0aac1d2578427af2d3e8338e410f79c1e4a730f36a8",

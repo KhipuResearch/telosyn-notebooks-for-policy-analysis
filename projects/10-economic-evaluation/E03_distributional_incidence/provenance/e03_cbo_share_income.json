@@ -4,7 +4,7 @@
   "vintage": "September 2026 report (publication 62761)",
   "endpoint": "file://data/cbo/62761-supp-data.xlsx",
   "variables": {},
-  "retrieved_utc": "2026-10-29T02:30:20+00:00",
+  "retrieved_utc": "2026-10-29T03:32:29+00:00",
   "row_count": 450,
   "column_count": 5,
   "content_sha256": "e91c2e8e5012628d8e884e5ad4fc86f2f004cad9113708bbc1038d7ab7b4acbd",

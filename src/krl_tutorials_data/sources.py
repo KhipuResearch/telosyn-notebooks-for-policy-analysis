@@ -1361,6 +1361,21 @@ IRS_EITC_URL: Final[str] = (
 IRS_EITC_HEADING: Final[str] = "Participation rate by state"
 
 
+def _fns_header_notes(resp: Any, path: str) -> tuple[str, ...]:
+    """What the publisher says about the file: its HTTP validators, the PDF's own dates, and its former address."""
+    headers = {str(k).lower(): str(v) for k, v in dict(getattr(resp, "headers", {}) or {}).items()}
+    notes = []
+    if headers.get("last-modified") or headers.get("etag"):
+        notes.append(f"Last-Modified: {headers.get('last-modified', 'not returned')}; ETag: {headers.get('etag', 'not returned')}.")
+    else:
+        notes.append("No Last-Modified or ETag header was returned.")
+    dates = [(label, m.group(1).decode("latin-1")) for label, m in
+             ((lab, re.search(rb"/" + lab.encode() + rb"\s*\(([^)]*)\)", resp.content[-65536:] + resp.content[:4096])) for lab in ("CreationDate", "ModDate")) if m]
+    notes.append("; ".join(f"PDF {lab} {val}" for lab, val in dates) + "." if dates else "No PDF CreationDate or ModDate was found in the file.")
+    notes.append(f"The publisher's former address for the same path, which redirects to the host above: https://www.fns.usda.gov/sites/default/files/{path}.")
+    return tuple(notes)
+
+
 def fetch_fns_pdf(
     *, path: str, vintage: str, session: requests.Session | None = None
 ) -> tuple[bytes, DataProvenance]:
@@ -1412,10 +1427,19 @@ def fetch_fns_pdf(
         notes=(
             f"A PDF of {len(resp.content):,} bytes; its text is extracted and parsed by the notebook.",
             *redirect_notes,
+            *_fns_header_notes(resp, path),
             "Not pinned: the publisher can replace a file in place; the payload hash is the vintage identifier.",
         ),
     )
     return resp.content, prov
+
+
+def _irs_page_notes(resp: Any) -> tuple[str, ...]:
+    """The raw HTML's hash and the page's own review date, if it prints one."""
+    m = re.search(r"Page Last Reviewed or Updated:\s*([0-9A-Za-z-]+)", resp.text)
+    reviewed = (f"Page Last Reviewed or Updated: {m.group(1)}." if m else
+                "The page printed no 'Page Last Reviewed or Updated' date.")
+    return (f"{reviewed} The raw HTML SHA-256 {hashlib.sha256(resp.content).hexdigest()} (the digest above is over the table's text only).",)
 
 
 def fetch_irs_eitc_participation(
@@ -1462,6 +1486,7 @@ def fetch_irs_eitc_participation(
         row_count=len(frame),
         column_count=len(frame.columns),
         notes=(
+            *_irs_page_notes(resp),
             "An HTML table, not a file. The IRS describes the rate as the share of eligible taxpayers "
             "who received an EITC payment, estimated by the Census Bureau's Center for Economic Studies "
             "by linking ACS respondents to IRS records.",

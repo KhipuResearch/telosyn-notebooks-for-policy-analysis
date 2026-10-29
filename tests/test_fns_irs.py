@@ -163,3 +163,37 @@ def test_fns_pdf_records_the_final_url_and_each_hop_after_cross_host_redirects()
 def test_fns_pdf_without_a_redirect_says_so() -> None:
     _, prov = sources.fetch_fns_pdf(path="ops/x.pdf", vintage="v", session=_Session(_Response(PDF)))
     assert any("No redirect" in n for n in prov.notes)
+
+
+# --- review 4: what the publisher says about the file or page ------------------------------------------
+class _Hdr(_Response):
+    def __init__(self, body: bytes, headers: dict[str, str]) -> None:
+        super().__init__(body)
+        self.headers = headers
+
+
+def test_fns_provenance_records_last_modified_etag_pdf_dates_and_the_former_address() -> None:
+    body = PDF + b"/CreationDate (D:20230213100000-05'00') /ModDate (D:20230213101500-05'00')\n"
+    session = _Session(_Hdr(body, {"last-modified": "Mon, 13 Feb 2023 15:25:10 GMT", "etag": '"ef7d8-5f49673e422ad"'}))
+    _, prov = sources.fetch_fns_pdf(path="resource-files/snap2019reaching.pdf", vintage="v", session=session)
+    text = " ".join(prov.notes)
+    assert "Last-Modified: Mon, 13 Feb 2023 15:25:10 GMT" in text and 'ETag: "ef7d8-5f49673e422ad"' in text
+    assert "PDF CreationDate D:20230213100000-05'00'" in text and "PDF ModDate D:20230213101500-05'00'" in text
+    assert "https://www.fns.usda.gov/sites/default/files/resource-files/snap2019reaching.pdf" in text
+
+
+def test_fns_provenance_says_so_when_the_headers_and_dates_are_absent() -> None:
+    _, prov = sources.fetch_fns_pdf(path="ops/x.pdf", vintage="v", session=_Session(_Response(PDF)))
+    text = " ".join(prov.notes)
+    assert "No Last-Modified or ETag header" in text and "No PDF CreationDate" in text
+
+
+def test_irs_provenance_records_the_raw_html_hash_and_the_page_review_date() -> None:
+    html = HTML.replace("</body>", "<p>Page Last Reviewed or Updated: 19-Aug-2026</p></body>")
+    _, prov = sources.fetch_irs_eitc_participation(session=_Session(_Response(html.encode())))
+    text = " ".join(prov.notes)
+    assert "Page Last Reviewed or Updated: 19-Aug-2026" in text
+    import hashlib
+    assert f"raw HTML SHA-256 {hashlib.sha256(html.encode()).hexdigest()}" in text
+    _, prov2 = sources.fetch_irs_eitc_participation(session=_Session(_Response(HTML.encode())))
+    assert "no 'Page Last Reviewed or Updated' date" in " ".join(prov2.notes)

@@ -4,7 +4,7 @@
   "vintage": "fiscal year 2016",
   "endpoint": "https://www.fna.usda.gov/sites/default/files/resource-files/Reaching2016.pdf",
   "variables": {},
-  "retrieved_utc": "2026-10-29T04:13:55+00:00",
+  "retrieved_utc": "2026-10-29T11:23:39+00:00",
   "row_count": 0,
   "column_count": 0,
   "content_sha256": "de54239d9c1a36e29a96129bd919f75136ab0725b25e4c1573f5a372f59ff972",
@@ -23,7 +23,7 @@
   "request_params": {},
   "request_method": "GET",
   "pap_sha256": "07683027fa91f5525be1fe979fa71252f9d828fd9fd33176833d51b88798d206",
-  "pap_chain_sha256": "65a0ccafba48364e8dff95a47814fe09a876544e7ba52f249dcc3e22ef55c840",
+  "pap_chain_sha256": "a08cfe7c095c53a4e0d3f4d37a842078318aed28ce5250bab3165408cf09b1ae",
   "pap_amendments": [
     {
       "file": "I01_plan_amendment_1.md",
@@ -36,6 +36,10 @@
     {
       "file": "I01_plan_amendment_3.md",
       "sha256": "f55611d739142d76f1d86a45ff0c54787d658ffaf023c2d0f81e49694e1b02eb"
+    },
+    {
+      "file": "I01_plan_amendment_4.md",
+      "sha256": "3f1502810af2b939ea7bbf7682ed06c455f4c992d263acb77a625f0812f0ed49"
     }
   ]
 }

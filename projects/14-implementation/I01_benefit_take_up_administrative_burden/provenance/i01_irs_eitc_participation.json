@@ -14,13 +14,13 @@
     "Tax year 2015": "percent of eligible taxpayers who received an EITC payment",
     "Tax year 2014": "percent of eligible taxpayers who received an EITC payment"
   },
-  "retrieved_utc": "2026-10-29T04:14:18+00:00",
+  "retrieved_utc": "2026-10-29T11:23:58+00:00",
   "row_count": 52,
   "column_count": 10,
   "content_sha256": "e23329d8a87000ef131631020aff017363f8daa243c1b33116dc40006de33b42",
   "mode": "empirical",
   "notes": [
-    "Page Last Reviewed or Updated: 19-Aug-2026. The raw HTML SHA-256 3211a4909cfd8d309d6553dffdff502515879fc17f7703754f22a35c1714aade (the digest above is over the table's text only).",
+    "Page Last Reviewed or Updated: 19-Aug-2026. The raw HTML SHA-256 80f28911d4da8f6b07cb5f21af46bd3358497c50d654730fde69ef1ce8182cbf (the digest above is over the table's text only).",
     "An HTML table, not a file. The IRS describes the rate as the share of eligible taxpayers who received an EITC payment, estimated by the Census Bureau's Center for Economic Studies by linking ACS respondents to IRS records.",
     "Not pinned: the page can be revised; the hash is over the table's text."
   ],
@@ -29,7 +29,7 @@
   "request_params": {},
   "request_method": "GET",
   "pap_sha256": "07683027fa91f5525be1fe979fa71252f9d828fd9fd33176833d51b88798d206",
-  "pap_chain_sha256": "65a0ccafba48364e8dff95a47814fe09a876544e7ba52f249dcc3e22ef55c840",
+  "pap_chain_sha256": "a08cfe7c095c53a4e0d3f4d37a842078318aed28ce5250bab3165408cf09b1ae",
   "pap_amendments": [
     {
       "file": "I01_plan_amendment_1.md",
@@ -42,6 +42,10 @@
     {
       "file": "I01_plan_amendment_3.md",
       "sha256": "f55611d739142d76f1d86a45ff0c54787d658ffaf023c2d0f81e49694e1b02eb"
+    },
+    {
+      "file": "I01_plan_amendment_4.md",
+      "sha256": "3f1502810af2b939ea7bbf7682ed06c455f4c992d263acb77a625f0812f0ed49"
     }
   ]
 }

@@ -4,7 +4,7 @@
   "vintage": "State Options Report, 17th edition",
   "endpoint": "https://www.fna.usda.gov/sites/default/files/resource-files/snap-stateOptionsReport-17edition-120925.pdf",
   "variables": {},
-  "retrieved_utc": "2026-10-29T13:02:43+00:00",
+  "retrieved_utc": "2026-10-29T15:46:46+00:00",
   "row_count": 0,
   "column_count": 0,
   "content_sha256": "c27018fd44ede95a3805aaf800bd819aa8c6298cff642ad79fb58ab8edf07cc1",
@@ -23,7 +23,7 @@
   "request_params": {},
   "request_method": "GET",
   "pap_sha256": "07683027fa91f5525be1fe979fa71252f9d828fd9fd33176833d51b88798d206",
-  "pap_chain_sha256": "6a271f4730f7c40f7e9918e171ffb4d3901e5bd5baa1a95bc9e7b1504ae02f3c",
+  "pap_chain_sha256": "de4b2bead07bca7b04cd850c22164529f10c0e8a8fb0d13281525bbd4e59d381",
   "pap_amendments": [
     {
       "file": "I01_plan_amendment_1.md",
@@ -44,6 +44,10 @@
     {
       "file": "I01_plan_amendment_5.md",
       "sha256": "1a4d195a444036e3c1833e6e062091fc5a474ae32e5248332554b7857a7f58e7"
+    },
+    {
+      "file": "I01_plan_amendment_6.md",
+      "sha256": "e8cda881afbf466177a4d67489b9c893a50733a3cbe7aa2746b33586283d0f31"
     }
   ]
 }

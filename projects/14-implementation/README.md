@@ -39,7 +39,7 @@ jupyter lab projects/14-implementation/
 
 - Association only, across at most fifty-one states. States that adopt online applications or longer certification periods differ in many ways the notebook does not model; no effect of a feature is estimated, and the text refuses that reading. The unit is the state, so a statement about states says nothing about the households inside them (ecological inference), and the arrow can run the other way (reverse causation): a state with low take-up may adopt an online application to raise it.
 - Longer certification can raise measured participation without changing who is eligible. A longer period means fewer recertifications and less churn off the rolls, which raises the participation rate by construction. A positive link between length and take-up is therefore partly a measurement feature, not only a sign of lower burden.
-- Certification length mostly separates the 24-month period for elderly or disabled households from its absence. Other households are capped at 12 months (the 14th edition states this; the owner's review cites 7 CFR 273.10(f), which was not checked here). The variable is a coarse proxy for administrative burden.
+- Certification length mostly separates the 24-month period for elderly or disabled households from its absence. Other households are capped at 12 months (the 14th edition states this; 7 CFR 273.10(f) sets the 12-month cap and allows up to 24 months for households in which all adult members are elderly or disabled, and its text was not checked by the notebook). The variable is a coarse proxy for administrative burden.
 
 ---
 

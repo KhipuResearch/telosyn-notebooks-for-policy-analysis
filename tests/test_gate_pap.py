@@ -19,6 +19,11 @@ plan and each amendment (``commit`` may be given, for readers, and is never reli
    ledger is a byte-prefix of the next; reconstructed lines come first and carry a note.
 5. **Limitations** says whether the analysis departed from the plan.
 
+**A file added in the commit being made** (staged, not yet in HEAD's ancestry) is checked for its digest and its `krl.pap`
+listing only: the author time does not exist until the commit does, so its `authored_utc` may be `"pending"` and its time and
+order are not checked in that pre-commit run. They are enforced on the next run with history, CI on push with full fetch, and
+CI rejects `"pending"`. A commit's author time is never set by hand to make the gate pass.
+
 **History is fail-closed.** A shallow or unreadable clone fails the gate; ``KRL_ALLOW_SHALLOW=1`` skips the commit rules with
 a warning, and never when ``CI=true``. **The legacy path** (digest only, no ``krl.pap``) is an allowlist of the six
 notebooks that predate this gate, C01 to C06; a new notebook cannot opt into it.
@@ -65,6 +70,9 @@ class Facts(Protocol):
     def ledger_versions(self, rel: str) -> list[bytes]:
         """The committed contents of ``rel`` in HEAD's ancestry, oldest first."""
 
+    def staged_new(self, rel: str) -> bool:
+        """Whether ``rel`` is being added in the commit being made (staged as new, not in HEAD's ancestry)."""
+
 
 class RepoFacts:
     """Real history. Raises ``RuntimeError`` if it is shallow or unreadable."""
@@ -102,6 +110,11 @@ class RepoFacts:
             history.append((commit, int(epoch_), digest))
         return history
 
+    def staged_new(self, rel: str) -> bool:
+        """``rel`` is staged as an added file and no commit in HEAD's ancestry touches it."""
+        added = self._run("diff", "--cached", "--name-only", "--diff-filter=A", "--", rel).decode().strip()
+        return bool(added) and not self._run("log", "--format=%H", "-1", "HEAD", "--", rel).strip()
+
     def ledger_versions(self, rel: str) -> list[bytes]:
         """Each committed version of ``rel`` in HEAD's ancestry, oldest first."""
         commits = self._run("log", "--reverse", "--format=%H", "HEAD", "--", rel).decode().split()
@@ -117,8 +130,13 @@ class RepoFacts:
 class FakeFacts:
     """Fixed history for fixture tests: ``{file name: [(commit, epoch, sha256), ...]}`` and ledger versions."""
 
-    def __init__(self, histories: dict[str, list[tuple[str, int, str | None]]], ledger: list[bytes] | None = None) -> None:
-        self.histories, self.ledger = histories, ledger or []
+    def __init__(self, histories: dict[str, list[tuple[str, int, str | None]]], ledger: list[bytes] | None = None,
+                 staged: frozenset[str] = frozenset()) -> None:
+        self.histories, self.ledger, self.staged = histories, ledger or [], staged
+
+    def staged_new(self, rel: str) -> bool:
+        """Whether the file named by ``rel`` is one of the files staged as new."""
+        return Path(rel).name in self.staged
 
     def file_history(self, rel: str) -> list[tuple[str, int, str | None]]:
         """History of the file named by ``rel``."""
@@ -212,17 +230,29 @@ def check_pap(nb: Notebook, facts: Facts | None, root: Path | None = None) -> li
         fail(f"`krl.pap` lists {listed}, but pap/ holds {files}", "list every file in pap/ exactly once, and nothing else")
         return found
 
+    rel_root = (root or _root(nb)).resolve() if facts is not None else None
+    staged: set[int] = set()
+    if facts is not None and rel_root is not None:
+        staged = {i for i, e in enumerate(entries)
+                  if not facts.file_history(str((pap_folder(nb) / e["file"]).resolve().relative_to(rel_root)))
+                  and facts.staged_new(str((pap_folder(nb) / e["file"]).resolve().relative_to(rel_root)))}
+
     digests: list[str] = []
-    authored: list[int] = []
+    authored: list[int | None] = []
     for i, e in enumerate(entries):
         path = pap_folder(nb) / e["file"]
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
         digests.append(digest)
-        try:
-            authored.append(epoch(e["authored_utc"]))
-        except ValueError:
-            fail(f"krl.pap[{i}].authored_utc {e['authored_utc']!r} is not an ISO timestamp", "use the commit's author time in UTC")
-            return found
+        if i in staged:
+            authored.append(None)       # being added in this commit: digest and listing only; time and order are CI's
+        else:
+            try:
+                authored.append(epoch(e["authored_utc"]))
+            except ValueError:
+                pending = e["authored_utc"] == "pending"
+                fail(f"krl.pap[{i}].authored_utc {e['authored_utc']!r} is not an ISO timestamp" + (" (\"pending\" is allowed only for a file staged in the commit being made)" if pending else ""),
+                     "set it to the commit's author time in UTC, in a later commit" if pending else "use the commit's author time in UTC")
+                return found
         if digest != e["sha256"]:
             fail(f"krl.pap[{i}] {e['file']}: declared digest {e['sha256'][:12]}... != file {digest[:12]}...",
                  "a committed plan is never edited; add an amendment file instead")
@@ -230,7 +260,8 @@ def check_pap(nb: Notebook, facts: Facts | None, root: Path | None = None) -> li
             fail(f"krl.pap[{i}].relation is {e['relation']!r}", "use before_retrieval or after_retrieval")
     if entries[0]["relation"] != "before_retrieval":
         fail("the plan (krl.pap[0]) is not before_retrieval", "the plan must precede the first retrieval")
-    if authored != sorted(authored):
+    timed = [a for a in authored if a is not None]
+    if timed != sorted(timed):
         fail("krl.pap authored times are not in order", "list the plan, then amendments in the order authored")
 
     records = _records(folder)
@@ -241,9 +272,10 @@ def check_pap(nb: Notebook, facts: Facts | None, root: Path | None = None) -> li
     stamps += [epoch(line["retrieved_utc"]) for line in (ledger or []) if "retrieved_utc" in line]
     first = min(stamps) if stamps else None
 
-    if facts is not None:
-        rel_root = (root or _root(nb)).resolve()
+    if facts is not None and rel_root is not None:
         for i, e in enumerate(entries):
+            if i in staged:
+                continue
             rel = str((pap_folder(nb) / e["file"]).resolve().relative_to(rel_root))
             history = facts.file_history(rel)
             at = next((k for k, (_, _, sha) in enumerate(history) if sha == e["sha256"]), None)
@@ -271,9 +303,11 @@ def check_pap(nb: Notebook, facts: Facts | None, root: Path | None = None) -> li
             fail(f"{label} carries a chain the declared plans cannot produce", "re-run under the declared plans or declare the amendment")
             return
         if facts is not None and when is not None:
-            if authored[0] > when:
+            if authored[0] is not None and authored[0] > when:
                 fail(f"{label} was retrieved before the plan was authored", "the plan must come first")
             for j in range(1, len(authored)):
+                if authored[j] is None:
+                    continue
                 if j < k and authored[j] > when:
                     fail(f"{label} lists amendment {entries[j]['file']}, authored after the retrieval", "a record cannot cite a later amendment")
                 if j >= k and authored[j] <= when:
@@ -641,3 +675,76 @@ def test_a_shallow_clone_fails_closed_in_ci_and_unless_allowed(tmp_path: Path) -
     with pytest.warns(UserWarning, match="KRL_ALLOW_SHALLOW"):
         facts, problem = facts_or_problem(clone, env={"KRL_ALLOW_SHALLOW": "1"})
     assert facts is None and problem is None
+
+
+# ----------------------------------------------------------- a file added in the commit being made (pre-commit mode)
+A3 = "amendment three"
+T3 = "2026-10-05T00:00:00+00:00"
+
+
+def _with_new_amendment(tmp_path: Path, authored: str, *, staged: bool, listed: bool = True, declared_text: str = A3,
+                        in_history: bool = False) -> tuple[Notebook, FakeFacts]:
+    """The compliant fixture plus a third amendment on disk, as the gate sees it while the commit that adds it is being made."""
+    nb, facts = build(tmp_path)
+    folder = nb.path.parent
+    (folder / "pap" / "X1_plan_amendment_3.md").write_text(A3, encoding="utf-8")
+    doc = json.loads(nb.path.read_text(encoding="utf-8"))
+    if listed:
+        doc["metadata"]["krl"]["pap"].append({"file": "X1_plan_amendment_3.md", "sha256": _sha(declared_text), "authored_utc": authored, "relation": "after_retrieval"})
+    nb.path.write_text(json.dumps(doc), encoding="utf-8")
+    hist = dict(facts.histories)
+    if in_history:
+        hist["X1_plan_amendment_3.md"] = [(C["a2"], epoch(T3), _sha(A3))]
+    return load_notebook(nb.path), FakeFacts(hist, facts.ledger, frozenset({"X1_plan_amendment_3.md"}) if staged else frozenset())
+
+
+def test_a_staged_new_amendment_may_be_pending_in_the_precommit_run(tmp_path: Path) -> None:
+    nb, facts = _with_new_amendment(tmp_path, "pending", staged=True)
+    assert check_pap(nb, facts, tmp_path) == []
+
+
+def test_a_staged_new_amendment_is_not_held_to_a_time_or_an_order_before_it_has_a_commit(tmp_path: Path) -> None:
+    nb, facts = _with_new_amendment(tmp_path, "2026-09-01T00:00:00+00:00", staged=True)      # earlier than the plan: CI will say so
+    assert check_pap(nb, facts, tmp_path) == []
+
+
+def test_pending_fails_when_nothing_is_staged_which_is_what_ci_sees(tmp_path: Path) -> None:
+    nb, facts = _with_new_amendment(tmp_path, "pending", staged=False)
+    out = "\n".join(check_pap(nb, facts, tmp_path))
+    assert "pending" in out and "staged in the commit being made" in out
+
+
+def test_pending_fails_for_a_file_that_already_has_a_commit(tmp_path: Path) -> None:
+    nb, facts = _with_new_amendment(tmp_path, "pending", staged=False, in_history=True)
+    assert "pending" in "\n".join(check_pap(nb, facts, tmp_path))
+
+
+def test_a_staged_file_that_has_a_commit_is_held_to_its_author_time(tmp_path: Path) -> None:
+    nb, facts = _with_new_amendment(tmp_path, "2026-10-06T00:00:00+00:00", staged=True, in_history=True)
+    assert "authored at" in "\n".join(check_pap(nb, facts, tmp_path))
+
+
+def test_a_staged_new_amendment_is_still_held_to_its_digest(tmp_path: Path) -> None:
+    nb, facts = _with_new_amendment(tmp_path, "pending", staged=True, declared_text="not what is on disk")
+    assert "declared digest" in "\n".join(check_pap(nb, facts, tmp_path))
+
+
+def test_a_staged_new_amendment_is_still_held_to_its_krl_pap_listing(tmp_path: Path) -> None:
+    nb, facts = _with_new_amendment(tmp_path, "pending", staged=True, listed=False)
+    assert "pap/ holds" in "\n".join(check_pap(nb, facts, tmp_path))
+
+
+def test_real_git_staged_new_is_true_only_for_a_file_added_in_the_index(tmp_path: Path) -> None:
+    repo = tmp_path / "r"
+    repo.mkdir()
+    _git(repo, "init", "-q", "-b", "main")
+    _commit(repo, "n/pap/X1_plan.md", PLAN, T0, "plan")
+    (repo / "n/pap/X1_plan_amendment_1.md").write_text(A1, encoding="utf-8")
+    facts = RepoFacts(repo)
+    assert not facts.staged_new("n/pap/X1_plan_amendment_1.md")             # on disk but not staged
+    _git(repo, "add", "n/pap/X1_plan_amendment_1.md")
+    assert facts.staged_new("n/pap/X1_plan_amendment_1.md")                 # staged as new
+    assert not facts.staged_new("n/pap/X1_plan.md")                         # committed
+    assert not facts.staged_new("n/pap/never.md")
+    _commit(repo, "n/pap/X1_plan_amendment_1.md", A1, T1, "commit it")
+    assert not facts.staged_new("n/pap/X1_plan_amendment_1.md")             # once committed, CI's rules apply

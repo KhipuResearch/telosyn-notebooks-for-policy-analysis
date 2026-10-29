@@ -161,6 +161,11 @@ original change was made, **not** when the provenance fields were added. The bra
 pass on every commit authored after F12 lands on `main`; commits authored before it are exempt. New content is never folded into an existing commit
 to make an older commit pass.
 
+**Exemption (owner ruling, 2026-10-29).** A commit that adds a plan or amendment file with `authored_utc` set to `"pending"` (the staged-mode rule above)
+is exempt from the every-commit rule: checked on its own it fails, by design, and the next commit sets the time. The exemption covers only that one
+commit per added file. The run ledger is append-only and reconstructed lines come first, so a reconstructed line is never added late and a committed
+ledger note is never reworded; a gap in a committed ledger is disclosed in the notebook's Limitations instead.
+
 ### 3.4 Policy reference tables
 
 Treatment timing comes from authoritative non-API sources. Convention, following

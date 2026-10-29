@@ -25,8 +25,12 @@ order are not checked in that pre-commit run. They are enforced on the next run 
 CI rejects `"pending"`. A commit's author time is never set by hand to make the gate pass.
 
 **History is fail-closed.** A shallow or unreadable clone fails the gate; ``KRL_ALLOW_SHALLOW=1`` skips the commit rules with
-a warning, and never when ``CI=true``. **The legacy path** (digest only, no ``krl.pap``) is an allowlist of the six
-notebooks that predate this gate, C01 to C06; a new notebook cannot opt into it.
+a warning, and never when ``CI`` is set to anything. **The legacy path** (digest only, no ``krl.pap``) is an allowlist, by
+repo-relative path, of the six notebooks that predate this gate, C01 to C06; a new notebook cannot opt into it, nor borrow a
+legacy folder name.
+
+**Nothing is withdrawn and nothing is edited before it is declared.** The declared digest must be the file's *first* version in
+HEAD's ancestry, and every file ever added under the notebook's ``pap/`` folder (plans, amendments, records) must still exist.
 
 Author dates are self-asserted, so order is proven against honest authors only. A plan and its amendments cite their
 predecessors by file name and SHA-256, not by commit id, and squash merges stay off for a notebook with a plan.
@@ -53,11 +57,11 @@ from gate_support import Notebook, load_notebook
 
 LIMITATIONS = re.compile(r"^##\s*Limitations\b.*?(?=^##\s|\Z)", re.M | re.S | re.I)
 ENTRY_KEYS = ("file", "sha256", "authored_utc", "relation")
-#: The notebooks that predate this gate; the only ones that may omit ``krl.pap``.
-LEGACY: frozenset[str] = frozenset({
+#: The notebooks that predate this gate, by repo-relative folder path; the only ones that may omit ``krl.pap``.
+LEGACY: frozenset[str] = frozenset(f"projects/09-causal-identification/{n}" for n in (
     "C01_medicaid_expansion_did", "C02_medicare_age65_rdd", "C03_minimum_wage_staggered",
     "C04_ca_minimum_wage_synth", "C05_public_coverage_matching", "C06_medicaid_expansion_iv",
-})
+))
 STATUSES = ("ok", "failed", "stopped")
 
 
@@ -72,6 +76,9 @@ class Facts(Protocol):
 
     def staged_new(self, rel: str) -> bool:
         """Whether ``rel`` is being added in the commit being made (staged as new, not in HEAD's ancestry)."""
+
+    def added_under(self, rel_dir: str) -> set[str]:
+        """Every path, below ``rel_dir`` at any depth, that a commit in HEAD's ancestry added; including those since removed."""
 
 
 class RepoFacts:
@@ -115,6 +122,11 @@ class RepoFacts:
         added = self._run("diff", "--cached", "--name-only", "--diff-filter=A", "--", rel).decode().strip()
         return bool(added) and not self._run("log", "--format=%H", "-1", "HEAD", "--", rel).strip()
 
+    def added_under(self, rel_dir: str) -> set[str]:
+        """Paths below ``rel_dir`` added by any commit in HEAD's ancestry (a deletion does not remove them from this set)."""
+        out = self._run("log", "--diff-filter=A", "--name-only", "-z", "--format=", "HEAD", "--", f"{rel_dir.rstrip('/')}/")
+        return {p for p in out.decode().split("\0") if p}
+
     def ledger_versions(self, rel: str) -> list[bytes]:
         """Each committed version of ``rel`` in HEAD's ancestry, oldest first."""
         commits = self._run("log", "--reverse", "--format=%H", "HEAD", "--", rel).decode().split()
@@ -131,8 +143,12 @@ class FakeFacts:
     """Fixed history for fixture tests: ``{file name: [(commit, epoch, sha256), ...]}`` and ledger versions."""
 
     def __init__(self, histories: dict[str, list[tuple[str, int, str | None]]], ledger: list[bytes] | None = None,
-                 staged: frozenset[str] = frozenset()) -> None:
-        self.histories, self.ledger, self.staged = histories, ledger or [], staged
+                 staged: frozenset[str] = frozenset(), withdrawn: frozenset[str] = frozenset()) -> None:
+        self.histories, self.ledger, self.staged, self.withdrawn = histories, ledger or [], staged, withdrawn
+
+    def added_under(self, rel_dir: str) -> set[str]:
+        """Every listed file counts as added; ``withdrawn`` names further paths (relative to the folder) that were added and then removed."""
+        return {f"{rel_dir}/{n}" for n in (*self.histories, *self.withdrawn)}
 
     def staged_new(self, rel: str) -> bool:
         """Whether the file named by ``rel`` is one of the files staged as new."""
@@ -203,7 +219,9 @@ def check_pap(nb: Notebook, facts: Facts | None, root: Path | None = None) -> li
     ident = nb.identification
 
     if declared is None:
-        if folder.name in LEGACY and ident is not None and len(files) == 1 and isinstance(ident.get("pap"), str):
+        top = (root or _root(nb)).resolve()
+        folder_rel = str(folder.resolve().relative_to(top)) if folder.resolve().is_relative_to(top) else None
+        if folder_rel in LEGACY and ident is not None and len(files) == 1 and isinstance(ident.get("pap"), str):
             target = (folder / ident["pap"]).resolve()
             if target.name != files[0] or not target.is_file():
                 fail("legacy plan file named by `identification.pap` is not the one file in pap/", "declare `krl.pap`")
@@ -236,6 +254,11 @@ def check_pap(nb: Notebook, facts: Facts | None, root: Path | None = None) -> li
         staged = {i for i, e in enumerate(entries)
                   if not facts.file_history(str((pap_folder(nb) / e["file"]).resolve().relative_to(rel_root)))
                   and facts.staged_new(str((pap_folder(nb) / e["file"]).resolve().relative_to(rel_root)))}
+
+    if facts is not None and rel_root is not None:
+        pap_rel = str(pap_folder(nb).resolve().relative_to(rel_root))
+        for gone in sorted(p for p in facts.added_under(pap_rel) if not (rel_root / p).is_file()):
+            fail(f"{gone} was added in HEAD's ancestry but is missing at HEAD", "a committed plan, amendment or record is never withdrawn; restore it or add an amendment that supersedes")
 
     digests: list[str] = []
     authored: list[int | None] = []
@@ -282,6 +305,9 @@ def check_pap(nb: Notebook, facts: Facts | None, root: Path | None = None) -> li
             if at is None:
                 fail(f"krl.pap[{i}] {e['file']}: no commit in HEAD's ancestry holds this exact file", "commit the file (before relying on it) on this branch")
                 continue
+            if at != 0:
+                fail(f"krl.pap[{i}] {e['file']}: the declared digest is not the file's first version (it was committed {at} time(s) with other content before)",
+                     "declare the digest of the first commit of the file; a committed plan is never edited")
             if history[at][1] != authored[i]:
                 fail(f"krl.pap[{i}] {e['file']}: the first commit holding this file was authored at {history[at][1]}, not {authored[i]} ({e['authored_utc']})",
                      "set authored_utc to that commit's author time in UTC")
@@ -388,7 +414,7 @@ def facts_or_problem(folder: Path, env: dict[str, str] | None = None) -> tuple[F
     try:
         return RepoFacts.containing(folder), None
     except RuntimeError as exc:
-        if env.get("KRL_ALLOW_SHALLOW") == "1" and env.get("CI", "").lower() != "true":
+        if env.get("KRL_ALLOW_SHALLOW") == "1" and not env.get("CI"):          # any non-empty CI value counts as CI
             warnings.warn(f"commit rules skipped ({exc}); KRL_ALLOW_SHALLOW=1", stacklevel=2)
             return None, None
         return None, f"git history is unavailable ({exc}); the gate fails closed. Fetch full history (CI uses fetch-depth 0); set KRL_ALLOW_SHALLOW=1 only locally"
@@ -560,8 +586,11 @@ def test_without_history_the_commit_rules_are_skipped_but_the_file_rules_still_r
 
 
 # ------------------------------------------------------------- the legacy allowlist, scope, shallow history
-def _legacy_notebook(tmp_path: Path, folder_name: str) -> Notebook:
-    folder = tmp_path / folder_name
+LEGACY_DIR = "projects/09-causal-identification"
+
+
+def _legacy_notebook(tmp_path: Path, folder_name: str, parent: str = LEGACY_DIR) -> Notebook:
+    folder = tmp_path / parent / folder_name
     (folder / "pap").mkdir(parents=True)
     (folder / "pap" / "P.md").write_text("plan", encoding="utf-8")
     doc = {"cells": [], "metadata": {"krl": {"identification": {"pap": "pap/P.md", "pap_sha256": _sha("plan")}}}, "nbformat": 4, "nbformat_minor": 5}
@@ -571,18 +600,25 @@ def _legacy_notebook(tmp_path: Path, folder_name: str) -> Notebook:
 
 def test_a_listed_legacy_notebook_is_checked_for_its_file_and_digest(tmp_path: Path) -> None:
     nb = _legacy_notebook(tmp_path, "C01_medicaid_expansion_did")
-    assert check_pap(nb, None) == []
+    assert check_pap(nb, None, tmp_path) == []
     (nb.path.parent / "pap" / "P.md").write_text("edited", encoding="utf-8")
-    assert "does not match the plan on disk" in "\n".join(check_pap(nb, None))
+    assert "does not match the plan on disk" in "\n".join(check_pap(nb, None, tmp_path))
 
 
 def test_a_new_notebook_cannot_opt_into_the_legacy_path(tmp_path: Path) -> None:
     nb = _legacy_notebook(tmp_path, "C07_new_study")
-    assert "legacy digest-only path is an allowlist" in "\n".join(check_pap(nb, None))
+    assert "legacy digest-only path is an allowlist" in "\n".join(check_pap(nb, None, tmp_path))
 
 
-def test_the_legacy_allowlist_is_exactly_c01_to_c06() -> None:
-    assert sorted(n[:3] for n in LEGACY) == ["C01", "C02", "C03", "C04", "C05", "C06"]
+def test_a_folder_named_like_a_legacy_notebook_but_elsewhere_is_not_legacy(tmp_path: Path) -> None:
+    """The allowlist is keyed by repo-relative path, so a new project cannot borrow a legacy folder name."""
+    nb = _legacy_notebook(tmp_path, "C01_medicaid_expansion_did", parent="projects/15-new-project")
+    assert "legacy digest-only path is an allowlist" in "\n".join(check_pap(nb, None, tmp_path))
+
+
+def test_the_legacy_allowlist_is_exactly_c01_to_c06_by_path() -> None:
+    assert sorted(Path(n).name[:3] for n in LEGACY) == ["C01", "C02", "C03", "C04", "C05", "C06"]
+    assert all(n.startswith(f"{LEGACY_DIR}/C0") for n in LEGACY)
 
 
 def test_a_notebook_without_a_pap_folder_is_out_of_scope(tmp_path: Path) -> None:
@@ -672,6 +708,9 @@ def test_a_shallow_clone_fails_closed_in_ci_and_unless_allowed(tmp_path: Path) -
     assert facts is None and "fails closed" in problem
     facts, problem = facts_or_problem(clone, env={"CI": "true", "KRL_ALLOW_SHALLOW": "1"})
     assert facts is None and "fails closed" in problem                     # never skipped in CI
+    for ci in ("1", "yes", "True", "false", "anything"):                   # any non-empty CI counts as CI
+        facts, problem = facts_or_problem(clone, env={"CI": ci, "KRL_ALLOW_SHALLOW": "1"})
+        assert facts is None and problem is not None and "fails closed" in problem, ci
     with pytest.warns(UserWarning, match="KRL_ALLOW_SHALLOW"):
         facts, problem = facts_or_problem(clone, env={"KRL_ALLOW_SHALLOW": "1"})
     assert facts is None and problem is None
@@ -748,3 +787,57 @@ def test_real_git_staged_new_is_true_only_for_a_file_added_in_the_index(tmp_path
     assert not facts.staged_new("n/pap/never.md")
     _commit(repo, "n/pap/X1_plan_amendment_1.md", A1, T1, "commit it")
     assert not facts.staged_new("n/pap/X1_plan_amendment_1.md")             # once committed, CI's rules apply
+
+
+# ------------------------------------------- review 5: a plan file cannot be edited before it is declared, or withdrawn after
+def test_a1_a_declared_digest_must_be_the_files_first_version(tmp_path: Path) -> None:
+    """Commit version X, then version Y, then declare Y: the first version is what binds, so this fails."""
+    def edit_then_declare(nb: Any, r: Any, l: Any, h: Any, d: Any, v: Any) -> None:
+        h["X1_plan_amendment_1.md"] = [("e" * 40, epoch(T1), "0" * 64), (C["a1"], epoch(T1), _sha(A1))]
+    text = _problems(tmp_path, edit_then_declare)
+    assert "first version" in text and "X1_plan_amendment_1.md" in text
+
+
+def test_a1_a_file_committed_once_with_the_declared_digest_still_passes(tmp_path: Path) -> None:
+    nb, facts = build(tmp_path)
+    assert check_pap(nb, facts, tmp_path) == []
+
+
+def test_a2_a_withdrawn_amendment_fails_even_when_its_entry_is_gone(tmp_path: Path) -> None:
+    """Commit and declare a3, then delete the file and its entry: the ancestry still shows it was added."""
+    nb, facts = build(tmp_path)
+    withdrawn = FakeFacts(facts.histories, facts.ledger, withdrawn=frozenset({"X1_plan_amendment_3.md"}))
+    text = "\n".join(check_pap(nb, withdrawn, tmp_path))
+    assert "X1_plan_amendment_3.md" in text and "was added in HEAD's ancestry but is missing" in text
+
+
+def test_a2_a_withdrawn_provenance_record_fails_too(tmp_path: Path) -> None:
+    nb, facts = build(tmp_path)
+    withdrawn = FakeFacts(facts.histories, facts.ledger, withdrawn=frozenset({"provenance/old_run.json"}))
+    assert "provenance/old_run.json" in "\n".join(check_pap(nb, withdrawn, tmp_path))
+
+
+def test_a2_real_git_lists_every_file_ever_added_under_a_pap_folder(tmp_path: Path) -> None:
+    repo = tmp_path / "r"
+    repo.mkdir()
+    _git(repo, "init", "-q", "-b", "main")
+    plan, a3, other = "n/pap/X1_plan.md", "n/pap/X1_plan_amendment_3.md", "n/other.md"
+    _commit(repo, plan, PLAN, T0, "plan")
+    _commit(repo, a3, A3, T1, "a3")
+    _commit(repo, other, "x", T1, "unrelated")
+    _git(repo, "rm", "-q", a3)
+    _git(repo, "commit", "-q", "-m", "withdraw", env_extra={"GIT_AUTHOR_DATE": T2, "GIT_COMMITTER_DATE": T2})
+    assert RepoFacts(repo).added_under("n/pap") == {plan, a3}               # the withdrawn file is still reported; the unrelated one is not
+    assert not (repo / a3).exists()
+
+
+def test_a2_real_git_through_check_pap_names_the_withdrawn_file(tmp_path: Path) -> None:
+    nb, _ = build(tmp_path / "fx")
+    repo = tmp_path / "fx"
+    _git(repo, "init", "-q", "-b", "main")
+    rel = "X1_demo/pap/X1_plan_amendment_3.md"
+    _commit(repo, rel, A3, T3, "a3")
+    _git(repo, "rm", "-q", rel)
+    _git(repo, "commit", "-q", "-m", "withdraw", env_extra={"GIT_AUTHOR_DATE": T3, "GIT_COMMITTER_DATE": T3})
+    text = "\n".join(check_pap(nb, RepoFacts(repo), repo))
+    assert "X1_plan_amendment_3.md" in text and "was added in HEAD's ancestry but is missing" in text

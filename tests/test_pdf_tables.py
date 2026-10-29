@@ -241,3 +241,22 @@ def test_a_page_without_a_label_is_never_assigned() -> None:
 def test_footer_number() -> None:
     assert pdf_tables.footer_number("x\nSNAP State Options Report • 82 \n") == 82
     assert pdf_tables.footer_number("no footer") is None
+
+
+# --- the options report's own summary lists (review 4, M1) -----------------------------------------------
+def test_summary_groups_read_heading_count_and_names() -> None:
+    text = (
+        "Online Applications\nBy allowing households to apply (3 words) online.\n"
+        "No online application (2)\nAlaska\nDC\nApply only (1)\nArkansas\n \n"
+        "Apply & recertify (2)\nAlabama\nOhio  \nSNAP State Options Report • 30\nMaine\n"
+    )
+    groups = pdf_tables.parse_summary_groups(text)
+    assert groups == [
+        ("No online application", 2, ["Alaska", "DC"]),
+        ("Apply only", 1, ["Arkansas"]),
+        ("Apply & recertify", 2, ["Alabama", "Ohio"]),
+    ]
+
+
+def test_summary_groups_ignore_text_before_the_first_heading_and_a_count_in_prose() -> None:
+    assert pdf_tables.parse_summary_groups("There are 46 State agencies (46).\nMore prose.\n") == []

@@ -262,6 +262,29 @@ def longest_months(value: str | None) -> float | None:
     return float(max(int(n) for n in numbers)) if numbers else None
 
 
+_SUMMARY_HEADING = re.compile(r"^\s*([A-Za-z0-9][^()\n]{0,60}?)\s*\((\d+)\)\s*$")
+
+
+def parse_summary_groups(text: str) -> list[tuple[str, int, list[str]]]:
+    """The report's own summary lists: ``heading (n)`` followed by one name per line.
+
+    Returns ``(heading, n, names)`` in page order, with runs of white space in a heading collapsed to one
+    space. Lines before the first heading are prose and are ignored, and collection stops at the page
+    footer (``... Options Report \u2022 <n>``). The printed ``n`` is returned as printed; comparing it with
+    the number of names is the caller's check.
+    """
+    groups: list[tuple[str, int, list[str]]] = []
+    for line in text.splitlines():
+        if _FOOTER.search(line):
+            break
+        m = _SUMMARY_HEADING.match(line)
+        if m:
+            groups.append((re.sub(r"\s+", " ", m.group(1)), int(m.group(2)), []))
+        elif groups and line.strip():
+            groups[-1][2].append(re.sub(r"\s+", " ", line.strip()))
+    return groups
+
+
 _FOOTER = re.compile(r"Options\s+Report\s*[•·]\s*(\d+)")
 
 

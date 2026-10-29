@@ -77,3 +77,14 @@ def test_options_14th_edition_profiles() -> None:
     assert got["Oklahoma"]["length"] == "12 & 24 months"
     assert got["Virginia"]["length"] == "5, 6, 12, & 24 months"
     assert [(a.name, a.page, a.footer, a.contents) for a in assigned] == [("Virginia", 87, 82, 82)]
+
+
+def test_options_14th_summary_lists_on_the_real_pages() -> None:
+    online = pdf_tables.parse_summary_groups(OPTIONS["pages"]["35"])
+    assert [(h, n, len(names)) for h, n, names in online] == [
+        ("No online application", 7, 7), ("Apply only", 13, 13), ("Apply & recertify", 33, 33)]
+    assert online[0][2] == ["Alaska", "DC", "Georgia", "Guam", "Hawaii", "Virgin Islands", "Wyoming"]
+    length = pdf_tables.parse_summary_groups(OPTIONS["pages"]["16"])
+    assert [(h, n, len(names)) for h, n, names in length] == [
+        ("6 Months only", 4, 4), ("6 & 12 Months", 6, 6), ("12 Months only", 13, 13),
+        ("12 & 24 Months", 16, 16), ("Various combinations", 13, 13), ("Change reporting only", 1, 1)]

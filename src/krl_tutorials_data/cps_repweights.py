@@ -30,7 +30,7 @@ from typing import Any, Final
 
 import numpy as np
 
-from .provenance import DataProvenance
+from .provenance import DataProvenance, ledger_flag
 
 BASE_URL: Final[str] = "https://www2.census.gov/programs-surveys/cps/datasets/2024/march/"
 DAT_MEMBER: Final[str] = "CPS_ASEC_ASCII_REPWGT_2024.DAT"
@@ -110,7 +110,8 @@ def ensure_files(*, cache_dir: Path | None = None, session: Any = None) -> tuple
 
     A file already present is checked against its pinned size and digest and not fetched again; one that
     differs raises ``UpstreamError``. A download is written to a ``.part`` file, checked, then renamed; a failed
-    check removes it. Records are returned in file-name order.
+    check removes it. Records are returned in file-name order. When called from a ledgered fetcher, the ledger line's ``cache_hit``
+    is true only if every file was already present.
     """
     from . import sources  # pylint: disable=import-outside-toplevel
 
@@ -118,9 +119,11 @@ def ensure_files(*, cache_dir: Path | None = None, session: Any = None) -> tuple
     directory.mkdir(parents=True, exist_ok=True)
     http = session or sources.requests
     records: list[DataProvenance] = []
+    downloaded = False
     for name in sorted(PINNED):
         pinned, target = PINNED[name], directory / name
         if not target.exists():
+            downloaded = True
             url = BASE_URL + name
             part = directory / (name + ".part")
             try:
@@ -141,6 +144,7 @@ def ensure_files(*, cache_dir: Path | None = None, session: Any = None) -> tuple
                 f"{name}: size {size:,} / digest {digest[:12]}... differs from the pinned size {pinned.size:,} / "
                 f"digest {pinned.sha256[:12]}...; the file was removed and nothing is read from it.")
         records.append(_record(name, size, digest))
+    ledger_flag(cache_hit=not downloaded)           # the run ledger's line for the fetcher that called this says whether anything was downloaded
     return directory, records
 
 

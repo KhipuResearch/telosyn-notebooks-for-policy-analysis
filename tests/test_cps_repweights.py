@@ -191,3 +191,44 @@ def test_only_the_three_approved_files_are_pinned() -> None:
     assert rw.PINNED["CPS_ASEC_ASCII_REPWGT_2024.SAS"].size == 10_093
     assert rw.PINNED["2024_ASEC_Replicate_Weight_Usage_Instructions.docx"].size == 79_166
     assert all(len(v.sha256) == 64 for v in rw.PINNED.values())
+
+
+# ------------------------------------------------------------------ the run ledger's cache_hit flag
+def _ledger_line_for(tmp_path: Path, name: str, call: Any) -> dict[str, Any]:
+    """Run ``call`` inside a ledgered fetcher with a real ledger and return the one line it wrote."""
+    from krl_tutorials_data import provenance as pv
+
+    plan = tmp_path / f"{name}_plan.md"
+    plan.write_text("plan", encoding="utf-8")
+    path = tmp_path / f"{name}_runs.jsonl"
+    pv.use_ledger(path, plan)
+    try:
+        @pv.ledgered
+        def fetch_replicates() -> tuple[None, Any]:
+            call()
+            return None, pv.DataProvenance.build(source_name="s", dataset="d", vintage="v", endpoint="e", variables={}, payload=b"x",
+                                                  row_count=0, column_count=0)
+
+        fetch_replicates()
+    finally:
+        pv.stop_ledger()
+    (line,) = [json.loads(x) for x in path.read_text(encoding="utf-8").splitlines()]
+    return line
+
+
+def test_the_ledger_line_says_cache_miss_when_a_file_was_downloaded(tmp_path: Path, pinned: dict[str, bytes]) -> None:
+    line = _ledger_line_for(tmp_path, "miss", lambda: rw.ensure_files(cache_dir=tmp_path / "cache", session=_Session(pinned)))
+    assert line["cache_hit"] is False
+
+
+def test_the_ledger_line_says_cache_hit_when_every_file_was_already_present(tmp_path: Path, pinned: dict[str, bytes]) -> None:
+    rw.ensure_files(cache_dir=tmp_path / "cache", session=_Session(pinned))
+    line = _ledger_line_for(tmp_path, "hit", lambda: rw.ensure_files(cache_dir=tmp_path / "cache", session=_Session({})))
+    assert line["cache_hit"] is True
+
+
+def test_one_missing_file_is_a_cache_miss(tmp_path: Path, pinned: dict[str, bytes]) -> None:
+    rw.ensure_files(cache_dir=tmp_path / "cache", session=_Session(pinned))
+    (tmp_path / "cache" / "2024_ASEC_Replicate_Weight_Usage_Instructions.docx").unlink()
+    line = _ledger_line_for(tmp_path, "part", lambda: rw.ensure_files(cache_dir=tmp_path / "cache", session=_Session(pinned)))
+    assert line["cache_hit"] is False

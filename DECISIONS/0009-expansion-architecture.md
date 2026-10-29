@@ -11,7 +11,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 - **Date:** 2026-10-15
 - **Amended 2026-10-15:** precedence of a pre-analysis plan over the data is proven by digest equality (notebook declaration = plan file = `pap_sha256` in every provenance record), not by commit time; commit order is a warning, and §3.2 rule 3–4 and the fail-closed clause read accordingly.
 - **Amended 2026-10-23:** C06 does not adopt `linearmodels`: the exactly identified, one-instrument case is short enough to implement and test in `methods/iv.py` (§3.6), against the textbook projection form, so no dependency is added. `fetch_acs_pums` also gains `keep`, `bands` and pooled states, still returning cells only (§3.8).
-- **Amended 2026-10-28:** card F12 extends the plan-binding rule to every notebook with a `pap/` folder (§3.3): `krl.pap` lists the plan and its amendments with their commits; every provenance record carries the chain in force; every write is appended to a run ledger.
+- **Amended 2026-10-28:** card F12 extends the plan-binding rule to every notebook with a `pap/` folder (§3.3): `krl.pap` lists the plan and its amendments with their SHA-256 and author time (a commit id may be added for readers and is never relied on); every provenance record carries the chain in force; every write is appended to a run ledger.
 - **Amended 2026-10-16:** the PUMS and CPS ASEC clients return cells only and have no row-level path at all (§3.8); the public-surface check reads its name patterns from a private denylist outside the repository (§3.10).
 
 ## 1. Title
@@ -132,9 +132,34 @@ The run ledger, `provenance/_runs.jsonl`, is written **in the fetch layer**: eve
 chain in force. The gate requires every line's chain to be one the declared list can produce, with the same in-force rule as a record; every
 current record to be on the ledger; lines in time order; every committed version of the ledger to be a byte-prefix of the next; and
 reconstructed lines (back-filled from committed records or saved bytes, because the run left no record) to come first and carry a `note` giving the
-source of their timestamp. History is fail-closed: a shallow or unreadable clone fails the gate unless `KRL_ALLOW_SHALLOW=1`, never when `CI=true`.
+source of their timestamp. History is fail-closed: a shallow or unreadable clone fails the gate unless `KRL_ALLOW_SHALLOW=1`, never when `CI` is set to anything.
 The digest-only legacy path is an explicit allowlist of C01 to C06. Plans and amendments cite their predecessors by file name and SHA-256, not by
 commit id. Author dates are self-asserted, so order is proven against honest authors only; squash merges stay off for a notebook with a plan.
+
+**A file added in the commit being made.** The author time of a commit does not exist until the commit does, so a plan or amendment file that is
+staged as new (and in no commit of HEAD's ancestry) is checked for its digest and its `krl.pap` listing only; its `authored_utc` may be `"pending"`
+there, and its time and order are not checked in that pre-commit run. The next commit sets `authored_utc` to the first commit's author time, and
+the gate then enforces everything. CI sees nothing staged and rejects `"pending"`. A commit's author or committer time is never set by hand to make
+the gate pass; the gate was changed instead (known-answer tests in `tests/test_gate_pap.py`).
+
+**Nothing is edited before it is declared, and nothing is withdrawn.** The declared digest must be the file's *first* version in HEAD's ancestry
+(committing version X, then Y, then declaring Y fails), and every file ever added under the notebook's `pap/` folder, plan, amendment or record,
+must still exist at HEAD (adding and then deleting an amendment fails). The legacy allowlist is keyed by repo-relative folder path, so a new project
+cannot borrow a legacy folder name. Any non-empty `CI` value counts as CI for the shallow-history rule. A ledgered fetcher that another ledgered
+fetcher calls (`fetch_acs_wide` calls `fetch_acs`) writes no line of its own: the outermost call writes the one line, and a `cache_hit` flag set
+inside reaches it.
+
+**What the gate cannot see.** `git commit --amend`, `fixup` and `rebase -i` keep the author date of the commit they rewrite, so content added
+that way carries the original author time; the gate checks author times, and a committer time is not evidence it reads. Author dates are
+self-asserted in any case.
+
+**Rewritten history, disclosed (owner ruling, 2026-10-29).** The rebases that put the cards on top of F12 folded later content (`krl.pap`, the plan
+chain fields and reconstructed ledger lines) into four commits that keep their original author dates: I01 `b8182c2` (author 2026-10-28
+07:39:35 -0400), Q01 `192caf6` (2026-10-27 09:47:28 -0400), M01 `373ce06` (2026-10-27 09:57:52 -0400) and E03 `7ddfe73` (2026-10-27
+16:36:22 -0400); all four have committer times on 2026-10-28 between 23:32:12 and 23:32:14 -0400. On those commits the author date marks when the
+original change was made, **not** when the provenance fields were added. The branches are not rewritten again. **Rule from here:** the gate must
+pass on every commit authored after F12 lands on `main`; commits authored before it are exempt. New content is never folded into an existing commit
+to make an older commit pass.
 
 ### 3.4 Policy reference tables
 

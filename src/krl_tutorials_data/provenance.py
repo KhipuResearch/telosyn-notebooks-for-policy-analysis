@@ -367,7 +367,7 @@ class DataProvenance:
 # ---------------------------------------------------------------------------------------------------
 # The run ledger, written in the fetch layer (F12 redesign, REVIEW-4 item 5)
 # ---------------------------------------------------------------------------------------------------
-_LEDGER: dict[str, Any] = {"path": None, "chain": None, "flags": {}}
+_LEDGER: dict[str, Any] = {"path": None, "chain": None, "flags": {}, "depth": 0}
 
 
 def use_ledger(path: str | Path, plan: str | Path, *amendments: str | Path) -> str:
@@ -378,14 +378,14 @@ def use_ledger(path: str | Path, plan: str | Path, *amendments: str | Path) -> s
     """
     digests = [hashlib.sha256(Path(f).read_bytes()).hexdigest() for f in (plan, *amendments)]
     chain = pap_chain(digests)
-    _LEDGER.update(path=Path(path), chain=chain, flags={})
+    _LEDGER.update(path=Path(path), chain=chain, flags={}, depth=0)
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     return chain
 
 
 def stop_ledger() -> None:
     """Stop writing a ledger (tests, and a process that moves to another notebook)."""
-    _LEDGER.update(path=None, chain=None, flags={})
+    _LEDGER.update(path=None, chain=None, flags={}, depth=0)
 
 
 def _append(line: dict[str, Any]) -> None:
@@ -409,11 +409,18 @@ def ledger_stop(reason: str) -> None:
 
 
 def ledgered(fn):
-    """Wrap a fetcher so each call appends one line to the ledger: ``ok`` after success, ``failed`` before an error propagates."""
+    """Wrap a fetcher so each call appends one line to the ledger: ``ok`` after success, ``failed`` before an error propagates.
+
+    A ledgered fetcher called by another ledgered fetcher (``fetch_acs_wide`` calls ``fetch_acs``) logs nothing of its own: the
+    outermost call writes the one line, and a flag set by the inner call reaches it.
+    """
 
     @functools.wraps(fn)
     def wrapper(*args: Any, **kwargs: Any):
+        if _LEDGER["depth"] > 0:
+            return fn(*args, **kwargs)
         _LEDGER["flags"] = {}
+        _LEDGER["depth"] += 1
         try:
             result = fn(*args, **kwargs)
         except BaseException as exc:
@@ -421,6 +428,8 @@ def ledgered(fn):
                      "retrieved_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), "content_sha256": None,
                      "error": type(exc).__name__})
             raise
+        finally:
+            _LEDGER["depth"] -= 1
         prov = next((x for x in (result if isinstance(result, tuple) else (result,)) if isinstance(x, DataProvenance)), None)
         _append({"kind": "fetch", "fetcher": fn.__name__, "status": "ok", "cache_hit": bool(_LEDGER["flags"].get("cache_hit", False)),
                  "retrieved_utc": prov.retrieved_utc if prov else datetime.now(timezone.utc).isoformat(timespec="seconds"),

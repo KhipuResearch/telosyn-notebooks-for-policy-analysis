@@ -149,3 +149,62 @@ def test_every_live_line_carries_the_time_it_was_logged(ledger) -> None:
     _prov("b").write(path.parent / "r.json")
     stamps = [x["logged_utc"] for x in lines(path)]
     assert len(stamps) == 3 and stamps == sorted(stamps) and all(s.endswith("+00:00") for s in stamps)
+
+
+def test_a_ledgered_fetcher_called_by_another_logs_one_line_for_the_outer_call(ledger) -> None:
+    path, _ = ledger
+
+    @pv.ledgered
+    def fetch_inner():
+        return None, _prov("inner")
+
+    @pv.ledgered
+    def fetch_outer():
+        fetch_inner()
+        fetch_inner()
+        return None, _prov("outer")
+
+    fetch_outer()
+    (line,) = lines(path)
+    assert line["fetcher"] == "fetch_outer" and line["content_sha256"] == _prov("outer").content_sha256
+
+
+def test_a_flag_set_by_a_nested_fetcher_reaches_the_outer_line(ledger) -> None:
+    path, _ = ledger
+
+    @pv.ledgered
+    def fetch_inner():
+        pv.ledger_flag(cache_hit=True)
+        return None, _prov()
+
+    @pv.ledgered
+    def fetch_outer():
+        return fetch_inner()
+
+    fetch_outer()
+    (line,) = lines(path)
+    assert line["fetcher"] == "fetch_outer" and line["cache_hit"] is True
+
+
+def test_a_nested_failure_logs_one_failed_line_and_the_depth_is_reset(ledger) -> None:
+    path, _ = ledger
+
+    @pv.ledgered
+    def fetch_inner():
+        raise sources.UpstreamError("HTTP 502")
+
+    @pv.ledgered
+    def fetch_outer():
+        return fetch_inner()
+
+    with pytest.raises(sources.UpstreamError):
+        fetch_outer()
+    (line,) = lines(path)
+    assert line["fetcher"] == "fetch_outer" and line["status"] == "failed"
+
+    @pv.ledgered
+    def fetch_next():
+        return None, _prov()
+
+    fetch_next()
+    assert [x["fetcher"] for x in lines(path)] == ["fetch_outer", "fetch_next"]       # a raise did not leave the depth raised

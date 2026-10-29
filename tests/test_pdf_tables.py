@@ -260,3 +260,21 @@ def test_summary_groups_read_heading_count_and_names() -> None:
 
 def test_summary_groups_ignore_text_before_the_first_heading_and_a_count_in_prose() -> None:
     assert pdf_tables.parse_summary_groups("There are 46 State agencies (46).\nMore prose.\n") == []
+
+
+def test_bulleted_groups_read_a_heading_split_across_lines_and_the_names_under_it() -> None:
+    text = (
+        "Prose with a count (3) that is not a heading.\n"
+        "\u25cf  \n4 to 24 Months \n(2) \nAlaska \nDC \n"
+        "\u25cf \n12 and 24 \nMonths (1) \nArizona \n \n"
+        "\u25cf \nUnder review (1) \nTexas \n"
+    )
+    assert pdf_tables.parse_bulleted_groups(text) == [
+        ("4 to 24 Months", 2, ["Alaska", "DC"]),
+        ("12 and 24 Months", 1, ["Arizona"]),
+        ("Under review", 1, ["Texas"]),
+    ]
+
+
+def test_bulleted_groups_ignore_text_before_the_first_bullet() -> None:
+    assert pdf_tables.parse_bulleted_groups("There are 46 agencies (46).\nMore prose.\n") == []

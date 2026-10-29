@@ -22,6 +22,7 @@ FIX = Path(__file__).parent / "fixtures" / "fns"
 STATES = [r["state"] for r in csv.DictReader(open(ROOT / "data/policy/medicaid/expansion_dates.csv"))]
 TABLES = json.loads((FIX / "reaching_table_pages.json").read_text())
 OPTIONS = json.loads((FIX / "options14_pages.json").read_text())
+OPTIONS15 = json.loads((FIX / "options15_pages.json").read_text())
 
 
 def _parse(key: str) -> tuple[dict[str, tuple[float, ...]], list]:
@@ -88,3 +89,15 @@ def test_options_14th_summary_lists_on_the_real_pages() -> None:
     assert [(h, n, len(names)) for h, n, names in length] == [
         ("6 Months only", 4, 4), ("6 & 12 Months", 6, 6), ("12 Months only", 13, 13),
         ("12 & 24 Months", 16, 16), ("Various combinations", 13, 13), ("Change reporting only", 1, 1)]
+
+
+def test_options_15th_certification_periods_on_the_real_page() -> None:
+    """PDF page 12 prints the periods as five bulleted lists, 53 names with Guam and the Virgin Islands."""
+    groups = pdf_tables.parse_bulleted_groups(OPTIONS15["pages"]["12"])
+    assert [(h, n, len(names)) for h, n, names in groups] == [
+        ("4 to 24 Months", 27, 27), ("12 Months only", 13, 13), ("12 and 24 Months", 11, 11),
+        ("Change reporting only", 1, 1), ("Under review", 1, 1)]
+    assert groups[0][2][:3] == ["Alaska", "Colorado", "DC"] and groups[3][2] == ["Mississippi"] and groups[4][2] == ["Texas"]
+    listed = [x for _, _, names in groups for x in names]
+    assert len(listed) == len(set(listed)) == 53
+    assert [pdf_tables.longest_months(h) for h, _, _ in groups] == [24.0, 12.0, 24.0, None, None]

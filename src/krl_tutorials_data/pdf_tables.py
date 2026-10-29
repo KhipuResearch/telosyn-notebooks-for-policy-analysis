@@ -285,6 +285,37 @@ def parse_summary_groups(text: str) -> list[tuple[str, int, list[str]]]:
     return groups
 
 
+_BULLET = re.compile(r"^\s*[\u25cf\u2022]")
+_HEADING_COUNT = re.compile(r"^(.*?)\s*\((\d+)\)\s*$")
+
+
+def parse_bulleted_groups(text: str) -> list[tuple[str, int, list[str]]]:
+    """Lists that start at a bullet: the heading (which may wrap lines) ends in ``(n)``, then one name per line.
+
+    Returns ``(heading, n, names)`` in page order with white space in a heading collapsed to one space. Text
+    before the first bullet is prose and is ignored. The printed ``n`` is returned as printed; comparing it
+    with the number of names is the caller's check.
+    """
+    groups: list[tuple[str, int, list[str]]] = []
+    heading: list[str] | None = None
+    started = False
+    for line in text.splitlines():
+        if _BULLET.match(line):
+            started, heading = True, []
+            line = _BULLET.sub("", line)
+        if not started or not line.strip():
+            continue
+        if heading is not None:
+            heading.append(line.strip())
+            m = _HEADING_COUNT.match(" ".join(heading))
+            if m:
+                groups.append((re.sub(r"\s+", " ", m.group(1)).strip(), int(m.group(2)), []))
+                heading = None
+        else:
+            groups[-1][2].append(re.sub(r"\s+", " ", line.strip()))
+    return groups
+
+
 _FOOTER = re.compile(r"Options\s+Report\s*[•·]\s*(\d+)")
 
 

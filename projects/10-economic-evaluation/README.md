@@ -53,7 +53,7 @@ jupyter lab projects/10-economic-evaluation/
 - Read a distributional table (average income, transfers and taxes by income quintile) and turn averages into shares of a total.
 - Rank people by household income adjusted for household size, and place a boundary inside a bin when income is known only to its bin.
 - Compute the incidence of a stylised transfer by income quintile, race and ethnicity, and the age of the household's reference person.
-- Report a survey share with the interval a simple random sample would give, and say why that interval likely understates the true uncertainty.
+- Report a survey share with the interval a simple random sample would give, and say why that interval is only an approximation, and compare it with the survey's own replicate-weight interval.
 
 **Sources** — The Distribution of Household Income, 2023 - supplemental data (September 2026 report (publication 62761)); Current Population Survey Annual Social and Economic Supplement (cps/asec/mar); CPS ASEC 2024 replicate-weight download: 2024_ASEC_Replicate_Weight_Usage_Instructions.docx; CPS ASEC 2024 replicate-weight download: CPS_ASEC_ASCII_REPWGT_2024.SAS; CPS ASEC 2024 replicate-weight download: CPS_ASEC_ASCII_REPWGT_2024.ZIP  
 11 provenance records committed in `E03_distributional_incidence/provenance/`.

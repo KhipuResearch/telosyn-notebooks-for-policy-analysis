@@ -110,6 +110,19 @@ def test_a_lone_letter_line_is_joined_to_the_name_it_starts() -> None:
     assert joins == [(2, "L", "ouisiana 82 86 83"), (5, "O", "regon 100")]
 
 
+def test_a_two_letter_fragment_is_joined_the_same_way() -> None:
+    """FY 2019's table breaks Oregon after two letters (``Or`` / ``egon``); the fragment is still the start of the name."""
+    lines = ["Oklahoma 85 86 90", "Or", "egon 100 100 100", "Pennsylvania 94"]
+    fixed, joins = pdf_tables.repair_split_names(lines, [*NAMES, "Oregon", "Oklahoma", "Pennsylvania"])
+    assert fixed == ["Oklahoma 85 86 90", "Oregon 100 100 100", "Pennsylvania 94"]
+    assert joins == [(2, "Or", "egon 100 100 100")]
+    # a fragment of three letters is not repaired, and nothing is joined unless the result starts a listed name
+    fixed, joins = pdf_tables.repair_split_names(["Ore", "gon 1"], [*NAMES, "Oregon"])
+    assert joins == [] and fixed == ["Ore", "gon 1"]
+    fixed, joins = pdf_tables.repair_split_names(["Xy", "zzz 1"], NAMES)
+    assert joins == []
+
+
 def test_a_lone_letter_that_does_not_make_a_name_is_left_alone() -> None:
     lines = ["Z", "ebra 5", "A", "labama 4"]
     fixed, joins = pdf_tables.repair_split_names(lines, NAMES)

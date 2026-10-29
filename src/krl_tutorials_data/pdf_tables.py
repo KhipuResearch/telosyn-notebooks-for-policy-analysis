@@ -145,22 +145,27 @@ def check_coverage(rows: Sequence[Row], expected: Sequence[str]) -> Coverage:
     )
 
 
+def _fragment(text: str) -> bool:
+    return 1 <= len(text) <= 2 and text[0].isupper() and text[1:].islower() or len(text) == 1 and text.isupper()
+
+
 def repair_split_names(
     lines: Sequence[str], names: Sequence[str]
 ) -> tuple[list[str], list[tuple[int, str, str]]]:
-    """Join a line that is one capital letter to the next line when that makes a jurisdiction's name.
+    """Join a line that is a one- or two-letter fragment to the next line when that makes a jurisdiction's name.
 
-    Text extraction sometimes breaks a word after its first letter (``L`` / ``ouisiana 82 86``). This is
-    the only repair of a name: the next line must start with lower-case letters and the joined line must
-    begin with one of ``names`` at a word boundary. Returns the new lines and, for every join, the
-    1-based number of the lone letter's line in ``lines`` and the two pieces.
+    Text extraction sometimes breaks a word after its first letter or two (``L`` / ``ouisiana 82 86``,
+    ``Or`` / ``egon 100``). This is the only repair of a name: the fragment is a capital followed by at
+    most one lower-case letter, the next line must start with lower-case letters and the joined line
+    must begin with one of ``names`` at a word boundary. Returns the new lines and, for every join, the
+    1-based number of the fragment's line in ``lines`` and the two pieces.
     """
     out: list[str] = []
     joins: list[tuple[int, str, str]] = []
     i = 0
     while i < len(lines):
         cur = lines[i].strip()
-        if len(cur) == 1 and cur.isupper() and i + 1 < len(lines) and lines[i + 1].strip()[:1].islower():
+        if _fragment(cur) and i + 1 < len(lines) and lines[i + 1].strip()[:1].islower():
             joined = cur + lines[i + 1].strip()
             if any(joined.startswith(n) and _boundary(joined, len(n)) for n in names):
                 out.append(joined)

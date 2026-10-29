@@ -11,6 +11,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 - **Date:** 2026-10-15
 - **Amended 2026-10-15:** precedence of a pre-analysis plan over the data is proven by digest equality (notebook declaration = plan file = `pap_sha256` in every provenance record), not by commit time; commit order is a warning, and §3.2 rule 3–4 and the fail-closed clause read accordingly.
 - **Amended 2026-10-23:** C06 does not adopt `linearmodels`: the exactly identified, one-instrument case is short enough to implement and test in `methods/iv.py` (§3.6), against the textbook projection form, so no dependency is added. `fetch_acs_pums` also gains `keep`, `bands` and pooled states, still returning cells only (§3.8).
+- **Amended 2026-10-28:** card F12 extends the plan-binding rule to every notebook with a `pap/` folder (§3.3): `krl.pap` lists the plan and its amendments with their commits; every provenance record carries the chain in force; every write is appended to a run ledger.
 - **Amended 2026-10-16:** the PUMS and CPS ASEC clients return cells only and have no row-level path at all (§3.8); the public-surface check reads its name patterns from a private denylist outside the repository (§3.10).
 
 ## 1. Title
@@ -114,6 +115,26 @@ retrieval: outcome, treatment definition, sample, estimator, covariates,
 falsification tests, and the result that would count as "no effect". The
 notebook's Limitations section states whether the analysis departed from the plan
 and why. Binding means the gate in §3.2, not the author's intention.
+
+**Amendments and the run ledger (F12, 2026-10-28; redesigned 2026-10-29).** A plan is never edited; a change is a new file in `pap/` committed on
+its own. A notebook with a `pap/` folder declares `krl.pap`, an ordered list of `{file, sha256, authored_utc, relation}` for the plan and each
+amendment (`commit` may be added for readers and is never relied on). The gate binds **by content and author time, within HEAD's ancestry**:
+`git log --reverse -- pap/<file>` is walked, the first commit whose blob hashes to `sha256` must have the author time `authored_utc`, and no later
+commit in that ancestry may touch the file; a commit not reachable from HEAD never satisfies a rule. Rebase keeps author dates, so the binding
+survives the rebases and fast-forward merges this repository uses, which commit ids do not. `relation` is `before_retrieval` when `authored_utc` is
+not after the earliest retrieval in the notebook's records or run ledger, else `after_retrieval`. Each record carries `pap_sha256` (the plan),
+`pap_amendments` (the amendments in force when it was written, in order) and `pap_chain_sha256` (the SHA-256 of the newline-joined digests of the
+plan and those amendments), set with `DataProvenance.with_pap_chain`.
+
+The run ledger, `provenance/_runs.jsonl`, is written **in the fetch layer**: every `fetch_*` function appends a line, with its status (`ok` or
+`failed`) and `cache_hit`, **before it raises as well as after it succeeds**; a notebook calls `ledger_stop` before it raises on a stop-rule; each
+`DataProvenance.write` appends a record line. A notebook calls `provenance.use_ledger` once, in its configuration cell, so each line carries the
+chain in force. The gate requires every line's chain to be one the declared list can produce, with the same in-force rule as a record; every
+current record to be on the ledger; lines in time order; every committed version of the ledger to be a byte-prefix of the next; and
+reconstructed lines (back-filled from committed records or saved bytes, because the run left no record) to come first and carry a `note` giving the
+source of their timestamp. History is fail-closed: a shallow or unreadable clone fails the gate unless `KRL_ALLOW_SHALLOW=1`, never when `CI=true`.
+The digest-only legacy path is an explicit allowlist of C01 to C06. Plans and amendments cite their predecessors by file name and SHA-256, not by
+commit id. Author dates are self-asserted, so order is proven against honest authors only; squash merges stay off for a notebook with a plan.
 
 ### 3.4 Policy reference tables
 

@@ -51,6 +51,21 @@ FALSIFICATION: <test> | statistic=<number> | verdict=PASS
 
 `verdict` is `PASS` or `FAIL`; a `FAIL` is a finding and is reported as one.
 
+## `pap`
+
+Introduced by card F12 ([ADR 0009](../../DECISIONS/0009-expansion-architecture.md) §3.3). Required of every notebook with a `pap/` folder, except the six
+notebooks C01 to C06 that predate it.
+
+| Key | Type | Meaning |
+|---|---|---|
+| `file` | string | File name inside `pap/`; the first entry is the plan, the rest are amendments in the order authored |
+| `sha256` | string | SHA-256 of the file; the first commit in HEAD's ancestry that holds this exact content must have been authored at `authored_utc`, and no later commit may modify the file |
+| `authored_utc` | string | ISO-8601 author time of that commit, in UTC |
+| `relation` | string | `before_retrieval` if `authored_utc` is not after the earliest retrieval in the notebook's records and run ledger, else `after_retrieval` |
+| `commit` | string, optional | Informational only; never relied on |
+
+`tests/test_gate_pap.py` checks the list, every record's plan chain and the run ledger against real history, and fails closed on shallow history.
+
 ## Reserved: `data_mode: model` and `krl.model`
 
 A third data mode, `model`, and a `krl.model` block (seed, calibration sources) are

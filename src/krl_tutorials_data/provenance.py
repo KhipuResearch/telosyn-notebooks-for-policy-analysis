@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, asdict, field, replace
+import functools
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
@@ -124,6 +125,13 @@ def canonical_stable_json(payload: bytes) -> bytes:
     return json.dumps(_without_volatile(json.loads(payload)), sort_keys=True).encode()
 
 
+def pap_chain(digests: list[str]) -> str:
+    """SHA-256 of the plan's digest followed by each amendment's, joined by newlines, in order."""
+    if not digests:
+        raise ValueError("a plan chain needs at least the plan's digest.")
+    return hashlib.sha256("\n".join(digests).encode("ascii")).hexdigest()
+
+
 def canonical_rows(payload: bytes) -> bytes:
     """Row-order-independent form of a Census-style ``[[header], [row], ...]`` body.
 
@@ -220,6 +228,14 @@ class DataProvenance:
     #: so records written before it existed are unchanged.
     pap_sha256: str | None = None
 
+    #: The plan and its amendments in force when this record was written: the amendments, in order, as
+    #: ``{"file", "sha256"}``, and the SHA-256 of the newline-joined digests of the plan followed by those
+    #: amendments (:func:`pap_chain`). ``None`` where the record was not bound with
+    #: :meth:`with_pap_chain`. The plan-binding gate checks both against the notebook's ``krl.pap`` list and
+    #: against commit times (card F12).
+    pap_chain_sha256: str | None = None
+    pap_amendments: tuple[dict[str, str], ...] | None = None
+
     @staticmethod
     def hash_payload(payload: bytes) -> str:
         return hashlib.sha256(payload).hexdigest()
@@ -275,6 +291,20 @@ class DataProvenance:
         digest = hashlib.sha256(Path(pap_path).read_bytes()).hexdigest()
         return replace(self, pap_sha256=digest)
 
+    def with_pap_chain(self, plan: str | Path, *amendments: str | Path) -> "DataProvenance":
+        """Bind this record to a plan and the amendments in force, in order.
+
+        Digests are taken from the files' bytes. ``pap_sha256`` is the plan's digest (so the existing
+        gate is unchanged); ``pap_amendments`` lists the amendments; ``pap_chain_sha256`` covers all.
+        """
+        plan_digest = hashlib.sha256(Path(plan).read_bytes()).hexdigest()
+        listed = tuple(
+            {"file": Path(a).name, "sha256": hashlib.sha256(Path(a).read_bytes()).hexdigest()}
+            for a in amendments
+        )
+        chain = pap_chain([plan_digest, *(a["sha256"] for a in listed)])
+        return replace(self, pap_sha256=plan_digest, pap_amendments=listed, pap_chain_sha256=chain)
+
     def _pin_label(self) -> str:
         """Say which it is. The old block said "(pinned)" unconditionally.
 
@@ -292,12 +322,23 @@ class DataProvenance:
         d["mode"] = self.mode.value
         if d["pap_sha256"] is None:
             del d["pap_sha256"]
+        if d["pap_chain_sha256"] is None:
+            del d["pap_chain_sha256"]
+        if d["pap_amendments"] is None:
+            del d["pap_amendments"]
+        else:
+            d["pap_amendments"] = [dict(a) for a in d["pap_amendments"]]
         return d
 
     def write(self, path: str | Path) -> Path:
         p = Path(path)
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(json.dumps(self.to_dict(), indent=2), encoding="utf-8")
+        if p.parent.name == "provenance":
+            line = {"kind": "record", "status": "ok", "record": p.name, "retrieved_utc": self.retrieved_utc,
+                    "content_sha256": self.content_sha256, "pap_chain_sha256": self.pap_chain_sha256}
+            with (p.parent / "_runs.jsonl").open("a", encoding="utf-8") as ledger:
+                ledger.write(json.dumps(line) + "\n")
         return p
 
     def render(self) -> str:
@@ -320,3 +361,70 @@ class DataProvenance:
             lines.append("Limitations :")
             lines.extend(f"              - {n}" for n in self.notes)
         return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------------------------------
+# The run ledger, written in the fetch layer (F12 redesign, REVIEW-4 item 5)
+# ---------------------------------------------------------------------------------------------------
+_LEDGER: dict[str, Any] = {"path": None, "chain": None, "flags": {}}
+
+
+def use_ledger(path: str | Path, plan: str | Path, *amendments: str | Path) -> str:
+    """Send every ledgered fetch in this process to ``path``, each line carrying the plan chain in force.
+
+    The chain is computed from the plan and the amendments given (the files in force when the notebook runs).
+    Returns the chain. Call once, in a notebook's configuration cell, before any fetch.
+    """
+    digests = [hashlib.sha256(Path(f).read_bytes()).hexdigest() for f in (plan, *amendments)]
+    chain = pap_chain(digests)
+    _LEDGER.update(path=Path(path), chain=chain, flags={})
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    return chain
+
+
+def stop_ledger() -> None:
+    """Stop writing a ledger (tests, and a process that moves to another notebook)."""
+    _LEDGER.update(path=None, chain=None, flags={})
+
+
+def _append(line: dict[str, Any]) -> None:
+    path = _LEDGER["path"]
+    if path is None:
+        return
+    line = {**line, "pap_chain_sha256": _LEDGER["chain"]}
+    with Path(path).open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(line) + "\n")
+
+
+def ledger_flag(**flags: Any) -> None:
+    """Called by a fetcher inside its own call to say, for example, ``cache_hit=True``; cleared after the call."""
+    _LEDGER["flags"].update(flags)
+
+
+def ledger_stop(reason: str) -> None:
+    """A notebook calls this immediately before it raises on a stop-rule, so the stopped run is on the ledger."""
+    _append({"kind": "stop", "status": "stopped", "reason": reason,
+             "retrieved_utc": datetime.now(timezone.utc).isoformat(timespec="seconds")})
+
+
+def ledgered(fn):
+    """Wrap a fetcher so each call appends one line to the ledger: ``ok`` after success, ``failed`` before an error propagates."""
+
+    @functools.wraps(fn)
+    def wrapper(*args: Any, **kwargs: Any):
+        _LEDGER["flags"] = {}
+        try:
+            result = fn(*args, **kwargs)
+        except BaseException as exc:
+            _append({"kind": "fetch", "fetcher": fn.__name__, "status": "failed", "cache_hit": bool(_LEDGER["flags"].get("cache_hit", False)),
+                     "retrieved_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), "content_sha256": None,
+                     "error": type(exc).__name__})
+            raise
+        prov = next((x for x in (result if isinstance(result, tuple) else (result,)) if isinstance(x, DataProvenance)), None)
+        _append({"kind": "fetch", "fetcher": fn.__name__, "status": "ok", "cache_hit": bool(_LEDGER["flags"].get("cache_hit", False)),
+                 "retrieved_utc": prov.retrieved_utc if prov else datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                 "content_sha256": prov.content_sha256 if prov else None})
+        return result
+
+    wrapper.__ledgered__ = True  # type: ignore[attr-defined]
+    return wrapper

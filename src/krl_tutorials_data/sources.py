@@ -34,7 +34,7 @@ import numpy as np
 import pandas as pd
 import requests
 
-from .provenance import DataProvenance, canonical_rows, canonical_stable_json
+from .provenance import DataProvenance, canonical_rows, canonical_stable_json, ledgered
 
 # --------------------------------------------------------------------------- #
 # Errors — each failure mode is distinguishable by type.
@@ -4365,3 +4365,9 @@ def describe_stub_levels(frame: pd.DataFrame, *, column: str = "stub_name") -> p
         aggregations |= {"with_estimate": ("_estimate", "count")}
     levels = work.groupby(column).agg(**aggregations).sort_values("rows", ascending=False)
     return levels.reset_index()
+
+
+# Every public fetcher appends to the notebook's run ledger (provenance.use_ledger), before it raises as well as after success.
+for _name in [n for n, f in list(globals().items()) if n.startswith("fetch_") and callable(f) and not getattr(f, "__ledgered__", False)]:
+    globals()[_name] = ledgered(globals()[_name])
+del _name

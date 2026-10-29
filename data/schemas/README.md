@@ -32,7 +32,13 @@ twenty-five written after it was added.
 | `pinned` | boolean | Whether a re-run is held to `content_sha256` |
 | `mode` | string | `empirical`, or `illustrative` for the one simulated artifact |
 | `pap_sha256` | string | Optional. SHA-256 of the pre-analysis plan in force at retrieval; present on records of causal notebooks only. See [`notebook_metadata.md`](notebook_metadata.md) |
+| `pap_amendments` | array of object | Optional. The plan's amendments in force at retrieval, in order, each `{file, sha256}`; with `pap_chain_sha256`, the SHA-256 of the newline-joined digests of the plan and those amendments. Set with `DataProvenance.with_pap_chain` (card F12) |
 | `notes` | array of string | Caveats the client attached at retrieval time: margins of error, suppression, controlled totals |
+
+The run ledger is a file named `_runs.jsonl` beside the records. Each `fetch_*` function appends a line before it raises as well as after it succeeds
+(`kind: fetch`, `status` ok or failed, `cache_hit`, `retrieved_utc`, `content_sha256`, `pap_chain_sha256`); a notebook that stops on a rule appends a
+`kind: stop` line first; each record written appends a `kind: record` line. A run that stopped therefore leaves a line even if its record was later
+overwritten. A line marked `reconstructed` was written afterwards and carries a `note` giving the source of its timestamp.
 
 A machine-readable copy of this schema is in [`provenance_record.json`](provenance_record.json).
 

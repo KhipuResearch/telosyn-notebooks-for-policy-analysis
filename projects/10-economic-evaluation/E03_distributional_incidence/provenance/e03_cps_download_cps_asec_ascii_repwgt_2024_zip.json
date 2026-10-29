@@ -4,7 +4,7 @@
   "vintage": "2024 ASEC (income year 2023)",
   "endpoint": "https://www2.census.gov/programs-surveys/cps/datasets/2024/march/CPS_ASEC_ASCII_REPWGT_2024.ZIP",
   "variables": {},
-  "retrieved_utc": "2026-10-29T03:32:34+00:00",
+  "retrieved_utc": "2026-10-29T03:35:39+00:00",
   "row_count": 0,
   "column_count": 0,
   "content_sha256": "ddb5cbf3c0d4ff6c56e3928a3d7fb78f079ba4c7d0e52c709282294fe5e48ac3",

@@ -4,7 +4,7 @@
   "vintage": "State Options Report, 15th edition",
   "endpoint": "https://www.fna.usda.gov/sites/default/files/resource-files/snap-15th-state-options-report-october23.pdf",
   "variables": {},
-  "retrieved_utc": "2026-10-28T12:54:47+00:00",
+  "retrieved_utc": "2026-10-29T04:14:03+00:00",
   "row_count": 0,
   "column_count": 0,
   "content_sha256": "1202fcbc8d717aab38d77bf569dd0200d6fe42ac206c4166dfed93bce6194f72",
@@ -13,6 +13,9 @@
     "A PDF of 1,951,320 bytes; its text is extracted and parsed by the notebook.",
     "Redirected from: https://www.fna.usda.gov/sites/default/files/resource-files/snap-15th-state-options-report-october23.pdf",
     "Final URL after redirects: https://fna-bwbufwdzbabpezgc.z01.azurefd.us/sites/default/files/resource-files/snap-15th-state-options-report-october23.pdf",
+    "Last-Modified: Thu, 11 Jan 2024 15:58:22 GMT; ETag: \"1dc658-60ead9df52067\".",
+    "No PDF CreationDate or ModDate was found in the file.",
+    "The publisher's former address for the same path, which redirects to the host above: https://www.fns.usda.gov/sites/default/files/resource-files/snap-15th-state-options-report-october23.pdf.",
     "Not pinned: the publisher can replace a file in place; the payload hash is the vintage identifier."
   ],
   "pinned": false,
@@ -20,7 +23,7 @@
   "request_params": {},
   "request_method": "GET",
   "pap_sha256": "07683027fa91f5525be1fe979fa71252f9d828fd9fd33176833d51b88798d206",
-  "pap_chain_sha256": "988f168966b527c2e237fb531379563c7b288e5339a7e24138925a8669494e57",
+  "pap_chain_sha256": "65a0ccafba48364e8dff95a47814fe09a876544e7ba52f249dcc3e22ef55c840",
   "pap_amendments": [
     {
       "file": "I01_plan_amendment_1.md",
@@ -29,6 +32,10 @@
     {
       "file": "I01_plan_amendment_2.md",
       "sha256": "bf50dc548aa11e734a5a504a7ec7f5a9335eceb180e60564042c5e757c5a7c2c"
+    },
+    {
+      "file": "I01_plan_amendment_3.md",
+      "sha256": "f55611d739142d76f1d86a45ff0c54787d658ffaf023c2d0f81e49694e1b02eb"
     }
   ]
 }

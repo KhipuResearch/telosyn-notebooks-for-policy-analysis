@@ -4,7 +4,7 @@
   "vintage": "fiscal year 2016",
   "endpoint": "https://www.fna.usda.gov/sites/default/files/resource-files/Reaching2016.pdf",
   "variables": {},
-  "retrieved_utc": "2026-10-28T12:54:37+00:00",
+  "retrieved_utc": "2026-10-29T04:13:55+00:00",
   "row_count": 0,
   "column_count": 0,
   "content_sha256": "de54239d9c1a36e29a96129bd919f75136ab0725b25e4c1573f5a372f59ff972",
@@ -13,6 +13,9 @@
     "A PDF of 647,644 bytes; its text is extracted and parsed by the notebook.",
     "Redirected from: https://www.fna.usda.gov/sites/default/files/resource-files/Reaching2016.pdf",
     "Final URL after redirects: https://fna-bwbufwdzbabpezgc.z01.azurefd.us/sites/default/files/resource-files/Reaching2016.pdf",
+    "Last-Modified: Mon, 05 Oct 2020 15:52:07 GMT; ETag: \"9e1dc-5b0ee76eaaba9\".",
+    "PDF CreationDate D:20190227135848-05'00'; PDF ModDate D:20190301121300-05'00'.",
+    "The publisher's former address for the same path, which redirects to the host above: https://www.fns.usda.gov/sites/default/files/resource-files/Reaching2016.pdf.",
     "Not pinned: the publisher can replace a file in place; the payload hash is the vintage identifier."
   ],
   "pinned": false,
@@ -20,7 +23,7 @@
   "request_params": {},
   "request_method": "GET",
   "pap_sha256": "07683027fa91f5525be1fe979fa71252f9d828fd9fd33176833d51b88798d206",
-  "pap_chain_sha256": "988f168966b527c2e237fb531379563c7b288e5339a7e24138925a8669494e57",
+  "pap_chain_sha256": "65a0ccafba48364e8dff95a47814fe09a876544e7ba52f249dcc3e22ef55c840",
   "pap_amendments": [
     {
       "file": "I01_plan_amendment_1.md",
@@ -29,6 +32,10 @@
     {
       "file": "I01_plan_amendment_2.md",
       "sha256": "bf50dc548aa11e734a5a504a7ec7f5a9335eceb180e60564042c5e757c5a7c2c"
+    },
+    {
+      "file": "I01_plan_amendment_3.md",
+      "sha256": "f55611d739142d76f1d86a45ff0c54787d658ffaf023c2d0f81e49694e1b02eb"
     }
   ]
 }

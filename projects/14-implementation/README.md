@@ -17,7 +17,7 @@ jupyter lab projects/14-implementation/
 
 | Notebook | Thesis | Sources |
 |---|---|---|
-| [Take-Up Gaps and Administrative Burden](I01_benefit_take_up_administrative_burden/I01_benefit_take_up_administrative_burden.ipynb) | SNAP and the EITC across the States | snap-15th-state-options-report-october23.pdf, snap-stateOptionsReport-17edition-120925.pdf, 12-State_Options.pdf … |
+| [Take-Up Gaps and Administrative Burden](I01_benefit_take_up_administrative_burden/I01_benefit_take_up_administrative_burden.ipynb) | SNAP and the EITC across the States | 12-State_Options.pdf, 14-State-Options.pdf, snap-15th-state-options-report-october23.pdf … |
 
 ## Take-Up Gaps and Administrative Burden
 
@@ -28,18 +28,18 @@ jupyter lab projects/14-implementation/
 **What it shows**
 
 - Define a take-up gap as the share of eligible people who do not receive a benefit, and say what the participation rate it comes from does and does not contain.
-- Read a state table out of a PDF with a parser whose behaviour is tested, and check the result against the next report that restates it.
+- Read a state table out of a PDF with a parser whose behaviour is tested on real text, and check the result against the next report that restates it and against the report's own summary.
 - Estimate an association between a state's administrative choice and its take-up gap, with an interval from resampling states, and apply a multiple-comparison correction.
 - Say why a cross-state association between an administrative feature and take-up does not identify an effect, and name the design that would.
 
-**Sources** — snap-15th-state-options-report-october23.pdf; snap-stateOptionsReport-17edition-120925.pdf; 12-State_Options.pdf; 14-State-Options.pdf; Reaching2016.pdf; Reaching2017-1.pdf; Reaching2018.pdf; ear-snap-Reaching-Those-in-Need-2022.pdf; EITC participation rate by state  
-9 provenance records committed in `I01_benefit_take_up_administrative_burden/provenance/`.
+**Sources** — 12-State_Options.pdf; 14-State-Options.pdf; snap-15th-state-options-report-october23.pdf; snap-stateOptionsReport-17edition-120925.pdf; Reaching2016.pdf; Reaching2017-1.pdf; Reaching2018.pdf; snap2019reaching.pdf; ear-snap-Reaching-Those-in-Need-2022.pdf; EITC participation rate by state  
+10 provenance records committed in `I01_benefit_take_up_administrative_burden/provenance/`.
 
 **Limitations**
 
-- Association only, across at most fifty-one states. States that adopt online applications or longer certification periods differ in many ways the notebook does not model; no effect of a feature is estimated, and the text refuses that reading.
-- The options can be tested in two fiscal years only. The approved editions that carry both features are the 12th and the 14th, which pair with fiscal 2016 and fiscal 2018. For fiscal 2022 the edition within eighteen months has neither feature in its text, so the test is not possible there. This is a narrower test than the plan's primary year, by amendment.
-- No intervals on the gaps. The reports print confidence intervals only in a chart whose text layer cannot be read, so each gap is a point estimate and the bootstrap intervals describe only the sampling of states, not the error in each state's rate.
+- Association only, across at most fifty-one states. States that adopt online applications or longer certification periods differ in many ways the notebook does not model; no effect of a feature is estimated, and the text refuses that reading. The unit is the state, so a statement about states says nothing about the households inside them (ecological inference), and the arrow can run the other way (reverse causation): a state with low take-up may adopt an online application to raise it.
+- Longer certification can raise measured participation without changing who is eligible. A longer period means fewer recertifications and less churn off the rolls, which raises the participation rate by construction. A positive link between length and take-up is therefore partly a measurement feature, not only a sign of lower burden.
+- Certification length mostly separates the 24-month period for elderly or disabled households from its absence. Other households are capped at 12 months (the 14th edition states this; the owner's review cites 7 CFR 273.10(f), which was not checked here). The variable is a coarse proxy for administrative burden.
 
 ---
 

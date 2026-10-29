@@ -1,0 +1,41 @@
+{
+  "source_name": "U.S. Department of Agriculture, Food and Nutrition Service",
+  "dataset": "snap2019reaching.pdf",
+  "vintage": "fiscal year 2019",
+  "endpoint": "https://www.fna.usda.gov/sites/default/files/resource-files/snap2019reaching.pdf",
+  "variables": {},
+  "retrieved_utc": "2026-10-29T04:13:58+00:00",
+  "row_count": 0,
+  "column_count": 0,
+  "content_sha256": "fba23efaf4faf3191ae45302f80aefab1255e19f608a7a93fb4970a5b4db5dac",
+  "mode": "empirical",
+  "notes": [
+    "A PDF of 980,952 bytes; its text is extracted and parsed by the notebook.",
+    "Redirected from: https://www.fna.usda.gov/sites/default/files/resource-files/snap2019reaching.pdf",
+    "Final URL after redirects: https://fna-bwbufwdzbabpezgc.z01.azurefd.us/sites/default/files/resource-files/snap2019reaching.pdf",
+    "Last-Modified: Mon, 13 Feb 2023 15:25:10 GMT; ETag: \"ef7d8-5f49673e422ad\".",
+    "PDF CreationDate D:20221109121504-08'00'; PDF ModDate D:20221109121518-08'00'.",
+    "The publisher's former address for the same path, which redirects to the host above: https://www.fns.usda.gov/sites/default/files/resource-files/snap2019reaching.pdf.",
+    "Not pinned: the publisher can replace a file in place; the payload hash is the vintage identifier."
+  ],
+  "pinned": false,
+  "hash_basis": "response-bytes",
+  "request_params": {},
+  "request_method": "GET",
+  "pap_sha256": "07683027fa91f5525be1fe979fa71252f9d828fd9fd33176833d51b88798d206",
+  "pap_chain_sha256": "65a0ccafba48364e8dff95a47814fe09a876544e7ba52f249dcc3e22ef55c840",
+  "pap_amendments": [
+    {
+      "file": "I01_plan_amendment_1.md",
+      "sha256": "558aa55fe126484bfcc770118bcb2725d2aa298fbdbde60d5678daa76054b51c"
+    },
+    {
+      "file": "I01_plan_amendment_2.md",
+      "sha256": "bf50dc548aa11e734a5a504a7ec7f5a9335eceb180e60564042c5e757c5a7c2c"
+    },
+    {
+      "file": "I01_plan_amendment_3.md",
+      "sha256": "f55611d739142d76f1d86a45ff0c54787d658ffaf023c2d0f81e49694e1b02eb"
+    }
+  ]
+}

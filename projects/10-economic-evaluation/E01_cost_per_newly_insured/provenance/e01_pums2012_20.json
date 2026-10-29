@@ -28,5 +28,7 @@
     "key": "<redacted>"
   },
   "request_method": "GET",
-  "pap_sha256": "b4a11856be095640088c46fc7ad48e77d4635b6db046c3d88b8cf3e66fbfbabb"
+  "pap_sha256": "b4a11856be095640088c46fc7ad48e77d4635b6db046c3d88b8cf3e66fbfbabb",
+  "pap_amendments": [],
+  "pap_chain_sha256": "35a5f305348e84fa3d0014b0b04451e7c4060965a56f9d449bf71c6a51039306"
 }

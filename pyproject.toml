@@ -71,9 +71,10 @@ connectors = [
     "krl-data-connectors>=1.0.0",
 ]
 # Hierarchical pooling for Q03 (DECISIONS/0012). Its own extra, never core, and imported only by the Q03 notebook; no
-# library test imports it. The lower bound is the release the notebook was run against.
+# library test imports it. The lower bound is the release the notebook was run against. Every pymc release since 6.0
+# requires Python 3.12 or later, and CI also runs 3.11, hence the marker: on 3.11 the extra installs nothing.
 pymc = [
-    "pymc>=6.3.2",
+    "pymc>=6.3.2; python_version >= '3.12'",
 ]
 # Optional packages that a single notebook of the expansion needs (DECISIONS/0009
 # section 3.6): pymc, econml, mesa, policyengine-us. Declared EMPTY on purpose.

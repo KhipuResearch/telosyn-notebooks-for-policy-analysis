@@ -1,0 +1,39 @@
+{
+  "source_name": "U.S. Census Bureau",
+  "dataset": "American Community Survey (acs/acs5)",
+  "vintage": "2023",
+  "endpoint": "https://api.census.gov/data/2023/acs/acs5",
+  "variables": {
+    "B17001_001E": "poverty universe",
+    "B17001_001M": "poverty universe MOE",
+    "B17001_002E": "persons in poverty",
+    "B17001_002M": "persons in poverty MOE"
+  },
+  "retrieved_utc": "2026-10-30T11:51:43+00:00",
+  "row_count": 133,
+  "column_count": 7,
+  "content_sha256": "de80c3ee9645ba785908f977b3af141521462e848c9a04908bf26198714d11f9",
+  "mode": "empirical",
+  "notes": [
+    "ACS estimates are survey-based. Their margins of error were requested with the estimates (B17001_001M, B17001_002M) and are returned as columns; differences between geographies may not be statistically distinguishable.",
+    "Jam values (suppressed / unavailable estimates) were converted to missing. Sentinels recognised: [-999999999, -888888888, -777777777, -666666666, -555555555, -333333333, -222222222, -111111111].",
+    "5-year estimates are period estimates, not point-in-time measures."
+  ],
+  "pinned": true,
+  "hash_basis": "canonical-rows",
+  "request_params": {
+    "get": "NAME,B17001_001E,B17001_001M,B17001_002E,B17001_002M",
+    "for": "county:*",
+    "key": "<redacted>",
+    "in": "state:51"
+  },
+  "request_method": "GET",
+  "pap_sha256": "526398744e0d0a38b65756e9bcb8d565d8f393430f051acb3e8817ae7c7da596",
+  "pap_chain_sha256": "833c74cecb7bd0a152f290796f1431df672d0d84afc332ec5df58c90d3a962fc",
+  "pap_amendments": [
+    {
+      "file": "Q03_pap_amendment_1.md",
+      "sha256": "c861d8f12e2964960331d23bf9e0f5aed3123424a3ec8736892a3df667c71f50"
+    }
+  ]
+}

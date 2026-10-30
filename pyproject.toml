@@ -70,6 +70,11 @@ notebooks = [
 connectors = [
     "krl-data-connectors>=1.0.0",
 ]
+# Hierarchical pooling for Q03 (DECISIONS/0012). Its own extra, never core, and imported only by the Q03 notebook; no
+# library test imports it. The lower bound is the release the notebook was run against.
+pymc = [
+    "pymc>=6.3.2",
+]
 # Optional packages that a single notebook of the expansion needs (DECISIONS/0009
 # section 3.6): pymc, econml, mesa, policyengine-us. Declared EMPTY on purpose.
 # A package is added here only with its notebook, after its existence on PyPI is

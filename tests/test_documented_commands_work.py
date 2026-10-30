@@ -16,6 +16,7 @@ from __future__ import annotations
 import ast
 import re
 import sys
+import tomllib
 from pathlib import Path
 from typing import Final
 
@@ -185,10 +186,14 @@ def test_the_notebooks_extra_covers_what_the_notebooks_import() -> None:
         cells = json.loads(nb.read_text(encoding="utf-8")).get("cells", [])
         src = "\n".join("".join(c.get("source", [])) for c in cells if c.get("cell_type") == "code")
         needed.update(m for m in pat.findall(src) if m not in stdlib)
-    uncovered = sorted(needed - runtime - extra)
+    # A package for a single notebook rides in its own extra, never in [notebooks] (DECISIONS/0011): those
+    # extras are named after the module, and the notebook that needs one says so in its Prerequisites.
+    shared = {"notebooks", "test", "dev", "connectors", "methods"}
+    own = {name for name in tomllib.loads(text)["project"]["optional-dependencies"] if name not in shared}
+    uncovered = sorted(needed - runtime - extra - own)
     assert not uncovered, (
-        f"notebooks import {uncovered}, which neither the runtime dependencies nor "
-        "the [notebooks] extra provide."
+        f"notebooks import {uncovered}, which neither the runtime dependencies, the [notebooks] extra "
+        "nor a notebook's own optional extra provide."
     )
 
 

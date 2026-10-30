@@ -78,6 +78,11 @@ connectors = [
 # declared that is not imported.
 methods = [
 ]
+# Causal forests for Q02 (DECISIONS/0011). Its own extra, never core, and imported only by the Q02 notebook; no
+# library test imports it. The lower bound is the release the notebook was run against.
+econml = [
+    "econml>=0.17.0",
+]
 test = [
     "pytest>=7.4.0",
     # pytest.ini's addopts require coverage; without this the documented test

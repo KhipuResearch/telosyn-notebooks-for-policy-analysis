@@ -18,7 +18,7 @@ jupyter lab projects/10-economic-evaluation/
 | Notebook | Thesis | Sources |
 |---|---|---|
 | [Cost-Effectiveness](E01_cost_per_newly_insured/E01_cost_per_newly_insured.ipynb) | Spending and Coverage Gained in the 2014 Medicaid Expansion | American Community Survey Public Use Microdata Sample (acs/acs1/pums), State FIPS codes and names, CMS Medicaid CMS-64 … |
-| [Reproducing EPA's Lead and Copper Rule Improvements Analysis from Its Published Tables](E02_cost_benefit_reanalysis/E02_cost_benefit_reanalysis.ipynb) | a Reproduction That Misses | 508_lcri_final_ea_10-21-2024.pdf |
+| [Reproducing EPA's Lead and Copper Rule Improvements Analysis from Its Published Tables](E02_cost_benefit_reanalysis/E02_cost_benefit_reanalysis.ipynb) | A Reproduction That Misses | 508_lcri_final_ea_10-21-2024.pdf |
 | [Distributional Incidence](E03_distributional_incidence/E03_distributional_incidence.ipynb) | Who Pays Federal Taxes, Who Gets Transfers, and Who Would Get a Child Transfer | The Distribution of Household Income, 2023 - supplemental data (September 2026 report (publication 62761)), Current Population Survey Annual Social and Economic Supplement (cps/asec/mar), CPS ASEC 2024 replicate-weight download: 2024_ASEC_Replicate_Weight_Usage_Instructions.docx … |
 
 ## Cost-Effectiveness
@@ -45,7 +45,7 @@ jupyter lab projects/10-economic-evaluation/
 
 ## Reproducing EPA's Lead and Copper Rule Improvements Analysis from Its Published Tables
 
-**a Reproduction That Misses.**
+**A Reproduction That Misses.**
 
 `E02_cost_benefit_reanalysis/E02_cost_benefit_reanalysis.ipynb`
 
@@ -62,8 +62,8 @@ jupyter lab projects/10-economic-evaluation/
 **Limitations**
 
 - This is a reproduction attempt of EPA's own assumptions, not an independent estimate. Every cost, benefit quantity, dollar value, schedule and scenario is EPA's. Nothing here estimates anything about lead in water, health, or what the rule costs.
-- A failed reproduction does not show EPA's figures are wrong. It shows they cannot be rebuilt from the published tables under a documented convention. The cause of the gap is unknown; this notebook names one possibility (a difference in base year or flow timing) and does not test it.
-- The convention was fixed after retrieval. The plan left the timing convention to the document; the owner's rule, committed as amendment 1 (the file E02_pap_amendment_1.md in the pap folder, SHA-256 shown in the configuration cell) after the first check had shown the gap, supplies it. The check that produced the gap therefore pre-dates the rule. The rule was applied once and no alternative was computed.
+- A failed reproduction does not show EPA's figures are wrong. It shows they cannot be rebuilt from the published tables under the convention applied here. The cause of the gap is not established: a uniform shift in the timing of flows cannot produce it (section 4), and one further reading (section 5, *not pre-specified, added after review, 2026-10-31*) brings all six comparisons within the tolerance. That reading is a likely explanation, stated conditionally, and the check of section 4 stays FAIL.
+- The folder keeps its original name. This notebook lives in `E02_cost_benefit_reanalysis` although it is a reproduction and not a cost-benefit re-analysis, because the committed plan and amendments sit in that folder and cannot be moved.
 
 ## Distributional Incidence
 

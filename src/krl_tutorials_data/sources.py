@@ -1447,14 +1447,16 @@ def _inside_git_tree(path: Path) -> bool:
 
 
 def fetch_epa_ria_pdf(
-    *, url: str, expected_bytes: int, cache_dir: Any, session: requests.Session | None = None
+    *, url: str, expected_bytes: int, cache_dir: Any, session: requests.Session | None = None, expected_sha256: str | None = None
 ) -> tuple[Path, DataProvenance]:
     """Fetch one EPA document under ``/system/files/documents/`` into a cache outside any repository, or raise.
 
     The URL must be a single ``.pdf`` of that form on ``www.epa.gov`` (anything else is refused before a request).
     A ``HEAD`` request reports the size first; **if it is not ``expected_bytes`` nothing is downloaded** and
     :class:`SizeMismatchError` is raised. A cached file of the approved size is reused (the ledger line says so).
-    The body must be exactly that size and begin with ``%PDF``; it is written atomically. The record is not pinned by the
+    The final URL after any redirect must match the same pattern. The body is streamed and aborted as soon as it exceeds
+    ``expected_bytes``; it must be exactly that size and begin with ``%PDF``, and is written atomically. With ``expected_sha256`` a cached
+    file is reused only if its digest matches, and a fresh body is kept only if its digest matches (:class:`ChecksumError` otherwise). The record is not pinned by the
     publisher (the SHA-256 of the bytes is the vintage identifier) and carries the size and ``Last-Modified`` the server reported. The file is never committed:
     ``cache_dir`` inside a git working tree is refused.
     """
@@ -1470,6 +1472,8 @@ def fetch_epa_ria_pdf(
     except requests.RequestException as exc:
         raise UpstreamError(f"EPA request failed: {redact(exc)}") from exc
     reject_bot_challenge(head, source="the EPA", endpoint=url)
+    if not _EPA_DOC.match(str(getattr(head, "url", url))):
+        raise ResponseShapeError(f"EPA's reply to the size request came from {head.url!r} after a redirect; only www.epa.gov documents are accepted.")
     if head.status_code != 200:
         raise UpstreamError(f"EPA returned HTTP {head.status_code} for {url}.")
     reported = head.headers.get("content-length")
@@ -1478,24 +1482,34 @@ def fetch_epa_ria_pdf(
     if int(reported) != expected_bytes:
         raise SizeMismatchError(f"EPA reports {int(reported)} bytes for {url}; the approved size is {expected_bytes}. Nothing was downloaded.")
     target = directory / url.rsplit("/", 1)[-1]
-    if target.is_file() and target.stat().st_size == expected_bytes and target.read_bytes()[:4] == b"%PDF":
-        body = target.read_bytes()
+    cached = target.read_bytes() if target.is_file() and target.stat().st_size == expected_bytes else b""
+    if cached[:4] == b"%PDF" and (expected_sha256 is None or hashlib.sha256(cached).hexdigest() == expected_sha256):
+        body = cached
         ledger_flag(cache_hit=True)
     else:
         try:
-            resp = http.get(url, timeout=600, headers=headers)
+            resp = http.get(url, timeout=600, headers=headers, stream=True)
         except requests.RequestException as exc:
             raise UpstreamError(f"EPA request failed: {redact(exc)}") from exc
         reject_bot_challenge(resp, source="the EPA", endpoint=url)
+        if not _EPA_DOC.match(str(getattr(resp, "url", url))):
+            raise ResponseShapeError(f"EPA's body came from {resp.url!r} after a redirect; only www.epa.gov documents are accepted.")
         if resp.status_code != 200:
             raise UpstreamError(f"EPA returned HTTP {resp.status_code} for {url}.")
-        body = resp.content
+        received = bytearray()
+        for chunk in resp.iter_content(chunk_size=1 << 20):
+            received += chunk
+            if len(received) > expected_bytes:
+                raise SizeMismatchError(f"The body exceeds the approved size of {expected_bytes} bytes; the transfer was aborted and nothing was kept.")
+        body = bytes(received)
         if not body:
             raise EmptyResultError("EPA returned an empty body.")
         if len(body) != expected_bytes:
             raise SizeMismatchError(f"The body is {len(body)} bytes; the approved size is {expected_bytes}. Nothing was kept.")
         if not body.startswith(b"%PDF"):
             raise ResponseShapeError(f"The response for {url} is not a PDF.")
+        if expected_sha256 is not None and hashlib.sha256(body).hexdigest() != expected_sha256:
+            raise ChecksumError(f"The body's SHA-256 is {hashlib.sha256(body).hexdigest()}, not the expected {expected_sha256}. Nothing was kept.")
         directory.mkdir(parents=True, exist_ok=True)
         partial = target.with_suffix(".part")
         partial.write_bytes(body)

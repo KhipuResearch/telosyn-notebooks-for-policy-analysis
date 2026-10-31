@@ -1,4 +1,4 @@
-"""Contract tests for ``sources.fetch_epa_ria_pdf``: one pinned EPA document, size checked before the body, cached outside the repository.
+"""Contract tests for ``sources.fetch_epa_ria_pdf``: one EPA document, size checked before the body, cached outside the repository, with the digest the caller expects.
 
 Responses are injected; no network is used.
 
@@ -22,10 +22,16 @@ PDF = b"%PDF-1.7\n1 0 obj\n<<>>\nendobj\n%%EOF\n"
 
 
 class _Response:
-    def __init__(self, body: bytes = b"", status: int = 200, headers: dict[str, str] | None = None) -> None:
+    def __init__(self, body: bytes = b"", status: int = 200, headers: dict[str, str] | None = None, url: str = URL) -> None:
         self.status_code, self.content, self.headers = status, body, headers or {}
         self.history: list[Any] = []
-        self.url = URL
+        self.url = url
+        self.chunks_read = 0
+
+    def iter_content(self, chunk_size: int = 1 << 20):
+        for start in range(0, len(self.content), max(1, chunk_size // 1024)):    # small chunks so tests can see an early abort
+            self.chunks_read += 1
+            yield self.content[start:start + max(1, chunk_size // 1024)]
 
 
 class _Session:
@@ -47,7 +53,7 @@ def _session(size: int | None = None, body: bytes = PDF, status: int = 200) -> _
     return _Session(_Response(b"", 200, headers), _Response(body, status))
 
 
-def test_returns_a_cached_path_and_a_pinned_record_with_the_digest_size_and_last_modified(tmp_path: Path) -> None:
+def test_returns_a_cached_path_and_a_record_with_the_digest_size_and_last_modified(tmp_path: Path) -> None:
     session = _session()
     path, prov = sources.fetch_epa_ria_pdf(url=URL, expected_bytes=len(PDF), cache_dir=tmp_path, session=session)
     assert path.read_bytes() == PDF and path.parent == tmp_path
@@ -114,3 +120,41 @@ def test_errors(tmp_path: Path) -> None:
         sources.fetch_epa_ria_pdf(url=URL, expected_bytes=len(b"<html>no"), cache_dir=tmp_path, session=_session(body=b"<html>no"))
     with pytest.raises(EmptyResultError):
         sources.fetch_epa_ria_pdf(url=URL, expected_bytes=0, cache_dir=tmp_path, session=_session(body=b""))
+
+
+def test_a_redirect_to_another_host_is_refused_for_the_head_and_for_the_body(tmp_path: Path) -> None:
+    elsewhere = "https://evil.example/x.pdf"
+    head_off = _Session(_Response(b"", 200, {"content-length": str(len(PDF))}, url=elsewhere), _Response(PDF))
+    with pytest.raises(sources.ResponseShapeError, match="redirect"):
+        sources.fetch_epa_ria_pdf(url=URL, expected_bytes=len(PDF), cache_dir=tmp_path, session=head_off)
+    assert [c[0] for c in head_off.calls] == ["HEAD"]
+    body_off = _Session(_Response(b"", 200, {"content-length": str(len(PDF))}), _Response(PDF, url=elsewhere))
+    with pytest.raises(sources.ResponseShapeError, match="redirect"):
+        sources.fetch_epa_ria_pdf(url=URL, expected_bytes=len(PDF), cache_dir=tmp_path, session=body_off)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_a_body_longer_than_the_approved_size_is_aborted_before_it_is_all_read(tmp_path: Path) -> None:
+    big = PDF + b"x" * 50_000
+    get = _Response(big)
+    session = _Session(_Response(b"", 200, {"content-length": str(len(PDF))}), get)
+    with pytest.raises(sources.SizeMismatchError):
+        sources.fetch_epa_ria_pdf(url=URL, expected_bytes=len(PDF), cache_dir=tmp_path, session=session)
+    assert get.chunks_read < len(big) // 100 and list(tmp_path.iterdir()) == []
+
+
+def test_the_expected_digest_is_checked_on_a_fresh_fetch_and_on_a_cache_hit(tmp_path: Path) -> None:
+    good = hashlib.sha256(PDF).hexdigest()
+    sources.fetch_epa_ria_pdf(url=URL, expected_bytes=len(PDF), cache_dir=tmp_path, session=_session(), expected_sha256=good)
+    again = _session()
+    path, _ = sources.fetch_epa_ria_pdf(url=URL, expected_bytes=len(PDF), cache_dir=tmp_path, session=again, expected_sha256=good)
+    assert [c[0] for c in again.calls] == ["HEAD"] and path.exists()            # a verified cache hit needs no body request
+    other = tmp_path / "other"
+    with pytest.raises(sources.ChecksumError):
+        sources.fetch_epa_ria_pdf(url=URL, expected_bytes=len(PDF), cache_dir=other, session=_session(), expected_sha256="0" * 64)
+    assert not other.exists() or list(other.iterdir()) == []
+    # a cached file whose digest differs from the expected one is not trusted: the body is fetched again and then checked
+    (tmp_path / URL.rsplit("/", 1)[-1]).write_bytes(b"%PDF-1.7\n" + b"y" * (len(PDF) - 9))
+    refetch = _session()
+    sources.fetch_epa_ria_pdf(url=URL, expected_bytes=len(PDF), cache_dir=tmp_path, session=refetch, expected_sha256=good)
+    assert [c[0] for c in refetch.calls] == ["HEAD", "GET"]

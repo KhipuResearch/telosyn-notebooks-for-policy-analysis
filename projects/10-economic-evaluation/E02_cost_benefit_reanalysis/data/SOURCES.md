@@ -32,3 +32,20 @@ scenarios, each row's net equals benefits minus costs within 0.1, and the undisc
 
 Check against EPA's printed totals: the sum of each scenario's yearly net benefits is $479,206.3 million (low) and $918,481.8 million (high); EPA's text on PDF page 708
 (document page 6-7) says "Total undiscounted net benefits range from $479 billion to $918 billion".
+
+## A second document, read without approval: OMB Circular A-4 (2003)
+
+Only the EPA document above was approved for download. To quote the discount-factor formula, Circular A-4 of 17 September 2003 was fetched through a web-fetch tool on
+**2026-10-30**, after the EPA document was downloaded and before amendment 1 was committed (19:34 UTC). **This fetch was not approved.**
+
+| Item | Value |
+|---|---|
+| URL | `https://www.whitehouse.gov/wp-content/uploads/2025/08/CircularA-4.pdf` |
+| Size | 684,461 bytes, 48 pages |
+| SHA-256 | `cb57542f6598541785a60f7c735f92421ec39ae1f960ee379751ddd8d8b5d2a0` |
+| Pages relied on | page 32 (the discount factor 1/(1+r)^t); page 45 (the stream of annualised estimates begins in the year the rule begins to have effects) |
+| Run ledger | **not on the ledger** (the ledger holds the EPA retrieval only); no reconstructed line was added |
+| Stored | a copy sits in the web-fetch tool's results folder outside any repository; not committed and not fetched again |
+
+Before this, the same document had been read once on the same date, before the plan was committed, from OMB's circulars page, which is where the plan's
+statements about its page count and its 3 and 7 percent rates come from; no digest was kept then. Downloads need the maintainer's approval, with file name, source and size, every time.

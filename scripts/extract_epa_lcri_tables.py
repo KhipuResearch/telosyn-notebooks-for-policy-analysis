@@ -59,6 +59,8 @@ def main(pdf: Path, out: Path) -> None:
                 m = ROW.match(text)
                 if m:
                     year = int(m.group(1))
+                    if year in seen.get(scenario, set()):
+                        _fail(f"{scenario}: the year {year} appears twice")
                     cost, benefit, net = (_num(g) for g in m.groups()[1:])
                     rows.append({"scenario": scenario, "year": year, "incremental_costs_musd": cost, "incremental_benefits_musd": benefit,
                                  "net_benefits_musd": net, "source_exhibit": exhibit, "pdf_page": n})

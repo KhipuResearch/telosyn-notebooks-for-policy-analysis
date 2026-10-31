@@ -35,7 +35,7 @@ import pandas as pd
 import requests
 
 from . import html_tables
-from .provenance import DataProvenance, canonical_rows, canonical_stable_json, ledgered
+from .provenance import DataProvenance, canonical_rows, canonical_stable_json, ledger_flag, ledgered
 
 # --------------------------------------------------------------------------- #
 # Errors — each failure mode is distinguishable by type.
@@ -1432,6 +1432,106 @@ def fetch_fns_pdf(
         ),
     )
     return resp.content, prov
+
+
+class SizeMismatchError(DataAccessError):
+    """The size a server reports (or a body delivers) is not the size the plan approved."""
+
+
+_EPA_DOC = re.compile(r"^https://www\.epa\.gov/system/files/documents/\d{4}-\d{2}/[A-Za-z0-9_.-]+\.pdf$")
+
+
+def _inside_git_tree(path: Path) -> bool:
+    """True if ``path`` or any ancestor holds a ``.git`` entry."""
+    return any((p / ".git").exists() for p in (path.resolve(), *path.resolve().parents))
+
+
+def fetch_epa_ria_pdf(
+    *, url: str, expected_bytes: int, cache_dir: Any, session: requests.Session | None = None, expected_sha256: str | None = None
+) -> tuple[Path, DataProvenance]:
+    """Fetch one EPA document under ``/system/files/documents/`` into a cache outside any repository, or raise.
+
+    The URL must be a single ``.pdf`` of that form on ``www.epa.gov`` (anything else is refused before a request).
+    A ``HEAD`` request reports the size first; **if it is not ``expected_bytes`` nothing is downloaded** and
+    :class:`SizeMismatchError` is raised. A cached file of the approved size is reused (the ledger line says so).
+    The final URL after any redirect must match the same pattern. The body is streamed and aborted as soon as it exceeds
+    ``expected_bytes``; it must be exactly that size and begin with ``%PDF``, and is written atomically. With ``expected_sha256`` a cached
+    file is reused only if its digest matches, and a fresh body is kept only if its digest matches (:class:`ChecksumError` otherwise). The record is not pinned by the
+    publisher (the SHA-256 of the bytes is the vintage identifier) and carries the size and ``Last-Modified`` the server reported. The file is never committed:
+    ``cache_dir`` inside a git working tree is refused.
+    """
+    if not _EPA_DOC.match(url or ""):
+        raise ValueError(f"{url!r} is not a single .pdf under https://www.epa.gov/system/files/documents/.")
+    directory = Path(cache_dir)
+    if _inside_git_tree(directory):
+        raise ValueError("the cache directory is inside a repository working tree; a source document is never committed")
+    http = session or requests
+    headers = {"User-Agent": "telosyn-notebooks/1.0"}
+    try:
+        head = http.head(url, timeout=120, headers=headers, allow_redirects=True)
+    except requests.RequestException as exc:
+        raise UpstreamError(f"EPA request failed: {redact(exc)}") from exc
+    reject_bot_challenge(head, source="the EPA", endpoint=url)
+    if not _EPA_DOC.match(str(getattr(head, "url", url))):
+        raise ResponseShapeError(f"EPA's reply to the size request came from {head.url!r} after a redirect; only www.epa.gov documents are accepted.")
+    if head.status_code != 200:
+        raise UpstreamError(f"EPA returned HTTP {head.status_code} for {url}.")
+    reported = head.headers.get("content-length")
+    if reported is None or not str(reported).isdigit():
+        raise ResponseShapeError("EPA's reply carried no usable content-length; the size cannot be checked before download.")
+    if int(reported) != expected_bytes:
+        raise SizeMismatchError(f"EPA reports {int(reported)} bytes for {url}; the approved size is {expected_bytes}. Nothing was downloaded.")
+    target = directory / url.rsplit("/", 1)[-1]
+    cached = target.read_bytes() if target.is_file() and target.stat().st_size == expected_bytes else b""
+    if cached[:4] == b"%PDF" and (expected_sha256 is None or hashlib.sha256(cached).hexdigest() == expected_sha256):
+        body = cached
+        ledger_flag(cache_hit=True)
+    else:
+        try:
+            resp = http.get(url, timeout=600, headers=headers, stream=True)
+        except requests.RequestException as exc:
+            raise UpstreamError(f"EPA request failed: {redact(exc)}") from exc
+        reject_bot_challenge(resp, source="the EPA", endpoint=url)
+        if not _EPA_DOC.match(str(getattr(resp, "url", url))):
+            raise ResponseShapeError(f"EPA's body came from {resp.url!r} after a redirect; only www.epa.gov documents are accepted.")
+        if resp.status_code != 200:
+            raise UpstreamError(f"EPA returned HTTP {resp.status_code} for {url}.")
+        received = bytearray()
+        for chunk in resp.iter_content(chunk_size=1 << 20):
+            received += chunk
+            if len(received) > expected_bytes:
+                raise SizeMismatchError(f"The body exceeds the approved size of {expected_bytes} bytes; the transfer was aborted and nothing was kept.")
+        body = bytes(received)
+        if not body:
+            raise EmptyResultError("EPA returned an empty body.")
+        if len(body) != expected_bytes:
+            raise SizeMismatchError(f"The body is {len(body)} bytes; the approved size is {expected_bytes}. Nothing was kept.")
+        if not body.startswith(b"%PDF"):
+            raise ResponseShapeError(f"The response for {url} is not a PDF.")
+        if expected_sha256 is not None and hashlib.sha256(body).hexdigest() != expected_sha256:
+            raise ChecksumError(f"The body's SHA-256 is {hashlib.sha256(body).hexdigest()}, not the expected {expected_sha256}. Nothing was kept.")
+        directory.mkdir(parents=True, exist_ok=True)
+        partial = target.with_suffix(".part")
+        partial.write_bytes(body)
+        os.replace(partial, target)
+        ledger_flag(cache_hit=False)
+    prov = DataProvenance.build(
+        source_name="U.S. Environmental Protection Agency",
+        dataset=url.rsplit("/", 1)[-1],
+        vintage=str(head.headers.get("last-modified", "Last-Modified not returned")),
+        endpoint=url,
+        variables={},
+        payload=body,
+        pinned=False,
+        row_count=0,
+        column_count=0,
+        notes=(
+            "Not pinned: the publisher can replace a file in place; the approved size is enforced and the payload hash is the vintage identifier.",
+            f"A PDF of {len(body):,} bytes, checked against the approved size before download; Last-Modified: {head.headers.get('last-modified', 'not returned')}.",
+            "Cached outside the repository and never committed; the tables extracted from it are committed with their page and table numbers.",
+        ),
+    )
+    return target, prov
 
 
 def _irs_page_notes(resp: Any) -> tuple[str, ...]:

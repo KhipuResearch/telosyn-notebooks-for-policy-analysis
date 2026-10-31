@@ -1,0 +1,7 @@
+scenario,quantity,value_musd,discount_rate,source_exhibit,pdf_page
+low,annualized_incremental_costs,1468.8,0.02,Exhibit 6-6,711
+high,annualized_incremental_costs,1953.8,0.02,Exhibit 6-6,711
+low,annualized_incremental_benefits,13493.5,0.02,Exhibit 6-6,711
+high,annualized_incremental_benefits,25142.6,0.02,Exhibit 6-6,711
+low,annual_net_benefits,12024.7,0.02,Exhibit 6-6,711
+high,annual_net_benefits,23188.8,0.02,Exhibit 6-6,711

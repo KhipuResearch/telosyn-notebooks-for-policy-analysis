@@ -1,0 +1,24 @@
+{
+  "source_name": "U.S. Environmental Protection Agency",
+  "dataset": "508_lcri_final_ea_10-21-2024.pdf",
+  "vintage": "Thu, 24 Oct 2024 18:07:44 GMT",
+  "endpoint": "https://www.epa.gov/system/files/documents/2024-10/508_lcri_final_ea_10-21-2024.pdf",
+  "variables": {},
+  "retrieved_utc": "2026-10-30T18:31:51+00:00",
+  "row_count": 0,
+  "column_count": 0,
+  "content_sha256": "057c531f5bf14910f321a653bcdf341317676325b0d3dafeef4e874054bca350",
+  "mode": "empirical",
+  "notes": [
+    "Not pinned: the publisher can replace a file in place; the approved size is enforced and the payload hash is the vintage identifier.",
+    "A PDF of 9,589,288 bytes, checked against the approved size before download; Last-Modified: Thu, 24 Oct 2024 18:07:44 GMT.",
+    "Cached outside the repository and never committed; the tables extracted from it are committed with their page and table numbers."
+  ],
+  "pinned": false,
+  "hash_basis": "response-bytes",
+  "request_params": {},
+  "request_method": "GET",
+  "pap_sha256": "91e02c694a3ba14f1e9fc184477c00384ae4a52479aceaff15d56510a6f01f74",
+  "pap_chain_sha256": "d417ca4416ffcb5f41be9b4daa3de992ab9e2d54b4497dc9dd96822da7bfe7fc",
+  "pap_amendments": []
+}

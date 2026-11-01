@@ -134,12 +134,62 @@ def test_exact_posterior_variance_obeys_the_law_of_total_variance() -> None:
     assert np.all((out.shrinkage_mean > 0) & (out.shrinkage_mean < 1))
 
 
-def test_exact_posterior_supports_a_half_cauchy_tau_and_integrates_to_one() -> None:
+def _brute_force_density_and_means(y, s, m0, s0, log_prior, upper):
+    """Unnormalised p(tau | y), its normaliser, and tau's mean by 1-D quadrature of the dense marginal: independent of the module."""
+    def dens(tau):
+        return np.exp(_log_marginal(y, s, tau, m0, s0) + log_prior(tau))
+    z = integrate.quad(dens, 0, upper, limit=800, points=[upper / 1000, upper / 100, upper / 10])[0]
+    tau_mean = integrate.quad(lambda t: t * dens(t), 0, upper, limit=800, points=[upper / 1000, upper / 100, upper / 10])[0] / z
+    return dens, z, tau_mean
+
+
+def test_exact_posterior_half_cauchy_matches_quadrature_of_the_dense_model() -> None:
+    rng = np.random.default_rng(12)
+    s = rng.uniform(0.01, 0.05, 6)
+    y = 0.14 + rng.normal(0, 0.035, 6) + rng.normal(0, s)
+    out = pooling.exact_posterior(y, s, mu_prior=(0.15, 0.10), tau_prior=("halfcauchy", 0.05))
+    dens, z, tau_mean = _brute_force_density_and_means(y, s, 0.15, 0.10, lambda t: stats.halfcauchy.logpdf(t, scale=0.05), 4.0)
+    assert out.tau_mean == pytest.approx(tau_mean, abs=2e-5)
+    # the returned density is the normalised one: compare at several grid points with the quadrature density over its normaliser
+    for k in (len(out.tau_grid) // 50, len(out.tau_grid) // 10, len(out.tau_grid) // 3):
+        assert out.tau_density[k] == pytest.approx(dens(out.tau_grid[k]) / z, rel=2e-3)
+    for i in range(len(y)):
+        num = integrate.quad(lambda t: pooling.conditional_posterior(y, s, t, 0.15, 0.10)[0][i] * dens(t), 0, 4.0, limit=800,
+                             points=[0.004, 0.04, 0.4])[0] / z
+        assert out.theta_mean[i] == pytest.approx(num, abs=2e-5)
+
+
+def test_exact_posterior_is_accurate_when_the_data_imply_a_tau_near_zero() -> None:
+    """Units that agree to within their own noise: the posterior of tau piles up near zero, where a coarse uniform grid is badly wrong."""
+    s = np.array([0.02, 0.03, 0.025, 0.02, 0.03, 0.022, 0.028, 0.026])
+    y = 0.15 + np.array([0.004, -0.003, 0.002, -0.001, 0.003, -0.004, 0.001, 0.0])
+    out = pooling.exact_posterior(y, s, mu_prior=(0.15, 0.10), tau_prior=("halfnormal", 0.05))
+    dens, z, tau_mean = _brute_force_density_and_means(y, s, 0.15, 0.10, lambda t: stats.halfnorm.logpdf(t, scale=0.05), 0.6)
+    assert out.tau_mean == pytest.approx(tau_mean, rel=2e-3)
+    for i in range(len(y)):
+        num = integrate.quad(lambda t: pooling.conditional_posterior(y, s, t, 0.15, 0.10)[0][i] * dens(t), 0, 0.6, limit=800,
+                             points=[0.001, 0.01, 0.1])[0] / z
+        assert out.theta_mean[i] == pytest.approx(num, abs=2e-5)
+
+
+@pytest.mark.parametrize("scale", [0.005, 0.001])
+def test_exact_posterior_is_accurate_when_the_prior_on_tau_is_tight_and_the_standard_errors_are_large(scale: float) -> None:
+    """The case a uniform grid got wrong by 1 percent (scale 0.005) and 35 percent (scale 0.001): a posterior of tau far narrower than the grid step."""
+    s = np.array([0.5, 0.6, 0.55, 0.5, 0.45])
+    y = np.array([0.15, 0.16, 0.14, 0.15, 0.155])
+    out = pooling.exact_posterior(y, s, mu_prior=(0.15, 0.10), tau_prior=("halfnormal", scale))
+    dens, z, tau_mean = _brute_force_density_and_means(y, s, 0.15, 0.10, lambda t: stats.halfnorm.logpdf(t, scale=scale), 6.0)
+    assert out.tau_mean == pytest.approx(tau_mean, rel=1e-3)
+
+
+def test_the_posterior_density_integrates_to_one_on_its_grid_and_is_not_just_a_rescaling() -> None:
     y = np.array([0.10, 0.18, 0.14, 0.22])
     s = np.array([0.02, 0.03, 0.02, 0.04])
-    out = pooling.exact_posterior(y, s, mu_prior=(0.15, 0.10), tau_prior=("halfcauchy", 0.05))
-    assert np.trapezoid(out.tau_density, out.tau_grid) == pytest.approx(1.0, abs=1e-6)
-    assert out.tau_mean > 0
+    out = pooling.exact_posterior(y, s, mu_prior=(0.15, 0.10), tau_prior=("halfnormal", 0.05))
+    assert np.trapezoid(out.tau_density, out.tau_grid) == pytest.approx(1.0, abs=1e-9)
+    # a different prior scale must change the density: a function that returned a fixed shape would fail this
+    wide = pooling.exact_posterior(y, s, mu_prior=(0.15, 0.10), tau_prior=("halfnormal", 0.5))
+    assert wide.tau_mean > out.tau_mean
 
 
 def test_exact_posterior_rejects_bad_input() -> None:

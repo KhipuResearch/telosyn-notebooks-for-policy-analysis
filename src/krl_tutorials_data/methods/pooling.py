@@ -120,7 +120,7 @@ def exact_posterior(
     """Exact posterior of the normal-normal hierarchy by integrating ``tau`` on a grid; no sampling.
 
     ``mu_prior`` is ``(mean, sd)``; ``tau_prior`` is ``("halfnormal" | "halfcauchy", scale)``. The grid runs from near
-    zero to a bound where the posterior of ``tau`` is negligible (a multiple of the larger of the prior scale and the
+    zero to a bound where the posterior of ``tau`` is negligible, with cubic spacing so the region near zero is finely resolved (a multiple of the larger of the prior scale and the
     spread of ``y``). Raises ``ValueError`` for unequal lengths, a non-positive standard error or an unknown prior.
     """
     m0, s0 = mu_prior
@@ -129,7 +129,8 @@ def exact_posterior(
     _log_prior_tau(np.array([1.0]), (kind, scale))  # validates the prior name and scale before any work
     reach = max(scale, float(np.std(ya)), float(sa.max()))
     upper = (40.0 if kind == "halfcauchy" else 12.0) * reach
-    tau = np.linspace(upper * 1e-6, upper, n_grid)
+    # Cubic spacing: dense near zero, where the posterior of tau piles up when the prior scale is small or the data show no spread.
+    tau = np.maximum(upper * np.linspace(0.0, 1.0, n_grid) ** 3, upper * 1e-12)
     n = len(ya)
     log_post = np.empty_like(tau)
     means = np.empty((len(tau), n))

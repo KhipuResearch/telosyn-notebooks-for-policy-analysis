@@ -76,9 +76,10 @@ connectors = [
 pymc = [
     "pymc>=6.3.2; python_version >= '3.12'",
 ]
-# Optional packages that a single notebook of the expansion needs (DECISIONS/0009
-# section 3.6): pymc, econml, mesa, policyengine-us. Declared EMPTY on purpose.
-# A package is added here only with its notebook, after its existence on PyPI is
+# Packages that a single notebook of the expansion needs (DECISIONS/0009 section
+# 3.6): pymc, econml, mesa, policyengine-us. This shared extra is declared EMPTY on
+# purpose: each such package rides in its own extra (pymc has one, see
+# DECISIONS/0012), added only with its notebook, after its existence on PyPI is
 # verified at that time, with a pinned lower bound, a cost-benefit paragraph in the
 # ADR, and an import that tests/test_src_imports_declared.py can see. Nothing is
 # declared that is not imported.

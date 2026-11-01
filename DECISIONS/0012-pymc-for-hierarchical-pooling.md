@@ -6,7 +6,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 # ADR 0012 — `pymc` for hierarchical pooling, in its own optional extra
 
-- **Status:** Accepted
+- **Status:** Proposed (until the card is merged)
 - **Deciders:** Telosyn, Inc. (owner)
 - **Date:** 2026-10-30
 - **Amends:** ADR 0009 section 3.6 (dependency policy)
@@ -63,7 +63,7 @@ further 13 s. CI, one run each on `main` at `4a8789d` and on the card branch at 
 | test, wall | 126 s | 144 s | +18 s |
 | Sum of job times (Lane 1 static 100 s, test 3.11 95 s, test 3.12 121 s before; 121 s, 85 s and 140 s after) | 316 s | 346 s | +30 s |
 
-Both are well inside the 5-minute limit. Runs on `main` in the same session varied from 90 s to 126 s for the same workflow, so a single pair of runs
+Both are well inside the 5-minute limit. Runs on `main` on the same day varied from 90 s to 126 s for the same workflow, so a single pair of runs
 cannot resolve changes of about half a minute; the conclusion is only that the increase is far below 5 minutes. On 3.11 the extra installs nothing, so
 the increase comes from the 3.12 job and the static lane. The notebook is not executed in CI, so its own run time (about six minutes for six fits of
 4 chains by 10,000 draws) is not in these numbers.

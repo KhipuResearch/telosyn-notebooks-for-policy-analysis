@@ -11,7 +11,6 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import pytest
-import statsmodels.api as sm
 
 from krl_tutorials_data.methods import cate
 
@@ -86,6 +85,7 @@ def test_calibration_recovers_exact_coefficients_when_the_outcome_is_built_from_
 
 
 def test_calibration_matches_statsmodels_weighted_least_squares_with_clustered_errors() -> None:
+    sm = pytest.importorskip("statsmodels.api")        # statsmodels is not in the `test` extra; the cross-check runs where it is installed
     tau, t_res, w, cl = _design()
     rng = np.random.default_rng(11)
     wbar = np.average(tau, weights=w)
@@ -100,13 +100,20 @@ def test_calibration_matches_statsmodels_weighted_least_squares_with_clustered_e
     assert r.n_units == len(tau) and r.n_clusters == 12
 
 
-def test_calibration_point_estimates_do_not_change_when_a_row_is_repeated_as_a_weight() -> None:
+def test_calibration_point_estimates_treat_a_duplicated_row_as_a_doubled_weight() -> None:
     tau, t_res, w, cl = _design(n=24, groups=6)
     rng = np.random.default_rng(5)
     y = rng.normal(size=len(tau))
-    a = cate.blp_calibration(y, t_res, tau, weights=np.full(len(tau), 2.0), clusters=cl)
-    b = cate.blp_calibration(y, t_res, tau, weights=np.full(len(tau), 1.0), clusters=cl)
-    np.testing.assert_allclose(a.coef, b.coef, rtol=1e-12)
+    k = 7
+    doubled = w.copy()
+    doubled[k] *= 2.0
+    single = cate.blp_calibration(y, t_res, tau, weights=doubled, clusters=cl)
+    dup = lambda a: np.append(a, a[k])                  # the same row appearing twice, in the same cluster
+    twice = cate.blp_calibration(dup(y), dup(t_res), dup(tau), weights=dup(w), clusters=dup(cl))
+    np.testing.assert_allclose(single.coef, twice.coef, rtol=1e-10)
+    # and scaling every weight by a constant changes nothing in the point estimates
+    scaled = cate.blp_calibration(y, t_res, tau, weights=3.0 * w, clusters=cl)
+    np.testing.assert_allclose(scaled.coef, cate.blp_calibration(y, t_res, tau, weights=w, clusters=cl).coef, rtol=1e-12)
 
 
 def test_calibration_rejects_bad_input() -> None:

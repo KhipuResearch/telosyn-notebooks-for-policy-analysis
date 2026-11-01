@@ -18,7 +18,7 @@ jupyter lab projects/11-distribution-heterogeneity/
 | Notebook | Thesis | Sources |
 |---|---|---|
 | [Subgroup Effects and Multiple Comparisons](Q01_subgroup_effects_multiplicity/Q01_subgroup_effects_multiplicity.ipynb) | C01's Design Run Seven Times | American Community Survey (acs/acs1), KFF Medicaid expansion status |
-| [Heterogeneous Effects with a Causal Forest on Weighted Cells](Q02_heterogeneous_effects_causal_forest/Q02_heterogeneous_effects_causal_forest.ipynb) | Public Coverage and Employment | American Community Survey Public Use Microdata Sample (acs/acs1/pums) |
+| [How an Adjusted Association Varies: a Causal Forest on Weighted Cells](Q02_heterogeneous_effects_causal_forest/Q02_heterogeneous_effects_causal_forest.ipynb) | Public Coverage and Employment | American Community Survey Public Use Microdata Sample (acs/acs1/pums) |
 
 ## Subgroup Effects and Multiple Comparisons
 
@@ -42,7 +42,7 @@ jupyter lab projects/11-distribution-heterogeneity/
 - C01's estimate is borderline, and every subgroup inherits that. The reference interval's upper end is a hair from zero and its verdict moves with the number of bootstrap draws (printed in the notebook from C01's stored output). A subgroup result can be no firmer than the average it splits.
 - Power. The notebook prints each subgroup's minimum detectable effect and its power to detect an effect as large as C01's, for an uncorrected two-sided 5% test and for the first step of Holm's procedure, which is the threshold the smallest p-value must clear and is where the survivor's power is read. Where the power is low, a subgroup that does not clear the bar says the test could not tell; it does not say the effect is absent.
 
-## Heterogeneous Effects with a Causal Forest on Weighted Cells
+## How an Adjusted Association Varies: a Causal Forest on Weighted Cells
 
 **Public Coverage and Employment.**
 
@@ -60,9 +60,9 @@ jupyter lab projects/11-distribution-heterogeneity/
 
 **Limitations**
 
-- The unit is a cell and an arm, not a person. The forest's honest splitting, subsampling and bootstrap of little bags run over covariate-cell and arm rows, which hold from a handful to thousands of records. Its intervals describe stability to resampling cells; they are not person-level intervals, and nothing here estimates an effect for an individual.
-- C05's identification is inherited, with its failed negative control. Within a covariate cell, public coverage is assumed unrelated to employment potential; C05's negative control rejected that, and this notebook's own negative control is printed above. Unless it passes, the results describe how an adjusted association varies.
-- Inference ignores the survey design. The client returns no replicate weights; the records are treated as the sample.
+- The unit is a cell and an arm, not a person. The forest's honest splitting, subsampling and bootstrap of little bags run over covariate-cell and arm rows, which hold from a handful to thousands of records (the minimum, median and maximum are printed above). Those rows are the full set of cells and arms, not a sample of them, so the forest's intervals describe its own variability over those units; they are not person-level intervals, and nothing here estimates an effect for an individual.
+- C05's identification is inherited, with its failed negative control. Within a covariate cell, public coverage is assumed unrelated to employment potential; C05's negative control rejected that, and this notebook's own negative control is printed above and also fails. The results therefore describe how an adjusted association varies, which is why the title says so.
+- The headline has no interval of its own. The record-weighted mean CATE over treated records (the figure compared with C05) is a point estimate. The interval printed beside the forest's mean belongs to the equal-weight average over the treated units, a different quantity, because the library's `ate_interval` and `population_summary` take no sample weights (their signatures are printed above).
 
 ---
 

@@ -6,7 +6,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 # ADR 0011 — `econml` for heterogeneous effects, in its own optional extra
 
-- **Status:** Accepted
+- **Status:** Proposed (until the card is merged)
 - **Deciders:** Telosyn, Inc. (owner)
 - **Date:** 2026-10-30
 - **Amends:** ADR 0009 section 3.6 (dependency policy)
@@ -55,7 +55,7 @@ a further 9 s. CI, one run each on `main` at `4a8789d` and on the card branch at
 | test, wall | 126 s | 137 s | +11 s |
 | Sum of job times (Lane 1 static 100 s, test 3.11 95 s, test 3.12 121 s before; 120 s, 97 s and 133 s after) | 316 s | 350 s | +34 s |
 
-Both are well inside the 5-minute limit. Runs on `main` in the same session varied from 90 s to 126 s for the same workflow, so a single pair of runs
+Both are well inside the 5-minute limit. Runs on `main` on the same day varied from 90 s to 126 s for the same workflow, so a single pair of runs
 cannot resolve changes of about half a minute; the conclusion is only that the increase is far below 5 minutes. The notebook is not executed in CI, so
 its own run time (the fits take 6 s each, the whole notebook a few minutes) is not in these numbers.
 

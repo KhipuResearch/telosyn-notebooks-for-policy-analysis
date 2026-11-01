@@ -55,7 +55,7 @@ jobs:
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          pip install -e '.[notebooks,test]'
+          pip install -e '.[notebooks,test,pymc]'
 
       - name: All gates — compile, metadata, evidence, secrets, statistics, claims
         env:

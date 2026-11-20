@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+import requests
 
 from krl_tutorials_data import sources
 from krl_tutorials_data.sources import EmptyResultError, ResponseShapeError, UpstreamError
@@ -27,17 +28,29 @@ class _Response:
         self.history: list[Any] = []
         self.url = url
         self.chunks_read = 0
+        self.bytes_read = 0
+        self.closed = False
+        self.fail_after: int | None = None            # raise a transport error once this many chunks have been read
 
     def iter_content(self, chunk_size: int = 1 << 20):
-        for start in range(0, len(self.content), max(1, chunk_size // 1024)):    # small chunks so tests can see an early abort
+        step = max(1, chunk_size // 1024)             # small chunks so tests can see an early abort
+        for start in range(0, len(self.content), step):
+            if self.fail_after is not None and self.chunks_read >= self.fail_after:
+                raise requests.exceptions.ChunkedEncodingError("connection broken: IncompleteRead")
+            piece = self.content[start:start + step]
             self.chunks_read += 1
-            yield self.content[start:start + max(1, chunk_size // 1024)]
+            self.bytes_read += len(piece)
+            yield piece
+
+    def close(self) -> None:
+        self.closed = True
 
 
 class _Session:
     def __init__(self, head: _Response, get: _Response) -> None:
         self.head_response, self.get_response = head, get
         self.calls: list[tuple[str, str]] = []
+        self.get_kwargs: dict[str, Any] = {}
 
     def head(self, url: str, **kwargs: Any) -> _Response:
         self.calls.append(("HEAD", url))
@@ -45,6 +58,7 @@ class _Session:
 
     def get(self, url: str, **kwargs: Any) -> _Response:
         self.calls.append(("GET", url))
+        self.get_kwargs = kwargs
         return self.get_response
 
 
@@ -134,13 +148,32 @@ def test_a_redirect_to_another_host_is_refused_for_the_head_and_for_the_body(tmp
     assert list(tmp_path.iterdir()) == []
 
 
-def test_a_body_longer_than_the_approved_size_is_aborted_before_it_is_all_read(tmp_path: Path) -> None:
-    big = PDF + b"x" * 50_000
+def test_a_body_longer_than_the_approved_size_is_aborted_after_one_chunk_and_the_response_closed(tmp_path: Path) -> None:
+    big = PDF + b"x" * 5_000_000                       # far larger than the approved size: reading it all would be seen in bytes_read
     get = _Response(big)
     session = _Session(_Response(b"", 200, {"content-length": str(len(PDF))}), get)
-    with pytest.raises(sources.SizeMismatchError):
+    with pytest.raises(sources.SizeMismatchError, match="exceeds"):
         sources.fetch_epa_ria_pdf(url=URL, expected_bytes=len(PDF), cache_dir=tmp_path, session=session)
-    assert get.chunks_read < len(big) // 100 and list(tmp_path.iterdir()) == []
+    assert get.chunks_read == 1 and get.bytes_read <= 1024, "the transfer must stop at the first chunk past the approved size"
+    assert get.closed, "the response must be closed on abort"
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_the_body_is_requested_as_a_stream(tmp_path: Path) -> None:
+    session = _session()
+    sources.fetch_epa_ria_pdf(url=URL, expected_bytes=len(PDF), cache_dir=tmp_path, session=session)
+    assert session.get_kwargs.get("stream") is True
+    assert session.get_response.closed, "the response is closed when the body has been read"
+
+
+def test_an_error_raised_while_streaming_is_an_upstream_error_and_nothing_is_kept(tmp_path: Path) -> None:
+    get = _Response(PDF + b"x" * 5_000)
+    get.fail_after = 1                                  # the transfer breaks after the first chunk
+    session = _Session(_Response(b"", 200, {"content-length": str(len(PDF) + 5_000)}), get)
+    with pytest.raises(UpstreamError, match="part-way") as info:
+        sources.fetch_epa_ria_pdf(url=URL, expected_bytes=len(PDF) + 5_000, cache_dir=tmp_path, session=session)
+    assert isinstance(info.value.__cause__, requests.exceptions.ChunkedEncodingError)
+    assert get.closed and list(tmp_path.iterdir()) == []
 
 
 def test_the_expected_digest_is_checked_on_a_fresh_fetch_and_on_a_cache_hit(tmp_path: Path) -> None:

@@ -1497,10 +1497,17 @@ def fetch_epa_ria_pdf(
         if resp.status_code != 200:
             raise UpstreamError(f"EPA returned HTTP {resp.status_code} for {url}.")
         received = bytearray()
-        for chunk in resp.iter_content(chunk_size=1 << 20):
-            received += chunk
-            if len(received) > expected_bytes:
-                raise SizeMismatchError(f"The body exceeds the approved size of {expected_bytes} bytes; the transfer was aborted and nothing was kept.")
+        try:
+            for chunk in resp.iter_content(chunk_size=1 << 20):
+                received += chunk
+                if len(received) > expected_bytes:
+                    raise SizeMismatchError(f"The body exceeds the approved size of {expected_bytes} bytes; the transfer was aborted and nothing was kept.")
+        except requests.RequestException as exc:      # a dropped or garbled stream is an upstream failure, not a bare transport error
+            raise UpstreamError(f"EPA transfer failed part-way: {redact(exc)}") from exc
+        finally:
+            close = getattr(resp, "close", None)      # abort or finish, the connection is released and the rest of the body is not read
+            if callable(close):
+                close()
         body = bytes(received)
         if not body:
             raise EmptyResultError("EPA returned an empty body.")

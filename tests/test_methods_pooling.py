@@ -160,7 +160,7 @@ def test_exact_posterior_half_cauchy_matches_quadrature_of_the_dense_model() -> 
 
 
 def test_exact_posterior_is_accurate_when_the_data_imply_a_tau_near_zero() -> None:
-    """Units that agree to within their own noise: the posterior of tau piles up near zero, where a coarse uniform grid is badly wrong."""
+    """Units that agree to within their own noise: the posterior of tau piles up near zero. This checks accuracy where the grid is finest; it does not distinguish the cubic grid from the earlier uniform one, which also passes it. The tight-prior test below is the one that fails on a uniform grid."""
     s = np.array([0.02, 0.03, 0.025, 0.02, 0.03, 0.022, 0.028, 0.026])
     y = 0.15 + np.array([0.004, -0.003, 0.002, -0.001, 0.003, -0.004, 0.001, 0.0])
     out = pooling.exact_posterior(y, s, mu_prior=(0.15, 0.10), tau_prior=("halfnormal", 0.05))

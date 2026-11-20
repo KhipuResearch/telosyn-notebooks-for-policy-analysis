@@ -14,7 +14,7 @@ This repository analyses public socioeconomic data published by U.S. federal age
 
 ## Source datasets
 
-145 datasets from 9 publishers, across 930 committed provenance records.
+146 datasets from 10 publishers, across 931 committed provenance records.
 
 | Publisher | Dataset | Vintages | Records | Hash basis |
 |---|---|---|---|---|
@@ -162,6 +162,7 @@ This repository analyses public socioeconomic data published by U.S. federal age
 | U.S. Department of Agriculture, Food and Nutrition Service | snap-15th-state-options-report-october23.pdf | State Options Report, 15th edition | 1 | response-bytes |
 | U.S. Department of Agriculture, Food and Nutrition Service | snap-stateOptionsReport-17edition-120925.pdf | State Options Report, 17th edition | 1 | response-bytes |
 | U.S. Department of Agriculture, Food and Nutrition Service | snap2019reaching.pdf | fiscal year 2019 | 1 | response-bytes |
+| U.S. Environmental Protection Agency | 508_lcri_final_ea_10-21-2024.pdf | Thu, 24 Oct 2024 18:07:44 GMT | 1 | response-bytes |
 | Zillow Research | ZHVI, All Homes (SFR/Condo), smoothed & seasonally adjusted, county (2026-08 release (series through 2026-07)) | 2026-08 release (series through 2026-07) | 1 | response-bytes |
 
 ## Why `hash_basis` exists
@@ -323,6 +324,7 @@ Every record carries `content_sha256`. `scripts/verify_provenance_reproducibilit
 | FRED series WYNA | 2010-01-01 to 2019-12-01, current revision | 2026-10-23T20:56:45 | `ebfa93be0a058558` | [`c04_fred_WYNA.json`](../projects/09-causal-identification/C04_ca_minimum_wage_synth/provenance/c04_fred_WYNA.json) |
 | FRED series WYUR | 2010-01-01 to 2019-12-01, current revision | 2026-10-23T20:56:39 | `c51307c3ae1c5f55` | [`c04_fred_WYUR.json`](../projects/09-causal-identification/C04_ca_minimum_wage_synth/provenance/c04_fred_WYUR.json) |
 | State FIPS codes, names and postal abbreviations | retrieval | 2026-10-23T20:52:04 | `bea4e03f71a1fa00` | [`c04_state_codes.json`](../projects/09-causal-identification/C04_ca_minimum_wage_synth/provenance/c04_state_codes.json) |
+| 508_lcri_final_ea_10-21-2024.pdf | Thu, 24 Oct 2024 18:07:44 GMT | 2026-10-30T18:31:51 | `057c531f5bf14910` | [`e02_epa_lcri_final_ea.json`](../projects/10-economic-evaluation/E02_cost_benefit_reanalysis/provenance/e02_epa_lcri_final_ea.json) |
 | The Distribution of Household Income, 2023 - supplemental data (September 2026 report (publication 62761)) | September 2026 report (publication 62761) | 2026-10-29T03:35:34 | `e91c2e8e5012628d` | [`e03_cbo_average.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cbo_average.json) |
 | Current Population Survey Annual Social and Economic Supplement (cps/asec/mar) | 2024 | 2026-10-29T03:35:43 | `0be783d98d76c554` | [`e03_cps_asec_2024.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cps_asec_2024.json) |
 | CPS ASEC 2024 replicate-weight download: 2024_ASEC_Replicate_Weight_Usage_Instructions.docx | 2024 ASEC (income year 2023) | 2026-10-29T03:35:39 | `a842240dc56e1bf7` | [`e03_cps_download_2024_asec_replicate_weight_usage_instructions_docx.json`](../projects/10-economic-evaluation/E03_distributional_incidence/provenance/e03_cps_download_2024_asec_replicate_weight_usage_instructions_docx.json) |

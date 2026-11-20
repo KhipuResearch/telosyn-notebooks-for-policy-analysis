@@ -181,3 +181,27 @@ def test_distribution_names_map_to_import_names() -> None:
     assert module_of("scikit-learn") == "sklearn"
     assert module_of("krl-data-connectors") == "krl_data_connectors"
     assert _name("numpy>=1.26.0") == "numpy" and _name("pkg[extra]>=1; python_version>'3'") == "pkg"
+
+
+# --- DECISIONS/0011: econml, an optional extra for one notebook -------------------------------------
+def _test_imports() -> set[str]:
+    """Third-party modules imported by library tests (not notebooks)."""
+    seen: set[str] = set()
+    for path in sorted((REPO / "tests").rglob("test_*.py")):
+        if path.name == Path(__file__).name:
+            continue
+        seen |= set(third_party_imports(path.read_text(encoding="utf-8")))
+    return seen
+
+
+def test_econml_is_its_own_optional_extra_with_a_lower_bound_and_is_never_core() -> None:
+    """The dependency policy for causal forests: its own extra, bounded, imported by the Q02 notebook alone."""
+    extras = _pyproject()["project"]["optional-dependencies"]
+    assert [r for r in extras["econml"] if _name(r) == "econml"] and all(">=" in r for r in extras["econml"])
+    for place in ("notebooks", "methods", "test", "dev", "connectors"):
+        assert "econml" not in {_name(r) for r in extras[place]}, f"econml must not ride in the {place} extra"
+    runtime = {module_of(_name(r)) for r in _pyproject()["project"]["dependencies"]}
+    assert "econml" not in runtime
+    assert "econml" not in _src_imports(), "the package must not import econml"
+    assert "econml" not in _test_imports(), "no library test may require econml"
+    assert "econml" in _test_and_notebook_imports(), "a declared extra must be imported by the notebook that needs it"

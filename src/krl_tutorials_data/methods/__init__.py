@@ -14,4 +14,4 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 """
 from __future__ import annotations
 
-__all__ = ["cea", "did", "discount", "iv", "matching", "meta", "rdd", "resample", "synth"]
+__all__ = ["cate", "cea", "did", "discount", "iv", "matching", "meta", "rdd", "resample", "synth"]
